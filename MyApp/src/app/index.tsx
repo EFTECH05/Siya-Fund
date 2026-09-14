@@ -1,9 +1,21 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>SIYA-FUND TEST SCREEN</Text>
+      <Image
+        source={require('../../assets/images/siya3.png')}
+        style={styles.topImage}
+        resizeMode="contain"
+      />
+
+      <View style={styles.spacing} />
+
+      <Image
+        source={require('../../assets/images/siya-logo.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
     </View>
   );
 }
@@ -11,15 +23,22 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'red',
-    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
+    justifyContent: 'center',
   },
 
-  text: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
+  topImage: {
+    width: '90%',
+    height: 280,
+  },
+
+  spacing: {
+    height: 15,
+  },
+
+  logo: {
+    width: 220,
+    height: 220,
   },
 });
