@@ -48,7 +48,7 @@ Siya-Fund/
 ├── README.md
 └── .gitignore
 
-
+group side 
 
 Siya-Fund/
 │
@@ -135,3 +135,32 @@ Siya-Fund/
 │
 ├── README.md                                 ← 👤 Person 5
 └── .gitignore                                ← 👥 Shared
+
+ design side : 
+Siya-Fund/
+│
+├── app/
+│   ├── _layout.jsx
+│   └── index.jsx
+│
+├── components/
+│   ├── Header.jsx
+│   ├── Logo.jsx
+│   ├── TopImage.jsx
+│   ├── Button.jsx
+│   └── ...
+│
+├── styles/
+│   ├── colors.js
+│   ├── typography.js
+│   └── globalStyles.js
+│
+├── assets/
+│   └── images/
+│       ├── siya3.png
+│       └── siya-logo.png
+│
+├── controllers/
+├── models/
+├── services/
+└── utils/
