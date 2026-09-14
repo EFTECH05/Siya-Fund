@@ -1,35 +1,28 @@
-
 {
   "expo": {
     "name": "Siya-Fund",
     "slug": "siya-fund",
     "version": "1.0.0",
     "orientation": "portrait",
-
     "icon": "./assets/images/siya-logo.png",
-
     "scheme": "siya-fund",
-
     "userInterfaceStyle": "light",
-
     "ios": {
       "supportsTablet": true,
       "icon": "./assets/images/siya-logo.png"
     },
-
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/siya-logo.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.siyafund"
     },
-
     "web": {
       "output": "static",
       "favicon": "./assets/images/siya-logo.png"
     },
-
     "plugins": [
       "expo-router",
       [
@@ -41,11 +34,9 @@
         }
       ]
     ],
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     }
   }
 }
-

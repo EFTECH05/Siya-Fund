@@ -1,41 +1,25 @@
-import { StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import TopImage from '@/components/TopImage';
-import Logo from '@/components/Logo';
+import { View, Text, StyleSheet } from 'react-native';
 
 export default function HomeScreen() {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-
-        {/* Top image */}
-        <TopImage />
-
-        {/* Small space */}
-        <View style={styles.spacing} />
-
-        {/* Siya-Fund logo */}
-        <Logo />
-
-      </View>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <Text style={styles.text}>SIYA-FUND TEST SCREEN</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'red',
+    justifyContent: 'center',
     alignItems: 'center',
   },
 
-  spacing: {
-    height: 20,
+  text: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
   },
 });
