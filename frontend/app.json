@@ -9,7 +9,8 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "icon": "./assets/images/siya-logo.png"
+      "icon": "./assets/images/siya-logo.png",
+      "bundleIdentifier": "com.anonymous.siyafund"
     },
     "android": {
       "adaptiveIcon": {
