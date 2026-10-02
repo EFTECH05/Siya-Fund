@@ -33,7 +33,9 @@
           "image": "./assets/images/siya-logo.png",
           "imageWidth": 180
         }
-      ]
+      ],
+      "expo-image",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

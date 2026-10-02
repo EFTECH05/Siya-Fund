@@ -14,9 +14,17 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
    ```bash
    npx expo start
-   android 
+   android
    npx expo run:android
    ```
+
+   web
+   cd frontend
+   npx expo start --web
+   You should see something similar to:
+
+Web Bundled
+Web: http://localhost:8081
 
 In the output, you'll find options to open the app in a
 
