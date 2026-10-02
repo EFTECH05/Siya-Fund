@@ -1,10 +1,14 @@
-// React is required for useState
+// ==========================================
+// IMPORTS
+// ==========================================
+
 import React, { useState } from "react";
 
-// React Native components used for the Registration form
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -13,80 +17,234 @@ import {
   View,
 } from "react-native";
 
-// Expo Router is used for navigation
 import { router } from "expo-router";
 
-// Import the Registration screen styles
+import { registerUser } from "../../services/AuthService";
+
 import { styles } from "./RegisterScreen.styles";
+
+// ==========================================
+// REGISTER SCREEN
+// ==========================================
 
 export default function RegisterScreen() {
   // ==========================================
   // FORM STATE
   // ==========================================
 
-  // Store the user's first name
   const [firstName, setFirstName] = useState("");
-
-  // Store the user's last name
   const [lastName, setLastName] = useState("");
-
-  // Store the user's email
   const [email, setEmail] = useState("");
-
-  // Store the user's phone number
   const [phone, setPhone] = useState("");
-
-  // Store the user's password
   const [password, setPassword] = useState("");
-
-  // Store the password confirmation
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // ==========================================
-  // REGISTER
+  // LOADING STATE
   // ==========================================
 
-  const handleRegister = () => {
-    // Registration functionality will be
-    // connected to Firebase/backend later.
-    console.log("First Name:", firstName);
-    console.log("Last Name:", lastName);
-    console.log("Email:", email);
-    console.log("Phone:", phone);
-    console.log("Password:", password);
-    console.log("Confirm Password:", confirmPassword);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // ==========================================
+  // ERROR MODAL STATE
+  // ==========================================
+
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorTitle, setErrorTitle] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // ==========================================
+  // SHOW ERROR MODAL
+  // ==========================================
+
+  const showError = (title: string, message: string) => {
+    setErrorTitle(title);
+    setErrorMessage(message);
+    setShowErrorModal(true);
   };
 
   // ==========================================
-  // LOGIN
+  // REGISTER USER
   // ==========================================
 
-  const handleLogin = () => {
-    // Navigate back to the Login screen
+  const handleRegister = async () => {
+    // Remove unnecessary spaces
+    const cleanFirstName = firstName.trim();
+    const cleanLastName = lastName.trim();
+    const cleanEmail = email.trim();
+    const cleanPhone = phone.trim();
+
+    // ==========================================
+    // VALIDATION
+    // ==========================================
+
+    if (
+      !cleanFirstName ||
+      !cleanLastName ||
+      !cleanEmail ||
+      !cleanPhone ||
+      !password ||
+      !confirmPassword
+    ) {
+      showError(
+        "Missing Information",
+        "Please complete all the required fields before creating your account.",
+      );
+
+      return;
+    }
+
+    // ==========================================
+    // EMAIL VALIDATION
+    // ==========================================
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(cleanEmail)) {
+      showError("Invalid Email", "Please enter a valid email address.");
+
+      return;
+    }
+
+    // ==========================================
+    // PASSWORD VALIDATION
+    // ==========================================
+
+    if (password.length < 6) {
+      showError(
+        "Password Too Short",
+        "Your password must contain at least 6 characters.",
+      );
+
+      return;
+    }
+
+    // ==========================================
+    // CONFIRM PASSWORD
+    // ==========================================
+
+    if (password !== confirmPassword) {
+      showError(
+        "Passwords Do Not Match",
+        "Please make sure both password fields contain the same password.",
+      );
+
+      return;
+    }
+
+    // ==========================================
+    // FIREBASE REGISTRATION
+    // ==========================================
+
+    try {
+      setIsLoading(true);
+
+      const user = await registerUser(
+        cleanFirstName,
+        cleanLastName,
+        cleanEmail,
+        password,
+      );
+
+      // ==========================================
+      // DEBUG INFORMATION
+      // ==========================================
+
+      console.log("Registration successful!");
+      console.log("Firebase UID:", user.uid);
+      console.log("Email:", user.email);
+      console.log("Display Name:", user.displayName);
+      console.log("Phone:", cleanPhone);
+
+      // ==========================================
+      // GO TO EMAIL VERIFICATION SCREEN
+      // ==========================================
+
+      router.replace("/verify-email");
+    } catch (error: any) {
+      console.error("Registration error:", error);
+
+      // ==========================================
+      // FIREBASE ERROR HANDLING
+      // ==========================================
+
+      if (error?.code === "auth/email-already-in-use") {
+        setErrorTitle("Email Already Registered");
+
+        setErrorMessage(
+          "An account already exists with this email address. Please log in instead.",
+        );
+
+        setShowErrorModal(true);
+      } else if (error?.code === "auth/invalid-email") {
+        showError("Invalid Email", "Please enter a valid email address.");
+      } else if (error?.code === "auth/weak-password") {
+        showError(
+          "Weak Password",
+          "Your password is too weak. Please use at least 6 characters.",
+        );
+      } else if (error?.code === "auth/network-request-failed") {
+        showError(
+          "Network Error",
+          "Please check your internet connection and try again.",
+        );
+      } else if (error?.code === "auth/operation-not-allowed") {
+        showError(
+          "Registration Unavailable",
+          "Email and password registration is currently unavailable.",
+        );
+      } else {
+        showError(
+          "Registration Failed",
+          "Something went wrong while creating your account. Please try again.",
+        );
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ==========================================
+  // LOGIN BUTTON FROM ERROR MODAL
+  // ==========================================
+
+  const handleLoginFromModal = () => {
+    setShowErrorModal(false);
+
     router.push("/login");
   };
 
+  // ==========================================
+  // BACK TO LOGIN
+  // ==========================================
+
+  const handleBackToLogin = () => {
+    if (isLoading) {
+      return;
+    }
+
+    router.push("/login");
+  };
+
+  // ==========================================
+  // SCREEN
+  // ==========================================
+
   return (
-    // Keeps the form visible when the keyboard
-    // appears on mobile devices
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      {/* Allows the registration form to scroll
-          on smaller mobile screens and web */}
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* ========================================
-            REGISTRATION CARD
-        ========================================= */}
         <View style={styles.card}>
           {/* ======================================
               LOGO
-          ======================================= */}
+          ====================================== */}
+
           <View style={styles.logoContainer}>
             <Image
               source={require("../../../assets/images/siya-logo.png")}
@@ -97,18 +255,23 @@ export default function RegisterScreen() {
 
           {/* ======================================
               TITLE
-          ======================================= */}
+          ====================================== */}
+
           <Text style={styles.title}>Create Account</Text>
 
-          {/* Description */}
+          {/* ======================================
+              DESCRIPTION
+          ====================================== */}
+
           <Text style={styles.description}>
-            Create your Siya-Fund account and start saving, borrowing, and
+            Join Siya-Fund and start saving together, borrowing smarter, and
             growing together.
           </Text>
 
           {/* ======================================
               FIRST NAME
-          ======================================= */}
+          ====================================== */}
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>First Name</Text>
 
@@ -120,12 +283,14 @@ export default function RegisterScreen() {
               onChangeText={setFirstName}
               autoCapitalize="words"
               autoCorrect={false}
+              editable={!isLoading}
             />
           </View>
 
           {/* ======================================
               LAST NAME
-          ======================================= */}
+          ====================================== */}
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Last Name</Text>
 
@@ -137,12 +302,14 @@ export default function RegisterScreen() {
               onChangeText={setLastName}
               autoCapitalize="words"
               autoCorrect={false}
+              editable={!isLoading}
             />
           </View>
 
           {/* ======================================
               EMAIL
-          ======================================= */}
+          ====================================== */}
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email Address</Text>
 
@@ -155,12 +322,14 @@ export default function RegisterScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              editable={!isLoading}
             />
           </View>
 
           {/* ======================================
-              PHONE NUMBER
-          ======================================= */}
+              PHONE
+          ====================================== */}
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Phone Number</Text>
 
@@ -171,12 +340,14 @@ export default function RegisterScreen() {
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
+              editable={!isLoading}
             />
           </View>
 
           {/* ======================================
               PASSWORD
-          ======================================= */}
+          ====================================== */}
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Password</Text>
 
@@ -189,12 +360,14 @@ export default function RegisterScreen() {
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
+              editable={!isLoading}
             />
           </View>
 
           {/* ======================================
               CONFIRM PASSWORD
-          ======================================= */}
+          ====================================== */}
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Confirm Password</Text>
 
@@ -207,34 +380,120 @@ export default function RegisterScreen() {
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
+              editable={!isLoading}
             />
           </View>
 
           {/* ======================================
-              CREATE ACCOUNT BUTTON
-          ======================================= */}
+              REGISTER BUTTON
+          ====================================== */}
+
           <Pressable
             style={({ pressed }) => [
               styles.registerButton,
               pressed && styles.buttonPressed,
+              isLoading && styles.buttonDisabled,
             ]}
             onPress={handleRegister}
+            disabled={isLoading}
           >
-            <Text style={styles.registerButtonText}>CREATE ACCOUNT</Text>
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.registerButtonText}>CREATE ACCOUNT</Text>
+            )}
           </Pressable>
 
           {/* ======================================
               LOGIN LINK
-          ======================================= */}
+          ====================================== */}
+
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account?</Text>
 
-            <Pressable onPress={handleLogin}>
+            <Pressable onPress={handleBackToLogin} disabled={isLoading}>
               <Text style={styles.loginLink}>Login</Text>
             </Pressable>
           </View>
+
+          {/* ======================================
+              FOOTER
+          ====================================== */}
+
+          <Text style={styles.footerText}>
+            Save Together • Borrow Smarter • Grow Together
+          </Text>
         </View>
       </ScrollView>
+
+      {/* ==========================================
+          ERROR MODAL
+      ========================================== */}
+
+      <Modal
+        visible={showErrorModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowErrorModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.errorModal}>
+            {/* ======================================
+                ERROR ICON
+            ====================================== */}
+
+            <View style={styles.errorIconContainer}>
+              <Text style={styles.errorIcon}>!</Text>
+            </View>
+
+            {/* ======================================
+                TITLE
+            ====================================== */}
+
+            <Text style={styles.errorModalTitle}>{errorTitle}</Text>
+
+            {/* ======================================
+                MESSAGE
+            ====================================== */}
+
+            <Text style={styles.errorModalMessage}>{errorMessage}</Text>
+
+            {/* ======================================
+                BUTTONS
+            ====================================== */}
+
+            <View style={styles.modalButtonContainer}>
+              {/* LOGIN NOW BUTTON */}
+
+              {errorTitle === "Email Already Registered" && (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.modalPrimaryButton,
+                    pressed && styles.modalButtonPressed,
+                  ]}
+                  onPress={handleLoginFromModal}
+                >
+                  <Text style={styles.modalPrimaryButtonText}>LOGIN NOW</Text>
+                </Pressable>
+              )}
+
+              {/* CANCEL / OK BUTTON */}
+
+              <Pressable
+                style={({ pressed }) => [
+                  styles.modalSecondaryButton,
+                  pressed && styles.modalButtonPressed,
+                ]}
+                onPress={() => setShowErrorModal(false)}
+              >
+                <Text style={styles.modalSecondaryButtonText}>
+                  {errorTitle === "Email Already Registered" ? "CANCEL" : "OK"}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
