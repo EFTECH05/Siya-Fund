@@ -1,41 +1,136 @@
 // React is required for useState
 import React, { useState } from "react";
 
-// React Native components used for the Login form
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+// React Native Alert is used to show messages to the user
+import { Alert } from "react-native";
 
 // Expo Router is used for navigation
 import { router } from "expo-router";
 
-// Login screen
-export default function LoginScreen() {
+// Import the Login screen UI
+import ActualLoginScreen from "../views/screens/ActualLoginScreen";
+
+// Import Firebase Authentication service
+import { loginUser } from "../services/AuthService";
+
+// Login route
+export default function LoginRoute() {
   // ==========================================
-  // FORM STATE
+  // LOADING STATE
   // ==========================================
 
-  // Store the user's email
-  const [email, setEmail] = useState("");
-
-  // Store the user's password
-  const [password, setPassword] = useState("");
+  // Tracks whether Firebase is currently logging in
+  const [isLoading, setIsLoading] = useState(false);
 
   // ==========================================
   // LOGIN
   // ==========================================
 
-  const handleLogin = () => {
-    // Authentication will be connected later
-    console.log("Email:", email);
-    console.log("Password:", password);
+  const handleLogin = async (email: string, password: string) => {
+    // Remove unnecessary spaces from the email
+    const cleanEmail = email.trim();
+
+    // ==========================================
+    // BASIC VALIDATION
+    // ==========================================
+
+    // Check if email is empty
+    if (!cleanEmail) {
+      Alert.alert("Email Required", "Please enter your email address.");
+
+      return;
+    }
+
+    // Check if password is empty
+    if (!password) {
+      Alert.alert("Password Required", "Please enter your password.");
+
+      return;
+    }
+
+    try {
+      // Start loading
+      setIsLoading(true);
+
+      // ==========================================
+      // FIREBASE LOGIN
+      // ==========================================
+
+      // Send the login details to Firebase
+      await loginUser(cleanEmail, password);
+
+      // ==========================================
+      // LOGIN SUCCESS
+      // ==========================================
+
+      Alert.alert("Login Successful", "Welcome back to Siya-Fund!");
+
+      // Navigate to the Dashboard
+      router.replace("/dashboard");
+    } catch (error: any) {
+      // ==========================================
+      // DEFAULT ERROR
+      // ==========================================
+
+      let message = "Something went wrong. Please try again.";
+
+      // ==========================================
+      // INVALID CREDENTIALS
+      // ==========================================
+
+      if (
+        error?.code === "auth/invalid-credential" ||
+        error?.code === "auth/invalid-login-credentials"
+      ) {
+        message =
+          "The email or password is incorrect. Please check your details and try again.";
+      }
+
+      // ==========================================
+      // USER NOT FOUND
+      // ==========================================
+      else if (error?.code === "auth/user-not-found") {
+        message = "No account was found with this email address.";
+      }
+
+      // ==========================================
+      // WRONG PASSWORD
+      // ==========================================
+      else if (error?.code === "auth/wrong-password") {
+        message = "The password you entered is incorrect.";
+      }
+
+      // ==========================================
+      // INVALID EMAIL
+      // ==========================================
+      else if (error?.code === "auth/invalid-email") {
+        message = "Please enter a valid email address.";
+      }
+
+      // ==========================================
+      // TOO MANY REQUESTS
+      // ==========================================
+      else if (error?.code === "auth/too-many-requests") {
+        message =
+          "Too many login attempts. Please wait a moment and try again.";
+      }
+
+      // ==========================================
+      // NETWORK ERROR
+      // ==========================================
+      else if (error?.code === "auth/network-request-failed") {
+        message = "Please check your internet connection and try again.";
+      }
+
+      // ==========================================
+      // SHOW ERROR
+      // ==========================================
+
+      Alert.alert("Login Failed", message);
+    } finally {
+      // Stop loading
+      setIsLoading(false);
+    }
   };
 
   // ==========================================
@@ -43,297 +138,19 @@ export default function LoginScreen() {
   // ==========================================
 
   const handleForgotPassword = () => {
-    // Forgot password functionality will be
-    // connected later
-    console.log("Forgot password");
+    // Firebase password reset will be connected next
+    Alert.alert("Forgot Password", "Password reset will be available soon.");
   };
 
   // ==========================================
-  // SIGN UP
+  // DISPLAY LOGIN SCREEN
   // ==========================================
-
-  const handleSignUp = () => {
-    // Navigate to the registration screen
-    router.push("/register");
-  };
 
   return (
-    // Keeps the form visible when the keyboard
-    // appears on mobile
-    <KeyboardAvoidingView
-      style={{
-        flex: 1,
-        backgroundColor: "#F4F8F5",
-      }}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      {/* Allows the page to scroll on smaller
-          mobile screens and desktop browsers */}
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          paddingHorizontal: 20,
-          paddingVertical: 35,
-        }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* ========================================
-            LOGIN CARD
-        ========================================= */}
-        <View
-          style={{
-            width: "100%",
-            maxWidth: 460,
-            backgroundColor: "#FFFFFF",
-            borderRadius: 24,
-            paddingHorizontal: 30,
-            paddingVertical: 36,
-
-            // Mobile shadow
-            shadowColor: "#000000",
-            shadowOffset: {
-              width: 0,
-              height: 8,
-            },
-            shadowOpacity: 0.08,
-            shadowRadius: 20,
-
-            // Android shadow
-            elevation: 5,
-          }}
-        >
-          {/* ======================================
-              LOGO
-          ======================================= */}
-          <View
-            style={{
-              width: 105,
-              height: 105,
-              borderRadius: 52.5,
-              backgroundColor: "#F3F8F4",
-              alignItems: "center",
-              justifyContent: "center",
-              alignSelf: "center",
-              marginBottom: 22,
-            }}
-          >
-            <Image
-              source={require("../../assets/images/siya-logo.png")}
-              style={{
-                width: 82,
-                height: 82,
-              }}
-              resizeMode="contain"
-            />
-          </View>
-
-          {/* ======================================
-              TITLE
-          ======================================= */}
-          <Text
-            style={{
-              color: "#17231B",
-              fontSize: 30,
-              fontWeight: "700",
-              textAlign: "center",
-              marginBottom: 10,
-            }}
-          >
-            Welcome Back!
-          </Text>
-
-          {/* Description */}
-          <Text
-            style={{
-              color: "#6B756F",
-              fontSize: 15,
-              lineHeight: 23,
-              textAlign: "center",
-              marginBottom: 30,
-            }}
-          >
-            Login to your Siya-Fund account and continue saving, borrowing, and
-            growing together.
-          </Text>
-
-          {/* ======================================
-              EMAIL
-          ======================================= */}
-          <View
-            style={{
-              width: "100%",
-              marginBottom: 18,
-            }}
-          >
-            <Text
-              style={{
-                color: "#27332C",
-                fontSize: 14,
-                fontWeight: "600",
-                marginBottom: 8,
-              }}
-            >
-              Email Address
-            </Text>
-
-            <TextInput
-              style={{
-                width: "100%",
-                height: 54,
-                backgroundColor: "#F8FAF9",
-                borderWidth: 1,
-                borderColor: "#DCE5DF",
-                borderRadius: 12,
-                paddingHorizontal: 16,
-                color: "#17231B",
-                fontSize: 15,
-              }}
-              placeholder="Enter your email"
-              placeholderTextColor="#9CA3AF"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          {/* ======================================
-              PASSWORD
-          ======================================= */}
-          <View
-            style={{
-              width: "100%",
-              marginBottom: 18,
-            }}
-          >
-            <Text
-              style={{
-                color: "#27332C",
-                fontSize: 14,
-                fontWeight: "600",
-                marginBottom: 8,
-              }}
-            >
-              Password
-            </Text>
-
-            <TextInput
-              style={{
-                width: "100%",
-                height: 54,
-                backgroundColor: "#F8FAF9",
-                borderWidth: 1,
-                borderColor: "#DCE5DF",
-                borderRadius: 12,
-                paddingHorizontal: 16,
-                color: "#17231B",
-                fontSize: 15,
-              }}
-              placeholder="Enter your password"
-              placeholderTextColor="#9CA3AF"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          {/* ======================================
-              FORGOT PASSWORD
-          ======================================= */}
-          <Pressable
-            style={{
-              alignSelf: "flex-end",
-              marginTop: -3,
-              marginBottom: 24,
-            }}
-            onPress={handleForgotPassword}
-          >
-            <Text
-              style={{
-                color: "#2E8B57",
-                fontSize: 14,
-                fontWeight: "600",
-              }}
-            >
-              Forgot Password?
-            </Text>
-          </Pressable>
-
-          {/* ======================================
-              LOGIN BUTTON
-          ======================================= */}
-          <Pressable
-            style={({ pressed }) => ({
-              width: "100%",
-              height: 56,
-              backgroundColor: "#2E8B57",
-              borderRadius: 13,
-              alignItems: "center",
-              justifyContent: "center",
-
-              // Press animation
-              opacity: pressed ? 0.75 : 1,
-              transform: [
-                {
-                  scale: pressed ? 0.98 : 1,
-                },
-              ],
-            })}
-            onPress={handleLogin}
-          >
-            <Text
-              style={{
-                color: "#FFFFFF",
-                fontSize: 16,
-                fontWeight: "700",
-                letterSpacing: 1,
-              }}
-            >
-              LOGIN
-            </Text>
-          </Pressable>
-
-          {/* ======================================
-              SIGN UP
-          ======================================= */}
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              marginTop: 28,
-              gap: 5,
-            }}
-          >
-            <Text
-              style={{
-                color: "#7A837D",
-                fontSize: 14,
-              }}
-            >
-              Don't have an account?
-            </Text>
-
-            <Pressable onPress={handleSignUp}>
-              <Text
-                style={{
-                  color: "#2E8B57",
-                  fontSize: 14,
-                  fontWeight: "700",
-                }}
-              >
-                Sign Up
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    <ActualLoginScreen
+      onLogin={handleLogin}
+      onForgotPassword={handleForgotPassword}
+      isLoading={isLoading}
+    />
   );
 }
