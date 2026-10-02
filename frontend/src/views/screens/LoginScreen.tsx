@@ -1,52 +1,100 @@
-import { Image, Text, View, Pressable } from 'react-native';
-import { router } from 'expo-router';
-import { styles } from './LoginScreen.styles';
+// React Native components used to build the Welcome screen
+import { Image, Text, View, Pressable } from "react-native";
+
+// Expo Router is used for navigation
+import { router } from "expo-router";
+
+// Import the styles for this screen
+import { styles } from "./LoginScreen.styles";
 
 export default function LoginScreen() {
+  // ==========================================
+  // LOGIN BUTTON
+  // ==========================================
+
+  // Navigate to the actual Login screen
   const handleLogin = () => {
-    router.push('/login');
+    router.push("/login");
   };
 
+  // ==========================================
+  // SIGN UP BUTTON
+  // ==========================================
+
+  // Navigate to the Registration screen
   const handleSignUp = () => {
-    router.push('/register');
+    router.push("/register");
   };
 
   return (
+    // Main screen container
     <View style={styles.container}>
-      {/* Logo */}
-      <View style={styles.logoContainer}>
-        <Image
-          source={require('../../../assets/images/siya-logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </View>
+      {/* ========================================
+          MAIN CONTENT CARD
+      ========================================= */}
+      <View style={styles.content}>
+        {/* ========================================
+            SIYA-FUND LOGO
+        ========================================= */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("../../../assets/images/siya-logo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
 
-      {/* Welcome Text */}
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>Hello, Welcome!</Text>
+        {/* ========================================
+            WELCOME TEXT
+        ========================================= */}
+        <View style={styles.textContainer}>
+          {/* Main welcome heading */}
+          <Text style={styles.title}>Hello, Welcome!</Text>
 
-        <Text style={styles.description}>
-          Welcome to Siya Top platform to Save Together, Borrow Smarter,
-          Grow Together
+          {/* Welcome description */}
+          <Text style={styles.description}>
+            Welcome to Siya-Fund, your platform to save together, borrow
+            smarter, and grow together.
+          </Text>
+        </View>
+
+        {/* ========================================
+            LOGIN AND SIGN UP BUTTONS
+        ========================================= */}
+        <View style={styles.buttonContainer}>
+          {/* ======================================
+              LOGIN BUTTON
+          ======================================= */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.loginButton,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={handleLogin}
+          >
+            <Text style={styles.loginButtonText}>LOGIN</Text>
+          </Pressable>
+
+          {/* ======================================
+              SIGN UP BUTTON
+          ======================================= */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.signUpButton,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={handleSignUp}
+          >
+            <Text style={styles.signUpButtonText}>SIGN UP</Text>
+          </Pressable>
+        </View>
+
+        {/* ========================================
+            FOOTER
+        ========================================= */}
+        <Text style={styles.footerText}>
+          Save Together • Borrow Smarter • Grow Together
         </Text>
-      </View>
-
-      {/* Buttons */}
-      <View style={styles.buttonContainer}>
-        <Pressable
-          style={styles.loginButton}
-          onPress={handleLogin}
-        >
-          <Text style={styles.loginButtonText}>LOGIN</Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.signUpButton}
-          onPress={handleSignUp}
-        >
-          <Text style={styles.signUpButtonText}>SIGN UP</Text>
-        </Pressable>
       </View>
     </View>
   );
