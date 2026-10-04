@@ -2,6 +2,7 @@
 // FIREBASE AUTHENTICATION FUNCTIONS
 // ==========================================
 
+// Import Firebase Authentication functions
 import {
   createUserWithEmailAndPassword,
   updateProfile,
@@ -12,8 +13,19 @@ import {
   reload,
 } from "firebase/auth";
 
-// Firebase application configuration
-import app from "./firebase";
+// Import Firestore functions
+import {
+  doc,
+  setDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+
+// Import Firebase application configuration
+import app, { db } from "./firebase";
+
+// ==========================================
+// GET FIREBASE AUTH INSTANCE
+// ==========================================
 
 // Get the Firebase Authentication instance
 const auth = getAuth(app);
@@ -28,25 +40,132 @@ export const registerUser = async (
   email: string,
   password: string,
 ) => {
-  // Create the Firebase account
-  const userCredential = await createUserWithEmailAndPassword(
-    auth,
-    email.trim(),
-    password,
+
+  // ========================================
+  // CLEAN USER INFORMATION
+  // ========================================
+
+  const cleanFirstName = firstName.trim();
+
+  const cleanLastName = lastName.trim();
+
+  const cleanEmail = email.trim();
+
+  // ========================================
+  // CREATE FIREBASE AUTH ACCOUNT
+  // ========================================
+
+  console.log(
+    "Creating Firebase account for:",
+    cleanEmail,
   );
+
+  const userCredential =
+    await createUserWithEmailAndPassword(
+      auth,
+      cleanEmail,
+      password,
+    );
 
   // Get the newly created Firebase user
   const user = userCredential.user;
 
-  // Save the user's full name
+  console.log(
+    "Firebase account created successfully.",
+  );
+
+  console.log(
+    "Firebase UID:",
+    user.uid,
+  );
+
+  // ========================================
+  // SAVE DISPLAY NAME
+  // ========================================
+
   await updateProfile(user, {
-    displayName: `${firstName.trim()} ${lastName.trim()}`,
+    displayName:
+      `${cleanFirstName} ${cleanLastName}`,
   });
 
-  // Send the Firebase verification email
+  console.log(
+    "Firebase display name updated:",
+    `${cleanFirstName} ${cleanLastName}`,
+  );
+
+  // ========================================
+  // CREATE FIRESTORE USER DOCUMENT
+  // ========================================
+
+  await setDoc(
+    doc(db, "users", user.uid),
+    {
+      // Firebase Authentication UID
+      uid: user.uid,
+
+      // User first name
+      firstName: cleanFirstName,
+
+      // User last name
+      lastName: cleanLastName,
+
+      // Full display name
+      displayName:
+        `${cleanFirstName} ${cleanLastName}`,
+
+      // User email
+      email: cleanEmail,
+
+      // Normal users receive the user role
+      role: "user",
+
+      // New users are not verified yet
+      emailVerified: false,
+
+      // Account creation timestamp
+      createdAt: serverTimestamp(),
+
+      // Last update timestamp
+      updatedAt: serverTimestamp(),
+    },
+  );
+
+  console.log(
+    "Firestore user document created successfully.",
+  );
+
+  // ========================================
+  // SEND EMAIL VERIFICATION
+  // ========================================
+
+  console.log(
+    "Sending verification email to:",
+    user.email,
+  );
+
   await sendEmailVerification(user);
 
-  // Return the Firebase user
+  console.log(
+    "Verification email request completed successfully.",
+  );
+
+  // ========================================
+  // REGISTRATION COMPLETE
+  // ========================================
+
+  console.log(
+    "Registration completed successfully.",
+  );
+
+  console.log(
+    "Email verification is required:",
+    !user.emailVerified,
+  );
+
+  // ========================================
+  // RETURN FIREBASE USER
+  // ========================================
+
   return user;
 };
 
@@ -55,15 +174,46 @@ export const registerUser = async (
 // ==========================================
 
 export const resendVerificationEmail = async () => {
+
+  // Get the currently signed-in user
   const user = auth.currentUser;
 
-  // Make sure a user is currently logged in
+  // ========================================
+  // CHECK USER
+  // ========================================
+
   if (!user) {
-    throw new Error("No user is currently signed in.");
+    throw new Error(
+      "No user is currently signed in.",
+    );
   }
 
-  // Send another verification email
+  // ========================================
+  // CHECK IF ALREADY VERIFIED
+  // ========================================
+
+  if (user.emailVerified) {
+    console.log(
+      "Email is already verified.",
+    );
+
+    return;
+  }
+
+  // ========================================
+  // SEND VERIFICATION EMAIL
+  // ========================================
+
+  console.log(
+    "Resending verification email to:",
+    user.email,
+  );
+
   await sendEmailVerification(user);
+
+  console.log(
+    "Verification email resent successfully.",
+  );
 };
 
 // ==========================================
@@ -71,17 +221,50 @@ export const resendVerificationEmail = async () => {
 // ==========================================
 
 export const checkEmailVerification = async () => {
+
+  // Get the currently signed-in user
   const user = auth.currentUser;
 
-  // Make sure a user is currently logged in
+  // ========================================
+  // CHECK USER
+  // ========================================
+
   if (!user) {
+    console.log(
+      "No user is currently signed in.",
+    );
+
     return false;
   }
 
-  // Refresh the Firebase user's information
+  // ========================================
+  // REFRESH FIREBASE USER INFORMATION
+  // ========================================
+
+  console.log(
+    "Checking email verification status...",
+  );
+
   await reload(user);
 
-  // Return the latest verification status
+  // ========================================
+  // CHECK VERIFICATION STATUS
+  // ========================================
+
+  console.log(
+    "Email:",
+    user.email,
+  );
+
+  console.log(
+    "Email verified:",
+    user.emailVerified,
+  );
+
+  // ========================================
+  // RETURN VERIFICATION STATUS
+  // ========================================
+
   return user.emailVerified;
 };
 
@@ -89,16 +272,116 @@ export const checkEmailVerification = async () => {
 // LOGIN USER
 // ==========================================
 
-export const loginUser = async (email: string, password: string) => {
-  // Sign the user in
-  const userCredential = await signInWithEmailAndPassword(
-    auth,
-    email.trim(),
-    password,
+export const loginUser = async (
+  email: string,
+  password: string,
+) => {
+
+  // Clean email address
+  const cleanEmail = email.trim();
+
+  // ========================================
+  // SIGN IN
+  // ========================================
+
+  console.log(
+    "Attempting login for:",
+    cleanEmail,
   );
 
-  // Return the logged-in Firebase user
-  return userCredential.user;
+  const userCredential =
+    await signInWithEmailAndPassword(
+      auth,
+      cleanEmail,
+      password,
+    );
+
+  // Get logged-in user
+  const user = userCredential.user;
+
+  // ========================================
+  // LOG LOGIN INFORMATION
+  // ========================================
+
+  console.log(
+    "Login successful.",
+  );
+
+  console.log(
+    "Firebase UID:",
+    user.uid,
+  );
+
+  console.log(
+    "Email:",
+    user.email,
+  );
+
+  console.log(
+    "Email verified:",
+    user.emailVerified,
+  );
+
+  // ========================================
+  // RETURN FIREBASE USER
+  // ========================================
+
+  return user;
+};
+
+// ==========================================
+// GET USER ROLE
+// ==========================================
+
+export const getUserRole = async () => {
+
+  // Get the currently logged-in user
+  const user = auth.currentUser;
+
+  // ========================================
+  // CHECK USER
+  // ========================================
+
+  if (!user) {
+    console.log(
+      "No logged-in user found.",
+    );
+
+    return null;
+  }
+
+  // ========================================
+  // REFRESH ID TOKEN
+  // ========================================
+
+  // Force Firebase to refresh the ID token
+  // so the latest custom claims are available.
+  const tokenResult =
+    await user.getIdTokenResult(true);
+
+  // ========================================
+  // GET ROLE
+  // ========================================
+
+  const role =
+    tokenResult.claims.role;
+
+  // ========================================
+  // LOG ROLE
+  // ========================================
+
+  console.log(
+    "Firebase user role:",
+    role,
+  );
+
+  // ========================================
+  // RETURN ROLE
+  // ========================================
+
+  return typeof role === "string"
+    ? role
+    : "user";
 };
 
 // ==========================================
@@ -106,8 +389,16 @@ export const loginUser = async (email: string, password: string) => {
 // ==========================================
 
 export const logoutUser = async () => {
-  // Sign the current user out
+
+  // ========================================
+  // SIGN OUT
+  // ========================================
+
   await signOut(auth);
+
+  console.log(
+    "User logged out successfully.",
+  );
 };
 
 // ==========================================
@@ -115,6 +406,7 @@ export const logoutUser = async () => {
 // ==========================================
 
 export const getCurrentUser = () => {
+
   // Return the currently signed-in user
   return auth.currentUser;
 };

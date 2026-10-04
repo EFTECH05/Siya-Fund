@@ -10,11 +10,15 @@ import { router } from "expo-router";
 // Import the Login screen UI
 import ActualLoginScreen from "../views/screens/ActualLoginScreen";
 
-// Import Firebase Authentication service
-import { loginUser } from "../services/AuthService";
+// Import Firebase Authentication services
+import {
+  loginUser,
+  getUserRole,
+} from "../services/AuthService";
 
 // Login route
 export default function LoginRoute() {
+
   // ==========================================
   // LOADING STATE
   // ==========================================
@@ -26,7 +30,11 @@ export default function LoginRoute() {
   // LOGIN
   // ==========================================
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async (
+    email: string,
+    password: string,
+  ) => {
+
     // Remove unnecessary spaces from the email
     const cleanEmail = email.trim();
 
@@ -36,19 +44,24 @@ export default function LoginRoute() {
 
     // Check if email is empty
     if (!cleanEmail) {
-      Alert.alert("Email Required", "Please enter your email address.");
-
+      Alert.alert(
+        "Email Required",
+        "Please enter your email address.",
+      );
       return;
     }
 
     // Check if password is empty
     if (!password) {
-      Alert.alert("Password Required", "Please enter your password.");
-
+      Alert.alert(
+        "Password Required",
+        "Please enter your password.",
+      );
       return;
     }
 
     try {
+
       // Start loading
       setIsLoading(true);
 
@@ -56,23 +69,52 @@ export default function LoginRoute() {
       // FIREBASE LOGIN
       // ==========================================
 
-      // Send the login details to Firebase
-      await loginUser(cleanEmail, password);
+      // Sign the user into Firebase
+      await loginUser(
+        cleanEmail,
+        password,
+      );
+
+      // ==========================================
+      // GET USER ROLE
+      // ==========================================
+
+      // Get the role from Firebase custom claims
+      const role = await getUserRole();
 
       // ==========================================
       // LOGIN SUCCESS
       // ==========================================
 
-      Alert.alert("Login Successful", "Welcome back to Siya-Fund!");
+      Alert.alert(
+        "Login Successful",
+        "Welcome back to Siya-Fund!",
+      );
 
-      // Navigate to the Dashboard
-      router.replace("/dashboard");
+      // ==========================================
+      // ROLE-BASED NAVIGATION
+      // ==========================================
+
+      if (role === "super_admin") {
+
+        // Super Admin goes to Super Admin dashboard
+        router.replace("/super-admin");
+
+      } else {
+
+        // Normal users go to normal dashboard
+        router.replace("/dashboard");
+
+      }
+
     } catch (error: any) {
+
       // ==========================================
       // DEFAULT ERROR
       // ==========================================
 
-      let message = "Something went wrong. Please try again.";
+      let message =
+        "Something went wrong. Please try again.";
 
       // ==========================================
       // INVALID CREDENTIALS
@@ -82,54 +124,91 @@ export default function LoginRoute() {
         error?.code === "auth/invalid-credential" ||
         error?.code === "auth/invalid-login-credentials"
       ) {
+
         message =
           "The email or password is incorrect. Please check your details and try again.";
+
       }
 
       // ==========================================
       // USER NOT FOUND
       // ==========================================
-      else if (error?.code === "auth/user-not-found") {
-        message = "No account was found with this email address.";
+
+      else if (
+        error?.code === "auth/user-not-found"
+      ) {
+
+        message =
+          "No account was found with this email address.";
+
       }
 
       // ==========================================
       // WRONG PASSWORD
       // ==========================================
-      else if (error?.code === "auth/wrong-password") {
-        message = "The password you entered is incorrect.";
+
+      else if (
+        error?.code === "auth/wrong-password"
+      ) {
+
+        message =
+          "The password you entered is incorrect.";
+
       }
 
       // ==========================================
       // INVALID EMAIL
       // ==========================================
-      else if (error?.code === "auth/invalid-email") {
-        message = "Please enter a valid email address.";
+
+      else if (
+        error?.code === "auth/invalid-email"
+      ) {
+
+        message =
+          "Please enter a valid email address.";
+
       }
 
       // ==========================================
       // TOO MANY REQUESTS
       // ==========================================
-      else if (error?.code === "auth/too-many-requests") {
+
+      else if (
+        error?.code === "auth/too-many-requests"
+      ) {
+
         message =
           "Too many login attempts. Please wait a moment and try again.";
+
       }
 
       // ==========================================
       // NETWORK ERROR
       // ==========================================
-      else if (error?.code === "auth/network-request-failed") {
-        message = "Please check your internet connection and try again.";
+
+      else if (
+        error?.code === "auth/network-request-failed"
+      ) {
+
+        message =
+          "Please check your internet connection and try again.";
+
       }
 
       // ==========================================
       // SHOW ERROR
       // ==========================================
 
-      Alert.alert("Login Failed", message);
+      Alert.alert(
+        "Login Failed",
+        message,
+      );
+
     } finally {
+
       // Stop loading
       setIsLoading(false);
+
     }
   };
 
@@ -138,8 +217,13 @@ export default function LoginRoute() {
   // ==========================================
 
   const handleForgotPassword = () => {
+
     // Firebase password reset will be connected next
-    Alert.alert("Forgot Password", "Password reset will be available soon.");
+    Alert.alert(
+      "Forgot Password",
+      "Password reset will be available soon.",
+    );
+
   };
 
   // ==========================================
