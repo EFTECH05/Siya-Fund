@@ -12,6 +12,22 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 2. Start the app
 
+1. Start the backend:
+
+cd ~/Documents/GitHub/Siya-Fund/backend
+npm run dev
+
+2. In another terminal, start the frontend:
+
+cd ~/Documents/GitHub/Siya-Fund/frontend
+npx expo start
+
+3. Start the Android emulator and check the connection:
+
+adb devices
+
+You should see:
+
    ```bash
    npx expo start
    android
