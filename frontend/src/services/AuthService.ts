@@ -1,3 +1,4 @@
+
 // ==========================================
 // FIREBASE AUTHENTICATION FUNCTIONS
 // ==========================================
@@ -6,11 +7,9 @@
 import {
   createUserWithEmailAndPassword,
   updateProfile,
-  sendEmailVerification,
   signInWithEmailAndPassword,
   signOut,
   getAuth,
-  reload,
 } from "firebase/auth";
 
 // Import Firestore functions
@@ -46,10 +45,8 @@ export const registerUser = async (
   // ========================================
 
   const cleanFirstName = firstName.trim();
-
   const cleanLastName = lastName.trim();
-
-  const cleanEmail = email.trim();
+  const cleanEmail = email.trim().toLowerCase();
 
   // ========================================
   // CREATE FIREBASE AUTH ACCOUNT
@@ -119,8 +116,9 @@ export const registerUser = async (
       // Normal users receive the user role
       role: "user",
 
-      // New users are not verified yet
-      emailVerified: false,
+      // Email has already been verified
+      // through our OTP system
+      emailVerified: true,
 
       // Account creation timestamp
       createdAt: serverTimestamp(),
@@ -135,21 +133,6 @@ export const registerUser = async (
   );
 
   // ========================================
-  // SEND EMAIL VERIFICATION
-  // ========================================
-
-  console.log(
-    "Sending verification email to:",
-    user.email,
-  );
-
-  await sendEmailVerification(user);
-
-  console.log(
-    "Verification email request completed successfully.",
-  );
-
-  // ========================================
   // REGISTRATION COMPLETE
   // ========================================
 
@@ -158,8 +141,7 @@ export const registerUser = async (
   );
 
   console.log(
-    "Email verification is required:",
-    !user.emailVerified,
+    "Email was verified using Siya-Fund OTP.",
   );
 
   // ========================================
@@ -167,105 +149,6 @@ export const registerUser = async (
   // ========================================
 
   return user;
-};
-
-// ==========================================
-// RESEND VERIFICATION EMAIL
-// ==========================================
-
-export const resendVerificationEmail = async () => {
-
-  // Get the currently signed-in user
-  const user = auth.currentUser;
-
-  // ========================================
-  // CHECK USER
-  // ========================================
-
-  if (!user) {
-    throw new Error(
-      "No user is currently signed in.",
-    );
-  }
-
-  // ========================================
-  // CHECK IF ALREADY VERIFIED
-  // ========================================
-
-  if (user.emailVerified) {
-    console.log(
-      "Email is already verified.",
-    );
-
-    return;
-  }
-
-  // ========================================
-  // SEND VERIFICATION EMAIL
-  // ========================================
-
-  console.log(
-    "Resending verification email to:",
-    user.email,
-  );
-
-  await sendEmailVerification(user);
-
-  console.log(
-    "Verification email resent successfully.",
-  );
-};
-
-// ==========================================
-// CHECK EMAIL VERIFICATION
-// ==========================================
-
-export const checkEmailVerification = async () => {
-
-  // Get the currently signed-in user
-  const user = auth.currentUser;
-
-  // ========================================
-  // CHECK USER
-  // ========================================
-
-  if (!user) {
-    console.log(
-      "No user is currently signed in.",
-    );
-
-    return false;
-  }
-
-  // ========================================
-  // REFRESH FIREBASE USER INFORMATION
-  // ========================================
-
-  console.log(
-    "Checking email verification status...",
-  );
-
-  await reload(user);
-
-  // ========================================
-  // CHECK VERIFICATION STATUS
-  // ========================================
-
-  console.log(
-    "Email:",
-    user.email,
-  );
-
-  console.log(
-    "Email verified:",
-    user.emailVerified,
-  );
-
-  // ========================================
-  // RETURN VERIFICATION STATUS
-  // ========================================
-
-  return user.emailVerified;
 };
 
 // ==========================================
@@ -278,7 +161,7 @@ export const loginUser = async (
 ) => {
 
   // Clean email address
-  const cleanEmail = email.trim();
+  const cleanEmail = email.trim().toLowerCase();
 
   // ========================================
   // SIGN IN
@@ -343,6 +226,7 @@ export const getUserRole = async () => {
   // ========================================
 
   if (!user) {
+
     console.log(
       "No logged-in user found.",
     );
@@ -410,3 +294,4 @@ export const getCurrentUser = () => {
   // Return the currently signed-in user
   return auth.currentUser;
 };
+

@@ -1,3 +1,4 @@
+
 // ==========================================
 // IMPORTS
 // ==========================================
@@ -19,7 +20,8 @@ import {
 
 import { router } from "expo-router";
 
-import { registerUser } from "../../services/AuthService";
+import { sendOTP } from "../../services/OtpService";
+import { setRegistrationData } from "../../services/RegistrationStore";
 
 import { styles } from "./RegisterScreen.styles";
 
@@ -57,7 +59,10 @@ export default function RegisterScreen() {
   // SHOW ERROR MODAL
   // ==========================================
 
-  const showError = (title: string, message: string) => {
+  const showError = (
+    title: string,
+    message: string,
+  ) => {
     setErrorTitle(title);
     setErrorMessage(message);
     setShowErrorModal(true);
@@ -68,10 +73,13 @@ export default function RegisterScreen() {
   // ==========================================
 
   const handleRegister = async () => {
-    // Remove unnecessary spaces
+    // ==========================================
+    // CLEAN USER INFORMATION
+    // ==========================================
+
     const cleanFirstName = firstName.trim();
     const cleanLastName = lastName.trim();
-    const cleanEmail = email.trim();
+    const cleanEmail = email.trim().toLowerCase();
     const cleanPhone = phone.trim();
 
     // ==========================================
@@ -90,7 +98,6 @@ export default function RegisterScreen() {
         "Missing Information",
         "Please complete all the required fields before creating your account.",
       );
-
       return;
     }
 
@@ -101,8 +108,10 @@ export default function RegisterScreen() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(cleanEmail)) {
-      showError("Invalid Email", "Please enter a valid email address.");
-
+      showError(
+        "Invalid Email",
+        "Please enter a valid email address.",
+      );
       return;
     }
 
@@ -115,7 +124,6 @@ export default function RegisterScreen() {
         "Password Too Short",
         "Your password must contain at least 6 characters.",
       );
-
       return;
     }
 
@@ -128,78 +136,83 @@ export default function RegisterScreen() {
         "Passwords Do Not Match",
         "Please make sure both password fields contain the same password.",
       );
-
       return;
     }
 
     // ==========================================
-    // FIREBASE REGISTRATION
+    // SEND OTP
     // ==========================================
 
     try {
       setIsLoading(true);
 
-      const user = await registerUser(
-        cleanFirstName,
-        cleanLastName,
+      console.log(
+        "Starting email verification for:",
         cleanEmail,
-        password,
       );
 
-      // ==========================================
-      // DEBUG INFORMATION
-      // ==========================================
+      // ========================================
+      // SAVE REGISTRATION INFORMATION
+      // ========================================
 
-      console.log("Registration successful!");
-      console.log("Firebase UID:", user.uid);
-      console.log("Email:", user.email);
-      console.log("Display Name:", user.displayName);
-      console.log("Phone:", cleanPhone);
+      setRegistrationData({
+        firstName: cleanFirstName,
+        lastName: cleanLastName,
+        email: cleanEmail,
+        phone: cleanPhone,
+        password,
+      });
 
-      // ==========================================
-      // GO TO EMAIL VERIFICATION SCREEN
-      // ==========================================
+      console.log(
+        "Registration information saved temporarily.",
+      );
+
+      // ========================================
+      // SEND OTP TO EMAIL
+      // ========================================
+
+      console.log(
+        "Sending OTP to:",
+        cleanEmail,
+      );
+
+      await sendOTP(cleanEmail);
+
+      console.log(
+        "OTP sent successfully.",
+      );
+
+      // ========================================
+      // GO TO OTP VERIFICATION SCREEN
+      // ========================================
 
       router.replace("/verify-email");
+
     } catch (error: any) {
-      console.error("Registration error:", error);
+      // ========================================
+      // LOG ERROR
+      // ========================================
 
-      // ==========================================
-      // FIREBASE ERROR HANDLING
-      // ==========================================
+      console.error(
+        "OTP sending error:",
+        error,
+      );
 
-      if (error?.code === "auth/email-already-in-use") {
-        setErrorTitle("Email Already Registered");
+      // ========================================
+      // SHOW ERROR
+      // ========================================
 
-        setErrorMessage(
-          "An account already exists with this email address. Please log in instead.",
-        );
+      showError(
+        "Unable to Send OTP",
+        error?.message ||
+          "We could not send the verification code. Please check your internet connection and try again.",
+      );
 
-        setShowErrorModal(true);
-      } else if (error?.code === "auth/invalid-email") {
-        showError("Invalid Email", "Please enter a valid email address.");
-      } else if (error?.code === "auth/weak-password") {
-        showError(
-          "Weak Password",
-          "Your password is too weak. Please use at least 6 characters.",
-        );
-      } else if (error?.code === "auth/network-request-failed") {
-        showError(
-          "Network Error",
-          "Please check your internet connection and try again.",
-        );
-      } else if (error?.code === "auth/operation-not-allowed") {
-        showError(
-          "Registration Unavailable",
-          "Email and password registration is currently unavailable.",
-        );
-      } else {
-        showError(
-          "Registration Failed",
-          "Something went wrong while creating your account. Please try again.",
-        );
-      }
     } finally {
+      // ========================================
+      // STOP LOADING
+      // ========================================
+
       setIsLoading(false);
     }
   };
@@ -210,7 +223,6 @@ export default function RegisterScreen() {
 
   const handleLoginFromModal = () => {
     setShowErrorModal(false);
-
     router.push("/login");
   };
 
@@ -233,7 +245,11 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={
+        Platform.OS === "ios"
+          ? "padding"
+          : undefined
+      }
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -241,13 +257,16 @@ export default function RegisterScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.card}>
+
           {/* ======================================
               LOGO
-          ====================================== */}
+          ======================================= */}
 
           <View style={styles.logoContainer}>
             <Image
-              source={require("../../../assets/images/siya-logo.png")}
+              source={require(
+                "../../../assets/images/siya-logo.png"
+              )}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -255,25 +274,29 @@ export default function RegisterScreen() {
 
           {/* ======================================
               TITLE
-          ====================================== */}
+          ======================================= */}
 
-          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.title}>
+            Create Account
+          </Text>
 
           {/* ======================================
               DESCRIPTION
-          ====================================== */}
+          ======================================= */}
 
           <Text style={styles.description}>
-            Join Siya-Fund and start saving together, borrowing smarter, and
-            growing together.
+            Join Siya-Fund and start saving together,
+            borrowing smarter, and growing together.
           </Text>
 
           {/* ======================================
               FIRST NAME
-          ====================================== */}
+          ======================================= */}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>First Name</Text>
+            <Text style={styles.label}>
+              First Name
+            </Text>
 
             <TextInput
               style={styles.input}
@@ -289,10 +312,12 @@ export default function RegisterScreen() {
 
           {/* ======================================
               LAST NAME
-          ====================================== */}
+          ======================================= */}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Last Name</Text>
+            <Text style={styles.label}>
+              Last Name
+            </Text>
 
             <TextInput
               style={styles.input}
@@ -308,10 +333,12 @@ export default function RegisterScreen() {
 
           {/* ======================================
               EMAIL
-          ====================================== */}
+          ======================================= */}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.label}>
+              Email Address
+            </Text>
 
             <TextInput
               style={styles.input}
@@ -328,10 +355,12 @@ export default function RegisterScreen() {
 
           {/* ======================================
               PHONE
-          ====================================== */}
+          ======================================= */}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Phone Number</Text>
+            <Text style={styles.label}>
+              Phone Number
+            </Text>
 
             <TextInput
               style={styles.input}
@@ -346,10 +375,12 @@ export default function RegisterScreen() {
 
           {/* ======================================
               PASSWORD
-          ====================================== */}
+          ======================================= */}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>
+              Password
+            </Text>
 
             <TextInput
               style={styles.input}
@@ -366,10 +397,12 @@ export default function RegisterScreen() {
 
           {/* ======================================
               CONFIRM PASSWORD
-          ====================================== */}
+          ======================================= */}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Confirm Password</Text>
+            <Text style={styles.label}>
+              Confirm Password
+            </Text>
 
             <TextInput
               style={styles.input}
@@ -386,7 +419,7 @@ export default function RegisterScreen() {
 
           {/* ======================================
               REGISTER BUTTON
-          ====================================== */}
+          ======================================= */}
 
           <Pressable
             style={({ pressed }) => [
@@ -398,31 +431,44 @@ export default function RegisterScreen() {
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator
+                size="small"
+                color="#FFFFFF"
+              />
             ) : (
-              <Text style={styles.registerButtonText}>CREATE ACCOUNT</Text>
+              <Text style={styles.registerButtonText}>
+                CREATE ACCOUNT
+              </Text>
             )}
           </Pressable>
 
           {/* ======================================
               LOGIN LINK
-          ====================================== */}
+          ======================================= */}
 
           <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Already have an account?</Text>
+            <Text style={styles.loginText}>
+              Already have an account?
+            </Text>
 
-            <Pressable onPress={handleBackToLogin} disabled={isLoading}>
-              <Text style={styles.loginLink}>Login</Text>
+            <Pressable
+              onPress={handleBackToLogin}
+              disabled={isLoading}
+            >
+              <Text style={styles.loginLink}>
+                Login
+              </Text>
             </Pressable>
           </View>
 
           {/* ======================================
               FOOTER
-          ====================================== */}
+          ======================================= */}
 
           <Text style={styles.footerText}>
             Save Together • Borrow Smarter • Grow Together
           </Text>
+
         </View>
       </ScrollView>
 
@@ -434,46 +480,74 @@ export default function RegisterScreen() {
         visible={showErrorModal}
         transparent
         animationType="fade"
-        onRequestClose={() => setShowErrorModal(false)}
+        onRequestClose={() =>
+          setShowErrorModal(false)
+        }
       >
         <View style={styles.modalOverlay}>
           <View style={styles.errorModal}>
+
             {/* ======================================
                 ERROR ICON
-            ====================================== */}
+            ======================================= */}
 
-            <View style={styles.errorIconContainer}>
-              <Text style={styles.errorIcon}>!</Text>
+            <View
+              style={styles.errorIconContainer}
+            >
+              <Text style={styles.errorIcon}>
+                !
+              </Text>
             </View>
 
             {/* ======================================
                 TITLE
-            ====================================== */}
+            ======================================= */}
 
-            <Text style={styles.errorModalTitle}>{errorTitle}</Text>
+            <Text
+              style={styles.errorModalTitle}
+            >
+              {errorTitle}
+            </Text>
 
             {/* ======================================
                 MESSAGE
-            ====================================== */}
+            ======================================= */}
 
-            <Text style={styles.errorModalMessage}>{errorMessage}</Text>
+            <Text
+              style={styles.errorModalMessage}
+            >
+              {errorMessage}
+            </Text>
 
             {/* ======================================
                 BUTTONS
-            ====================================== */}
+            ======================================= */}
 
-            <View style={styles.modalButtonContainer}>
+            <View
+              style={styles.modalButtonContainer}
+            >
+
               {/* LOGIN NOW BUTTON */}
 
-              {errorTitle === "Email Already Registered" && (
+              {errorTitle ===
+                "Email Already Registered" && (
                 <Pressable
                   style={({ pressed }) => [
                     styles.modalPrimaryButton,
-                    pressed && styles.modalButtonPressed,
+                    pressed &&
+                      styles.modalButtonPressed,
                   ]}
-                  onPress={handleLoginFromModal}
+                  onPress={
+                    handleLoginFromModal
+                  }
                 >
-                  <Text style={styles.modalPrimaryButtonText}>LOGIN NOW</Text>
+                  <Text
+                    style={
+                      styles.modalPrimaryButtonText
+                    }
+                  >
+                    LOGIN NOW
+                  </Text>
                 </Pressable>
               )}
 
@@ -482,14 +556,25 @@ export default function RegisterScreen() {
               <Pressable
                 style={({ pressed }) => [
                   styles.modalSecondaryButton,
-                  pressed && styles.modalButtonPressed,
+                  pressed &&
+                    styles.modalButtonPressed,
                 ]}
-                onPress={() => setShowErrorModal(false)}
+                onPress={() =>
+                  setShowErrorModal(false)
+                }
               >
-                <Text style={styles.modalSecondaryButtonText}>
-                  {errorTitle === "Email Already Registered" ? "CANCEL" : "OK"}
+                <Text
+                  style={
+                    styles.modalSecondaryButtonText
+                  }
+                >
+                  {errorTitle ===
+                  "Email Already Registered"
+                    ? "CANCEL"
+                    : "OK"}
                 </Text>
               </Pressable>
+
             </View>
           </View>
         </View>
