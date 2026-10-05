@@ -1,171 +1,325 @@
+
 // ==========================================
 // IMPORTS
 // ==========================================
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   ActivityIndicator,
-  Alert,
-  Image,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   Text,
+  TextInput,
   View,
 } from "react-native";
 
 import { router } from "expo-router";
 
+import { registerUser } from "../../services/AuthService";
 import {
-  checkEmailVerification,
-  getCurrentUser,
-  logoutUser,
-  resendVerificationEmail,
-} from "../../services/AuthService";
+  sendOTP,
+  verifyOTP,
+} from "../../services/OtpService";
+
+import {
+  clearRegistrationData,
+  getRegistrationData,
+} from "../../services/RegistrationStore";
 
 import { styles } from "./CheckEmailScreen.styles";
 
 // ==========================================
-// CHECK EMAIL SCREEN
+// CHECK EMAIL / OTP SCREEN
 // ==========================================
 
 export default function CheckEmailScreen() {
   // ==========================================
-  // STATE
+  // OTP STATE
   // ==========================================
 
-  const [isChecking, setIsChecking] = useState(false);
+  const [otp, setOtp] = useState("");
+
+  // ==========================================
+  // EMAIL STATE
+  // ==========================================
+
+  const [email, setEmail] = useState("");
+
+  // ==========================================
+  // LOADING STATE
+  // ==========================================
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  // ==========================================
+  // RESEND LOADING STATE
+  // ==========================================
 
   const [isResending, setIsResending] = useState(false);
 
   // ==========================================
-  // GET CURRENT USER
+  // ERROR STATE
   // ==========================================
 
-  const currentUser = getCurrentUser();
-
-  const userEmail = currentUser?.email || "your email address";
+  const [errorMessage, setErrorMessage] = useState("");
 
   // ==========================================
-  // CHECK EMAIL VERIFICATION
+  // SUCCESS MESSAGE
   // ==========================================
 
-  const handleCheckVerification = async () => {
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // ==========================================
+  // LOAD REGISTRATION DATA
+  // ==========================================
+
+  useEffect(() => {
+    const registrationData =
+      getRegistrationData();
+
+    if (!registrationData) {
+      console.log(
+        "No registration data found.",
+      );
+
+      router.replace("/register");
+
+      return;
+    }
+
+    console.log(
+      "Registration data loaded for:",
+      registrationData.email,
+    );
+
+    setEmail(registrationData.email);
+  }, []);
+
+  // ==========================================
+  // HANDLE OTP INPUT
+  // ==========================================
+
+  const handleOtpChange = (
+    value: string,
+  ) => {
+    // Only allow numbers
+    const numbersOnly =
+      value.replace(/[^0-9]/g, "");
+
+    // Limit OTP to 6 digits
+    const limitedOTP =
+      numbersOnly.slice(0, 6);
+
+    setOtp(limitedOTP);
+
+    // Clear messages while typing
+    setErrorMessage("");
+    setSuccessMessage("");
+  };
+
+  // ==========================================
+  // VERIFY OTP
+  // ==========================================
+
+  const handleVerifyOTP = async () => {
+    // ==========================================
+    // VALIDATE OTP
+    // ==========================================
+
+    if (otp.length !== 6) {
+      setErrorMessage(
+        "Please enter the complete 6-digit verification code.",
+      );
+
+      return;
+    }
+
+    // ==========================================
+    // GET REGISTRATION DATA
+    // ==========================================
+
+    const registrationData =
+      getRegistrationData();
+
+    if (!registrationData) {
+      setErrorMessage(
+        "Your registration information could not be found. Please register again.",
+      );
+
+      return;
+    }
+
     try {
-      setIsChecking(true);
+      setIsLoading(true);
 
-      const isVerified = await checkEmailVerification();
+      setErrorMessage("");
+      setSuccessMessage("");
 
-      // ==========================================
-      // EMAIL VERIFIED
-      // ==========================================
+      console.log(
+        "Verifying OTP for:",
+        registrationData.email,
+      );
 
-      if (isVerified) {
-        if (Platform.OS === "web") {
-          window.alert(
-            "Email Verified!\n\nYour email has been successfully verified. You can now log in to Siya-Fund.",
-          );
-        } else {
-          Alert.alert(
-            "Email Verified!",
-            "Your email has been successfully verified. You can now log in to Siya-Fund.",
-          );
-        }
+      // ========================================
+      // VERIFY OTP WITH BACKEND
+      // ========================================
 
-        // Sign the user out after verification.
-        // They will log in normally from the Login screen.
-        await logoutUser();
+      await verifyOTP(
+        registrationData.email,
+        otp,
+      );
 
+      console.log(
+        "OTP verified successfully.",
+      );
+
+      // ========================================
+      // CREATE FIREBASE ACCOUNT
+      // ========================================
+
+      console.log(
+        "Creating Firebase account...",
+      );
+
+      await registerUser(
+        registrationData.firstName,
+        registrationData.lastName,
+        registrationData.email,
+        registrationData.password,
+      );
+
+      console.log(
+        "Firebase account created successfully.",
+      );
+
+      // ========================================
+      // CLEAR TEMPORARY DATA
+      // ========================================
+
+      clearRegistrationData();
+
+      console.log(
+        "Temporary registration data cleared.",
+      );
+
+      // ========================================
+      // SHOW SUCCESS
+      // ========================================
+
+      setSuccessMessage(
+        "Your email has been verified and your account has been created successfully.",
+      );
+
+      // ========================================
+      // GO TO LOGIN
+      // ========================================
+
+      setTimeout(() => {
         router.replace("/login");
+      }, 1500);
+
+    } catch (error: any) {
+      console.error(
+        "OTP verification / registration error:",
+        error,
+      );
+
+      // ========================================
+      // FIREBASE EMAIL ALREADY EXISTS
+      // ========================================
+
+      if (
+        error?.code ===
+        "auth/email-already-in-use"
+      ) {
+        setErrorMessage(
+          "This email address is already registered. Please log in instead.",
+        );
+
+        return;
       }
 
-      // ==========================================
-      // EMAIL NOT VERIFIED
-      // ==========================================
-      else {
-        if (Platform.OS === "web") {
-          window.alert(
-            "Email Not Verified\n\nPlease open the verification email in your Gmail and click the verification link.",
-          );
-        } else {
-          Alert.alert(
-            "Email Not Verified",
-            "Please open the verification email in your Gmail and click the verification link.",
-          );
-        }
-      }
-    } catch (error) {
-      console.error("Verification check error:", error);
+      // ========================================
+      // INVALID OTP
+      // ========================================
 
-      if (Platform.OS === "web") {
-        window.alert(
-          "Something went wrong while checking your email. Please try again.",
-        );
-      } else {
-        Alert.alert(
-          "Something Went Wrong",
-          "We could not check your email verification status. Please try again.",
-        );
-      }
+      setErrorMessage(
+        error?.message ||
+          "The verification code is invalid or expired. Please try again.",
+      );
+
     } finally {
-      setIsChecking(false);
+      setIsLoading(false);
     }
   };
 
   // ==========================================
-  // RESEND VERIFICATION EMAIL
+  // RESEND OTP
   // ==========================================
 
-  const handleResendEmail = async () => {
+  const handleResendOTP = async () => {
+    if (!email) {
+      setErrorMessage(
+        "Your email address could not be found. Please register again.",
+      );
+
+      return;
+    }
+
     try {
       setIsResending(true);
 
-      await resendVerificationEmail();
+      setErrorMessage("");
+      setSuccessMessage("");
 
-      if (Platform.OS === "web") {
-        window.alert(
-          "Verification Email Sent\n\nA new verification email has been sent to your email address.",
-        );
-      } else {
-        Alert.alert(
-          "Verification Email Sent",
-          "A new verification email has been sent to your email address.",
-        );
-      }
+      console.log(
+        "Resending OTP to:",
+        email,
+      );
+
+      await sendOTP(email);
+
+      console.log(
+        "OTP resent successfully.",
+      );
+
+      setSuccessMessage(
+        "A new verification code has been sent to your email.",
+      );
+
+      setOtp("");
+
     } catch (error: any) {
-      console.error("Resend verification error:", error);
+      console.error(
+        "Resend OTP error:",
+        error,
+      );
 
-      let message =
-        "We could not send the verification email. Please try again.";
+      setErrorMessage(
+        error?.message ||
+          "We could not resend the verification code. Please try again.",
+      );
 
-      // Firebase rate-limit error
-      if (error?.code === "auth/too-many-requests") {
-        message =
-          "Too many verification emails have been requested. Please wait a little while before trying again.";
-      }
-
-      if (Platform.OS === "web") {
-        window.alert(`Unable to Resend\n\n${message}`);
-      } else {
-        Alert.alert("Unable to Resend", message);
-      }
     } finally {
       setIsResending(false);
     }
   };
 
   // ==========================================
-  // BACK TO LOGIN
+  // BACK TO REGISTER
   // ==========================================
 
-  const handleBackToLogin = async () => {
-    try {
-      await logoutUser();
-    } catch (error) {
-      console.log("Logout error:", error);
+  const handleBackToRegister = () => {
+    if (isLoading || isResending) {
+      return;
     }
 
-    router.replace("/login");
+    clearRegistrationData();
+
+    router.replace("/register");
   };
 
   // ==========================================
@@ -173,122 +327,202 @@ export default function CheckEmailScreen() {
   // ==========================================
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        {/* ======================================
-            LOGO
-        ====================================== */}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={
+        Platform.OS === "ios"
+          ? "padding"
+          : undefined
+      }
+    >
+      <ScrollView
+        contentContainerStyle={
+          styles.scrollContent
+        }
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.card}>
 
-        <View style={styles.logoContainer}>
-          <Image
-            source={require("../../../assets/images/siya-logo.png")}
-            style={styles.logo}
-            resizeMode="contain"
+          {/* ======================================
+              TITLE
+          ======================================= */}
+
+          <Text style={styles.title}>
+            Verify Your Email
+          </Text>
+
+          {/* ======================================
+              DESCRIPTION
+          ======================================= */}
+
+          <Text style={styles.description}>
+            We sent a 6-digit verification code
+            to:
+          </Text>
+
+          {/* ======================================
+              EMAIL
+          ======================================= */}
+
+          <Text style={styles.emailText}>
+            {email}
+          </Text>
+
+          {/* ======================================
+              OTP LABEL
+          ======================================= */}
+
+          <Text style={styles.label}>
+            Verification Code
+          </Text>
+
+          {/* ======================================
+              OTP INPUT
+          ======================================= */}
+
+          <TextInput
+            style={styles.otpInput}
+            value={otp}
+            onChangeText={handleOtpChange}
+            placeholder="000000"
+            placeholderTextColor="#9CA3AF"
+            keyboardType="number-pad"
+            maxLength={6}
+            editable={
+              !isLoading &&
+              !isResending
+            }
+            autoFocus
           />
-        </View>
 
-        {/* ======================================
-            EMAIL ICON
-        ====================================== */}
+          {/* ======================================
+              OTP INFORMATION
+          ======================================= */}
 
-        <View style={styles.emailIconContainer}>
-          <Text style={styles.emailIcon}>@</Text>
-        </View>
+          <Text style={styles.helperText}>
+            The code will expire in 5 minutes.
+          </Text>
 
-        {/* ======================================
-            TITLE
-        ====================================== */}
+          {/* ======================================
+              ERROR MESSAGE
+          ======================================= */}
 
-        <Text style={styles.title}>Check Your Email</Text>
-
-        {/* ======================================
-            DESCRIPTION
-        ====================================== */}
-
-        <Text style={styles.description}>
-          We've sent a verification link to:
-        </Text>
-
-        {/* ======================================
-            EMAIL
-        ====================================== */}
-
-        <Text style={styles.email} numberOfLines={1} ellipsizeMode="middle">
-          {userEmail}
-        </Text>
-
-        {/* ======================================
-            INSTRUCTIONS
-        ====================================== */}
-
-        <Text style={styles.instructions}>
-          Please open your email and click the verification link to activate
-          your Siya-Fund account.
-        </Text>
-
-        {/* ======================================
-            CHECK VERIFICATION BUTTON
-        ====================================== */}
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.primaryButton,
-            pressed && styles.buttonPressed,
-            isChecking && styles.buttonDisabled,
-          ]}
-          onPress={handleCheckVerification}
-          disabled={isChecking}
-        >
-          {isChecking ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <Text style={styles.primaryButtonText}>I'VE VERIFIED MY EMAIL</Text>
-          )}
-        </Pressable>
-
-        {/* ======================================
-            RESEND EMAIL BUTTON
-        ====================================== */}
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.resendButton,
-            pressed && styles.buttonPressed,
-          ]}
-          onPress={handleResendEmail}
-          disabled={isResending}
-        >
-          {isResending ? (
-            <ActivityIndicator size="small" color="#2E8B57" />
-          ) : (
-            <Text style={styles.resendButtonText}>
-              RESEND VERIFICATION EMAIL
+          {errorMessage ? (
+            <Text style={styles.errorText}>
+              {errorMessage}
             </Text>
-          )}
-        </Pressable>
+          ) : null}
 
-        {/* ======================================
-            BACK TO LOGIN
-        ====================================== */}
+          {/* ======================================
+              SUCCESS MESSAGE
+          ======================================= */}
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.backButton,
-            pressed && styles.buttonPressed,
-          ]}
-          onPress={handleBackToLogin}
-        >
-          <Text style={styles.backButtonText}>Back to Login</Text>
-        </Pressable>
+          {successMessage ? (
+            <Text style={styles.successText}>
+              {successMessage}
+            </Text>
+          ) : null}
 
-        {/* ======================================
-            FOOTER
-        ====================================== */}
+          {/* ======================================
+              VERIFY BUTTON
+          ======================================= */}
 
-        <Text style={styles.footerText}>
-          Save Together • Borrow Smarter • Grow Together
-        </Text>
-      </View>
-    </View>
+          <Pressable
+            style={({ pressed }) => [
+              styles.verifyButton,
+              pressed &&
+                styles.buttonPressed,
+              (isLoading ||
+                isResending) &&
+                styles.buttonDisabled,
+            ]}
+            onPress={handleVerifyOTP}
+            disabled={
+              isLoading ||
+              isResending
+            }
+          >
+            {isLoading ? (
+              <ActivityIndicator
+                size="small"
+                color="#FFFFFF"
+              />
+            ) : (
+              <Text
+                style={
+                  styles.verifyButtonText
+                }
+              >
+                VERIFY EMAIL
+              </Text>
+            )}
+          </Pressable>
+
+          {/* ======================================
+              RESEND SECTION
+          ======================================= */}
+
+          <View
+            style={
+              styles.resendContainer
+            }
+          >
+            <Text
+              style={styles.resendText}
+            >
+              Didn't receive the code?
+            </Text>
+
+            <Pressable
+              onPress={handleResendOTP}
+              disabled={
+                isLoading ||
+                isResending
+              }
+            >
+              {isResending ? (
+                <ActivityIndicator
+                  size="small"
+                  color="#000000"
+                />
+              ) : (
+                <Text
+                  style={
+                    styles.resendLink
+                  }
+                >
+                  Resend Code
+                </Text>
+              )}
+            </Pressable>
+          </View>
+
+          {/* ======================================
+              BACK TO REGISTER
+          ======================================= */}
+
+          <Pressable
+            onPress={
+              handleBackToRegister
+            }
+            disabled={
+              isLoading ||
+              isResending
+            }
+          >
+            <Text
+              style={
+                styles.backToRegister
+              }
+            >
+              ← Back to Registration
+            </Text>
+          </Pressable>
+
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
+
