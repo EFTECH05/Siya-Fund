@@ -73,18 +73,18 @@ export default function RegisterScreen() {
   // ==========================================
 
   const handleRegister = async () => {
-    // ==========================================
+    // ========================================
     // CLEAN USER INFORMATION
-    // ==========================================
+    // ========================================
 
     const cleanFirstName = firstName.trim();
     const cleanLastName = lastName.trim();
     const cleanEmail = email.trim().toLowerCase();
     const cleanPhone = phone.trim();
 
-    // ==========================================
+    // ========================================
     // VALIDATION
-    // ==========================================
+    // ========================================
 
     if (
       !cleanFirstName ||
@@ -101,9 +101,9 @@ export default function RegisterScreen() {
       return;
     }
 
-    // ==========================================
+    // ========================================
     // EMAIL VALIDATION
-    // ==========================================
+    // ========================================
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -115,9 +115,9 @@ export default function RegisterScreen() {
       return;
     }
 
-    // ==========================================
+    // ========================================
     // PASSWORD VALIDATION
-    // ==========================================
+    // ========================================
 
     if (password.length < 6) {
       showError(
@@ -127,9 +127,9 @@ export default function RegisterScreen() {
       return;
     }
 
-    // ==========================================
+    // ========================================
     // CONFIRM PASSWORD
-    // ==========================================
+    // ========================================
 
     if (password !== confirmPassword) {
       showError(
@@ -139,9 +139,9 @@ export default function RegisterScreen() {
       return;
     }
 
-    // ==========================================
+    // ========================================
     // SEND OTP
-    // ==========================================
+    // ========================================
 
     try {
       setIsLoading(true);
@@ -190,7 +190,8 @@ export default function RegisterScreen() {
 
     } catch (error: any) {
       // ========================================
-      // LOG ERROR
+      // IMPORTANT:
+      // TECHNICAL ERROR ONLY GOES TO CONSOLE
       // ========================================
 
       console.error(
@@ -199,13 +200,62 @@ export default function RegisterScreen() {
       );
 
       // ========================================
-      // SHOW ERROR
+      // DEFAULT FRIENDLY ERROR
+      // ========================================
+
+      let message =
+        "We could not send the verification code. Please try again.";
+
+      // ========================================
+      // NETWORK ERROR
+      // ========================================
+
+      if (
+        error?.message?.includes(
+          "Network request failed",
+        ) ||
+        error?.message?.includes(
+          "network",
+        )
+      ) {
+        message =
+          "Please check your internet connection and try again.";
+      }
+
+      // ========================================
+      // OTP FAILED
+      // ========================================
+
+      else if (
+        error?.message?.includes(
+          "Failed to send OTP",
+        )
+      ) {
+        message =
+          "We could not send the verification code. Please try again.";
+      }
+
+      // ========================================
+      // UNKNOWN ERROR
+      // ========================================
+
+      else {
+        console.error(
+          "Unhandled registration error:",
+          error,
+        );
+
+        message =
+          "We could not create your account right now. Please try again.";
+      }
+
+      // ========================================
+      // SHOW ONLY FRIENDLY ERROR
       // ========================================
 
       showError(
         "Unable to Send OTP",
-        error?.message ||
-          "We could not send the verification code. Please check your internet connection and try again.",
+        message,
       );
 
     } finally {
@@ -582,3 +632,4 @@ export default function RegisterScreen() {
     </KeyboardAvoidingView>
   );
 }
+

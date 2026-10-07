@@ -1,25 +1,37 @@
 
+
 // ==========================================
 // FIREBASE AUTHENTICATION FUNCTIONS
 // ==========================================
 
 // Import Firebase Authentication functions
+
 import {
   createUserWithEmailAndPassword,
   updateProfile,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut,
   getAuth,
 } from "firebase/auth";
 
+// ==========================================
+// FIRESTORE FUNCTIONS
+// ==========================================
+
 // Import Firestore functions
+
 import {
   doc,
+  getDoc,
   setDoc,
   serverTimestamp,
 } from "firebase/firestore";
 
-// Import Firebase application configuration
+// ==========================================
+// FIREBASE APPLICATION CONFIGURATION
+// ==========================================
+
 import app, { db } from "./firebase";
 
 // ==========================================
@@ -27,6 +39,7 @@ import app, { db } from "./firebase";
 // ==========================================
 
 // Get the Firebase Authentication instance
+
 const auth = getAuth(app);
 
 // ==========================================
@@ -39,14 +52,18 @@ export const registerUser = async (
   email: string,
   password: string,
 ) => {
-
   // ========================================
   // CLEAN USER INFORMATION
   // ========================================
 
-  const cleanFirstName = firstName.trim();
-  const cleanLastName = lastName.trim();
-  const cleanEmail = email.trim().toLowerCase();
+  const cleanFirstName =
+    firstName.trim();
+
+  const cleanLastName =
+    lastName.trim();
+
+  const cleanEmail =
+    email.trim().toLowerCase();
 
   // ========================================
   // CREATE FIREBASE AUTH ACCOUNT
@@ -65,7 +82,9 @@ export const registerUser = async (
     );
 
   // Get the newly created Firebase user
-  const user = userCredential.user;
+
+  const user =
+    userCredential.user;
 
   console.log(
     "Firebase account created successfully.",
@@ -98,33 +117,47 @@ export const registerUser = async (
     doc(db, "users", user.uid),
     {
       // Firebase Authentication UID
+
       uid: user.uid,
 
       // User first name
-      firstName: cleanFirstName,
+
+      firstName:
+        cleanFirstName,
 
       // User last name
-      lastName: cleanLastName,
+
+      lastName:
+        cleanLastName,
 
       // Full display name
+
       displayName:
         `${cleanFirstName} ${cleanLastName}`,
 
       // User email
-      email: cleanEmail,
+
+      email:
+        cleanEmail,
 
       // Normal users receive the user role
+
       role: "user",
 
-      // Email has already been verified
-      // through our OTP system
+      // Email has been verified
+      // through the Siya-Fund OTP system
+
       emailVerified: true,
 
       // Account creation timestamp
-      createdAt: serverTimestamp(),
+
+      createdAt:
+        serverTimestamp(),
 
       // Last update timestamp
-      updatedAt: serverTimestamp(),
+
+      updatedAt:
+        serverTimestamp(),
     },
   );
 
@@ -159,9 +192,12 @@ export const loginUser = async (
   email: string,
   password: string,
 ) => {
+  // ========================================
+  // CLEAN EMAIL ADDRESS
+  // ========================================
 
-  // Clean email address
-  const cleanEmail = email.trim().toLowerCase();
+  const cleanEmail =
+    email.trim().toLowerCase();
 
   // ========================================
   // SIGN IN
@@ -180,7 +216,9 @@ export const loginUser = async (
     );
 
   // Get logged-in user
-  const user = userCredential.user;
+
+  const user =
+    userCredential.user;
 
   // ========================================
   // LOG LOGIN INFORMATION
@@ -213,20 +251,124 @@ export const loginUser = async (
 };
 
 // ==========================================
+// RESET USER PASSWORD
+// ==========================================
+
+export const resetUserPassword = async (
+  email: string,
+): Promise<void> => {
+  // ========================================
+  // CLEAN EMAIL ADDRESS
+  // ========================================
+
+  const cleanEmail =
+    email.trim().toLowerCase();
+
+  // ========================================
+  // VALIDATE EMAIL
+  // ========================================
+
+  if (!cleanEmail) {
+    throw new Error(
+      "Email address is required.",
+    );
+  }
+
+  // ========================================
+  // SEND FIREBASE PASSWORD RESET EMAIL
+  // ========================================
+
+  console.log(
+    "Sending password reset email to:",
+    cleanEmail,
+  );
+
+  try {
+    await sendPasswordResetEmail(
+      auth,
+      cleanEmail,
+    );
+
+    console.log(
+      "Password reset email sent successfully.",
+    );
+  } catch (error: any) {
+    // ========================================
+    // LOG TECHNICAL ERROR
+    // ========================================
+
+    console.error(
+      "Password reset error:",
+      error,
+    );
+
+    // ========================================
+    // FIREBASE ERROR HANDLING
+    // ========================================
+
+    if (
+      error?.code ===
+      "auth/invalid-email"
+    ) {
+      throw new Error(
+        "Please enter a valid email address.",
+      );
+    }
+
+    if (
+      error?.code ===
+      "auth/user-not-found"
+    ) {
+      throw new Error(
+        "No account was found with this email address.",
+      );
+    }
+
+    if (
+      error?.code ===
+      "auth/too-many-requests"
+    ) {
+      throw new Error(
+        "Too many password reset requests. Please wait a while and try again.",
+      );
+    }
+
+    if (
+      error?.code ===
+      "auth/network-request-failed"
+    ) {
+      throw new Error(
+        "Please check your internet connection and try again.",
+      );
+    }
+
+    // ========================================
+    // GENERIC ERROR
+    // ========================================
+
+    throw new Error(
+      "We could not send the password reset email. Please try again.",
+    );
+  }
+};
+
+// ==========================================
 // GET USER ROLE
 // ==========================================
 
 export const getUserRole = async () => {
+  // ========================================
+  // GET CURRENT USER
+  // ========================================
 
-  // Get the currently logged-in user
-  const user = auth.currentUser;
+  const user =
+    auth.currentUser;
 
   // ========================================
   // CHECK USER
   // ========================================
 
   if (!user) {
-
     console.log(
       "No logged-in user found.",
     );
@@ -235,37 +377,76 @@ export const getUserRole = async () => {
   }
 
   // ========================================
-  // REFRESH ID TOKEN
+  // GET FIRESTORE USER DOCUMENT
   // ========================================
 
-  // Force Firebase to refresh the ID token
-  // so the latest custom claims are available.
-  const tokenResult =
-    await user.getIdTokenResult(true);
+  try {
+    const userRef =
+      doc(db, "users", user.uid);
 
-  // ========================================
-  // GET ROLE
-  // ========================================
+    const userSnapshot =
+      await getDoc(userRef);
 
-  const role =
-    tokenResult.claims.role;
+    // ======================================
+    // CHECK IF DOCUMENT EXISTS
+    // ======================================
 
-  // ========================================
-  // LOG ROLE
-  // ========================================
+    if (!userSnapshot.exists()) {
+      console.log(
+        "No Firestore user document found for:",
+        user.uid,
+      );
 
-  console.log(
-    "Firebase user role:",
-    role,
-  );
+      return "user";
+    }
 
-  // ========================================
-  // RETURN ROLE
-  // ========================================
+    // ======================================
+    // GET USER DATA
+    // ======================================
 
-  return typeof role === "string"
-    ? role
-    : "user";
+    const userData =
+      userSnapshot.data();
+
+    // ======================================
+    // GET ROLE
+    // ======================================
+
+    const role =
+      userData.role;
+
+    // ======================================
+    // LOG ROLE
+    // ======================================
+
+    console.log(
+      "Firestore user role:",
+      role,
+    );
+
+    // ======================================
+    // RETURN ROLE
+    // ======================================
+
+    return typeof role === "string"
+      ? role
+      : "user";
+
+  } catch (error) {
+    // ======================================
+    // LOG TECHNICAL ERROR
+    // ======================================
+
+    console.error(
+      "Error retrieving user role:",
+      error,
+    );
+
+    // ======================================
+    // SAFE DEFAULT
+    // ======================================
+
+    return "user";
+  }
 };
 
 // ==========================================
@@ -273,7 +454,6 @@ export const getUserRole = async () => {
 // ==========================================
 
 export const logoutUser = async () => {
-
   // ========================================
   // SIGN OUT
   // ========================================
@@ -290,8 +470,7 @@ export const logoutUser = async () => {
 // ==========================================
 
 export const getCurrentUser = () => {
-
   // Return the currently signed-in user
+
   return auth.currentUser;
 };
-

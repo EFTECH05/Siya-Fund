@@ -42,7 +42,9 @@ _2. In another terminal, start the frontend:_
 ⁠ bash
 cd ~/Documents/GitHub/Siya-Fund/frontend
 npx expo start
- ⁠
+ ⁠Super admin :
+gmail: dikiiffrana@gmail.com
+passowrd : franklin
 
 ```bash
 npx expo start

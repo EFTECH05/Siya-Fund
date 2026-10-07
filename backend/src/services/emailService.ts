@@ -1,36 +1,122 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
+
 import fs from "fs";
+
 import path from "path";
 
-const resend = new Resend(
-  process.env.RESEND_API_KEY
+// ==========================================
+// GMAIL SMTP CONFIGURATION
+// ==========================================
+
+const smtpHost =
+  process.env.SMTP_HOST || "smtp.gmail.com";
+
+const smtpPort = Number(
+  process.env.SMTP_PORT || 587
 );
 
-// Siya-Fund logo
+const smtpUser = process.env.SMTP_USER;
+
+const smtpPass = process.env.SMTP_PASS;
+
+// ==========================================
+// ENVIRONMENT CHECK
+// ==========================================
+
+if (!smtpUser) {
+  console.warn(
+    "WARNING: SMTP_USER is not configured in the .env file."
+  );
+}
+
+if (!smtpPass) {
+  console.warn(
+    "WARNING: SMTP_PASS is not configured in the .env file."
+  );
+}
+
+// ==========================================
+// CREATE GMAIL SMTP TRANSPORTER
+// ==========================================
+
+const transporter = nodemailer.createTransport({
+  host: smtpHost,
+
+  port: smtpPort,
+
+  secure: false,
+
+  auth: {
+    user: smtpUser,
+
+    pass: smtpPass,
+  },
+
+  tls: {
+    rejectUnauthorized: true,
+  },
+});
+
+// ==========================================
+// SIYA-FUND LOGO
+// ==========================================
+
 const logoPath = path.join(
   __dirname,
   "../../assets/siya-logo.png"
 );
+
+// ==========================================
+// SEND OTP EMAIL
+// ==========================================
 
 export const sendOTPEmail = async (
   email: string,
   otp: string
 ): Promise<void> => {
   try {
-    // Read Siya-Fund logo
-    const logo = fs.readFileSync(logoPath);
+    // ========================================
+    // VALIDATION
+    // ========================================
 
-    const { data, error } =
-      await resend.emails.send({
-        from: "onboarding@resend.dev",
+    if (!email) {
+      throw new Error(
+        "Recipient email address is required."
+      );
+    }
 
-        to: email,
+    if (!otp) {
+      throw new Error(
+        "OTP is required."
+      );
+    }
 
-        subject:
-          "Your Siya-Fund Verification Code",
+    if (!smtpUser || !smtpPass) {
+      throw new Error(
+        "Gmail SMTP credentials are not configured. Please check your .env file."
+      );
+    }
 
-        // Plain-text fallback
-        text: `
+    // ========================================
+    // READ SIYA-FUND LOGO
+    // ========================================
+
+    const logo = fs.readFileSync(
+      logoPath
+    );
+
+    // ========================================
+    // EMAIL SUBJECT
+    // ========================================
+
+    const subject =
+      "Your Siya-Fund Verification Code";
+
+    // ========================================
+    // PLAIN-TEXT EMAIL
+    // ========================================
+
+    const text = `
 Your Siya-Fund verification code is:
 
 ${otp}
@@ -40,20 +126,15 @@ This code will expire in 5 minutes.
 If you did not request this code, you can safely ignore this email.
 
 Siya-Fund Team
+
 Save • Borrow • Grow
-        `,
+    `;
 
-        // Embedded logo
-        attachments: [
-          {
-            filename: "siya-logo.png",
-            content: logo,
-            contentId: "siya-logo",
-          },
-        ],
+    // ========================================
+    // HTML EMAIL
+    // ========================================
 
-        // HTML email
-        html: `
+    const html = `
 <!DOCTYPE html>
 
 <html>
@@ -67,10 +148,11 @@ Save • Borrow • Grow
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Siya-Fund Email Verification</title>
+  <title>
+    Siya-Fund Email Verification
+  </title>
 
 </head>
-
 
 <body
   style="
@@ -80,7 +162,6 @@ Save • Borrow • Grow
     font-family: Arial, Helvetica, sans-serif;
   "
 >
-
 
   <!-- Main Background -->
 
@@ -99,7 +180,6 @@ Save • Borrow • Grow
 
       <td align="center">
 
-
         <!-- Email Card -->
 
         <table
@@ -114,7 +194,6 @@ Save • Borrow • Grow
             overflow: hidden;
           "
         >
-
 
           <!-- GREEN HEADER -->
 
@@ -142,7 +221,6 @@ Save • Borrow • Grow
 
           </tr>
 
-
           <!-- CONTENT -->
 
           <tr>
@@ -152,7 +230,6 @@ Save • Borrow • Grow
                 padding: 38px 35px;
               "
             >
-
 
               <!-- Title -->
 
@@ -165,9 +242,10 @@ Save • Borrow • Grow
                   font-weight: 700;
                 "
               >
-                Verify Your Email
-              </h1>
 
+                Verify Your Email
+
+              </h1>
 
               <!-- Introduction -->
 
@@ -181,14 +259,17 @@ Save • Borrow • Grow
                   line-height: 24px;
                 "
               >
+
                 Welcome to
+
                 <strong style="color: #15803d;">
                   Siya-Fund
                 </strong>.
+
                 Use the verification code below
                 to continue.
-              </p>
 
+              </p>
 
               <!-- OTP SECTION -->
 
@@ -211,7 +292,6 @@ Save • Borrow • Grow
                     "
                   >
 
-
                     <!-- OTP Label -->
 
                     <p
@@ -224,9 +304,10 @@ Save • Borrow • Grow
                         letter-spacing: 1.5px;
                       "
                     >
-                      Verification Code
-                    </p>
 
+                      Verification Code
+
+                    </p>
 
                     <!-- OTP -->
 
@@ -239,16 +320,16 @@ Save • Borrow • Grow
                         padding-left: 9px;
                       "
                     >
-                      ${otp}
-                    </div>
 
+                      ${otp}
+
+                    </div>
 
                   </td>
 
                 </tr>
 
               </table>
-
 
               <!-- Expiration -->
 
@@ -268,7 +349,6 @@ Save • Borrow • Grow
                 </strong>.
 
               </p>
-
 
               <!-- Security Notice -->
 
@@ -308,6 +388,7 @@ Save • Borrow • Grow
 
                       If you did not request this code,
                       you can safely ignore this email.
+
                       Never share your verification code
                       with anyone.
 
@@ -319,7 +400,6 @@ Save • Borrow • Grow
 
               </table>
 
-
               <!-- Divider -->
 
               <hr
@@ -329,7 +409,6 @@ Save • Borrow • Grow
                   margin: 32px 0 25px;
                 "
               >
-
 
               <!-- Footer -->
 
@@ -347,9 +426,10 @@ Save • Borrow • Grow
                     font-weight: 700;
                   "
                 >
-                  Siya-Fund Team
-                </p>
 
+                  Siya-Fund Team
+
+                </p>
 
                 <p
                   style="
@@ -359,16 +439,16 @@ Save • Borrow • Grow
                     font-weight: 600;
                   "
                 >
+
                   Save • Borrow • Grow
+
                 </p>
 
               </div>
 
-
             </td>
 
           </tr>
-
 
           <!-- BOTTOM GREEN STRIP -->
 
@@ -382,14 +462,14 @@ Save • Borrow • Grow
                 line-height: 0;
               "
             >
+
               &nbsp;
+
             </td>
 
           </tr>
 
-
         </table>
-
 
         <!-- Outside Footer -->
 
@@ -401,10 +481,11 @@ Save • Borrow • Grow
             text-align: center;
           "
         >
+
           This is an automated message from Siya-Fund.
           Please do not reply to this email.
-        </p>
 
+        </p>
 
       </td>
 
@@ -412,45 +493,64 @@ Save • Borrow • Grow
 
   </table>
 
-
 </body>
 
 </html>
-        `,
-      });
+    `;
 
+    // ========================================
+    // SEND EMAIL WITH GMAIL SMTP
+    // ========================================
 
-    // Resend error
+    const info = await transporter.sendMail({
 
-    if (error) {
+      from: `"Siya-Fund" <${smtpUser}>`,
 
-      console.error(
-        "RESEND ERROR:",
-        error
-      );
+      to: email,
 
-      throw new Error(
-        error.message
-      );
-    }
+      subject,
 
+      text,
 
-    // Success
+      html,
+
+      attachments: [
+        {
+          filename: "siya-logo.png",
+
+          content: logo,
+
+          cid: "siya-logo",
+        },
+      ],
+    });
+
+    // ========================================
+    // SUCCESS LOG
+    // ========================================
 
     console.log(
-      "EMAIL SENT WITH RESEND:"
+      "EMAIL SENT SUCCESSFULLY WITH GMAIL SMTP"
     );
 
     console.log(
-      "Email ID:",
-      data?.id
+      "Message ID:",
+      info.messageId
     );
 
+    console.log(
+      "Recipient:",
+      email
+    );
 
   } catch (error) {
 
+    // ========================================
+    // ERROR LOG
+    // ========================================
+
     console.error(
-      "EMAIL SERVICE ERROR:",
+      "GMAIL SMTP EMAIL ERROR:",
       error
     );
 
