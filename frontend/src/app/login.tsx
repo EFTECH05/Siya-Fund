@@ -1,48 +1,26 @@
-// React is required for useState
 import React, { useState } from "react";
-
-// React Native Alert is used to show messages to the user
 import { Alert } from "react-native";
-
-// Expo Router is used for navigation
 import { router } from "expo-router";
 
-// Import the Login screen UI
 import ActualLoginScreen from "../views/screens/ActualLoginScreen";
 
-// Import Firebase Authentication services
 import {
   loginUser,
-  getUserRole,
+  logoutUser,
 } from "../services/AuthService";
 
-// Login route
+import { sendOTP } from "../services/OtpService";
+import { setLoginEmail } from "../services/LoginOtpStore";
+
 export default function LoginRoute() {
-
-  // ==========================================
-  // LOADING STATE
-  // ==========================================
-
-  // Tracks whether Firebase is currently logging in
   const [isLoading, setIsLoading] = useState(false);
-
-  // ==========================================
-  // LOGIN
-  // ==========================================
 
   const handleLogin = async (
     email: string,
     password: string,
   ) => {
+    const cleanEmail = email.trim().toLowerCase();
 
-    // Remove unnecessary spaces from the email
-    const cleanEmail = email.trim();
-
-    // ==========================================
-    // BASIC VALIDATION
-    // ==========================================
-
-    // Check if email is empty
     if (!cleanEmail) {
       Alert.alert(
         "Email Required",
@@ -51,7 +29,6 @@ export default function LoginRoute() {
       return;
     }
 
-    // Check if password is empty
     if (!password) {
       Alert.alert(
         "Password Required",
@@ -61,174 +38,93 @@ export default function LoginRoute() {
     }
 
     try {
-
-      // Start loading
       setIsLoading(true);
 
-      // ==========================================
-      // FIREBASE LOGIN
-      // ==========================================
-
-      // Sign the user into Firebase
+      // Step 1: Check email and password with Firebase
       await loginUser(
         cleanEmail,
         password,
       );
 
-      // ==========================================
-      // GET USER ROLE
-      // ==========================================
+      // Step 2: Send OTP to the user's email
+      await sendOTP(cleanEmail);
 
-      // Get the role from Firebase custom claims
-      const role = await getUserRole();
+      // Step 3: Save email temporarily
+      setLoginEmail(cleanEmail);
 
-      // ==========================================
-      // LOGIN SUCCESS
-      // ==========================================
-
-      Alert.alert(
-        "Login Successful",
-        "Welcome back to Siya-Fund!",
-      );
-
-      // ==========================================
-      // ROLE-BASED NAVIGATION
-      // ==========================================
-
-      if (role === "super_admin") {
-
-        // Super Admin goes to Super Admin dashboard
-        router.replace("/super-admin");
-
-      } else {
-
-        // Normal users go to normal dashboard
-        router.replace("/dashboard");
-
-      }
+      // Step 4: Go to Login OTP screen
+      router.push("/login-otp" as any);
 
     } catch (error: any) {
-
-      // ==========================================
-      // DEFAULT ERROR
-      // ==========================================
+      console.error("Login error:", error);
 
       let message =
         "Something went wrong. Please try again.";
-
-      // ==========================================
-      // INVALID CREDENTIALS
-      // ==========================================
 
       if (
         error?.code === "auth/invalid-credential" ||
         error?.code === "auth/invalid-login-credentials"
       ) {
-
         message =
           "The email or password is incorrect. Please check your details and try again.";
-
-      }
-
-      // ==========================================
-      // USER NOT FOUND
-      // ==========================================
-
-      else if (
+      } else if (
         error?.code === "auth/user-not-found"
       ) {
-
         message =
           "No account was found with this email address.";
-
-      }
-
-      // ==========================================
-      // WRONG PASSWORD
-      // ==========================================
-
-      else if (
+      } else if (
         error?.code === "auth/wrong-password"
       ) {
-
         message =
           "The password you entered is incorrect.";
-
-      }
-
-      // ==========================================
-      // INVALID EMAIL
-      // ==========================================
-
-      else if (
+      } else if (
         error?.code === "auth/invalid-email"
       ) {
-
         message =
           "Please enter a valid email address.";
-
-      }
-
-      // ==========================================
-      // TOO MANY REQUESTS
-      // ==========================================
-
-      else if (
+      } else if (
         error?.code === "auth/too-many-requests"
       ) {
-
         message =
           "Too many login attempts. Please wait a moment and try again.";
-
-      }
-
-      // ==========================================
-      // NETWORK ERROR
-      // ==========================================
-
-      else if (
+      } else if (
         error?.code === "auth/network-request-failed"
       ) {
-
         message =
           "Please check your internet connection and try again.";
+      } else if (
+        error?.message?.includes("Failed to send OTP")
+      ) {
+        // Firebase login succeeded, but OTP could not be sent.
+        // Sign the user out so they are not left authenticated.
+        try {
+          await logoutUser();
+        } catch (logoutError) {
+          console.error(
+            "Logout after OTP failure failed:",
+            logoutError,
+          );
+        }
 
+        message =
+          "We could not send your verification code. Please try again.";
       }
-
-      // ==========================================
-      // SHOW ERROR
-      // ==========================================
 
       Alert.alert(
         "Login Failed",
         message,
       );
-
     } finally {
-
-      // Stop loading
       setIsLoading(false);
-
     }
   };
 
-  // ==========================================
-  // FORGOT PASSWORD
-  // ==========================================
-
   const handleForgotPassword = () => {
-
-    // Firebase password reset will be connected next
     Alert.alert(
       "Forgot Password",
       "Password reset will be available soon.",
     );
-
   };
-
-  // ==========================================
-  // DISPLAY LOGIN SCREEN
-  // ==========================================
 
   return (
     <ActualLoginScreen
