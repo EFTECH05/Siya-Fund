@@ -1,8 +1,4 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   Alert,
@@ -20,19 +16,15 @@ import {
 
 import { router } from "expo-router";
 
-import {
-  getLoginEmail,
-  clearLoginEmail,
-} from "../services/LoginOtpStore";
+import { getLoginEmail, clearLoginEmail } from "../services/LoginOtpStore";
 
-import {
-  verifyOTP,
-  sendOTP,
-} from "../services/OtpService";
+import { verifyOTP, sendOTP } from "../services/OtpService";
 
-import {
-  getUserRole,
-} from "../services/AuthService";
+import { getUserRole } from "../services/AuthService";
+
+// ==========================================
+// COLORS
+// ==========================================
 
 const GREEN = "#15803D";
 const DARK_GREEN = "#166534";
@@ -42,70 +34,76 @@ const LIGHT_GREY = "#F3F4F6";
 const PAGE_BACKGROUND = "#F4F7F4";
 const WHITE = "#FFFFFF";
 
+// ==========================================
+// SCREEN
+// ==========================================
+
 export default function LoginOtpScreen() {
   const { width } = useWindowDimensions();
 
   const isWeb = Platform.OS === "web";
   const isLargeScreen = width >= 768;
 
-  const [email, setEmail] =
-    useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
 
-  const [otp, setOtp] =
-    useState("");
+  const [otp, setOtp] = useState("");
 
-  const [isVerifying, setIsVerifying] =
-    useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
-  const [isResending, setIsResending] =
-    useState(false);
+  const [isResending, setIsResending] = useState(false);
 
-  // Prevent accidental double taps
+  const [resendCountdown, setResendCountdown] = useState(0);
+
+  // Prevent double taps
   const verifyLock = useRef(false);
   const resendLock = useRef(false);
+
+  // ==========================================
+  // LOAD EMAIL
+  // ==========================================
 
   useEffect(() => {
     const storedEmail = getLoginEmail();
 
+    console.log("OTP screen email:", storedEmail);
+
     if (!storedEmail) {
-      Alert.alert(
-        "Session Expired",
-        "Please login again.",
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              router.replace("/login");
-            },
+      Alert.alert("Session Expired", "Please login again.", [
+        {
+          text: "OK",
+          onPress: () => {
+            router.replace("/login");
           },
-        ]
-      );
+        },
+      ]);
 
       return;
     }
 
     setEmail(storedEmail);
 
-    // Prevent Android back button
-    if (Platform.OS === "android") {
-      const backHandler =
-        BackHandler.addEventListener(
-          "hardwareBackPress",
-          () => {
-            Alert.alert(
-              "Verification Required",
-              "Please complete login verification before continuing.",
-              [
-                {
-                  text: "OK",
-                  style: "cancel",
-                },
-              ]
-            );
+    // ========================================
+    // ANDROID BACK BUTTON
+    // ========================================
 
-            return true;
-          }
-        );
+    if (Platform.OS === "android") {
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        () => {
+          Alert.alert(
+            "Verification Required",
+            "Please complete login verification before continuing.",
+            [
+              {
+                text: "OK",
+                style: "cancel",
+              },
+            ],
+          );
+
+          return true;
+        },
+      );
 
       return () => {
         backHandler.remove();
@@ -114,27 +112,60 @@ export default function LoginOtpScreen() {
   }, []);
 
   // ==========================================
+  // RESEND COUNTDOWN
+  // ==========================================
+
+  useEffect(() => {
+    if (resendCountdown <= 0) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setResendCountdown((previous) => {
+        if (previous <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+
+        return previous - 1;
+      });
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [resendCountdown]);
+
+  // ==========================================
   // VERIFY OTP
   // ==========================================
 
   const handleVerify = async () => {
+    console.log("=================================");
+
+    console.log("VERIFY BUTTON CLICKED");
+
+    console.log("Email:", email);
+
+    console.log("OTP:", otp);
+
+    console.log("=================================");
+
     if (verifyLock.current) {
+      console.log("Verification already running.");
+
       return;
     }
 
     if (!email) {
-      Alert.alert(
-        "Session Expired",
-        "Please login again.",
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              router.replace("/login");
-            },
+      Alert.alert("Session Expired", "Please login again.", [
+        {
+          text: "OK",
+          onPress: () => {
+            router.replace("/login");
           },
-        ]
-      );
+        },
+      ]);
 
       return;
     }
@@ -142,7 +173,7 @@ export default function LoginOtpScreen() {
     if (!otp) {
       Alert.alert(
         "OTP Required",
-        "Please enter your 6-digit verification code."
+        "Please enter your 6-digit verification code.",
       );
 
       return;
@@ -151,7 +182,7 @@ export default function LoginOtpScreen() {
     if (!/^\d{6}$/.test(otp)) {
       Alert.alert(
         "Invalid Code",
-        "Your verification code must contain exactly 6 digits."
+        "Your verification code must contain exactly 6 digits.",
       );
 
       return;
@@ -161,65 +192,61 @@ export default function LoginOtpScreen() {
     setIsVerifying(true);
 
     try {
-      await verifyOTP(
-        email,
-        otp
-      );
+      console.log("Calling verifyOTP...");
 
-      console.log(
-        "Login OTP verified successfully."
-      );
+      await verifyOTP(email, otp);
 
-      const role =
-        await getUserRole();
+      console.log("OTP verification successful.");
 
-      console.log(
-        "User role:",
-        role
-      );
+      console.log("Getting Firebase user role...");
 
+      const role = await getUserRole();
+
+      console.log("Firebase user role:", role);
+
+      // Clear temporary OTP login email
       clearLoginEmail();
 
-      Alert.alert(
-        "Login Successful",
-        "Welcome back to Siya-Fund!",
-        [
-          {
-            text: "Continue",
-            onPress: () => {
-              if (
-                role === "super_admin"
-              ) {
-                router.replace(
-                  "/super-admin"
-                );
-              } else {
-                router.replace(
-                  "/dashboard"
-                );
-              }
-            },
-          },
-        ],
-        {
-          cancelable: false,
-        }
-      );
+      console.log("OTP session cleared.");
 
+      // ======================================
+      // IMPORTANT:
+      // Navigate immediately.
+      // Do NOT wait for Alert.alert()
+      // on Web.
+      // ======================================
+
+      if (role === "super_admin") {
+        console.log("Navigating to Super Admin...");
+
+        router.replace("/super-admin");
+      } else {
+        console.log("Navigating to Dashboard...");
+
+        router.replace("/dashboard");
+      }
+
+      // Reset state
+      verifyLock.current = false;
+      setIsVerifying(false);
     } catch (error: any) {
-      console.error(
-        "Login OTP verification error:",
-        error
-      );
+      console.error("=================================");
+
+      console.error("OTP VERIFICATION ERROR");
+
+      console.error(error);
+
+      console.error("=================================");
+
+      // IMPORTANT:
+      // Unlock the button when verification fails.
+      verifyLock.current = false;
+      setIsVerifying(false);
 
       Alert.alert(
         "Verification Failed",
-        error?.message ||
-          "The verification code is incorrect or has expired."
+        error?.message || "The verification code is incorrect or has expired.",
       );
-
-      verifyLock.current = false;
-      setIsVerifying(false);
     }
   };
 
@@ -228,27 +255,43 @@ export default function LoginOtpScreen() {
   // ==========================================
 
   const handleResend = async () => {
+    console.log("=================================");
+
+    console.log("RESEND BUTTON CLICKED");
+
+    console.log("Email:", email);
+
+    console.log("Platform:", Platform.OS);
+
+    console.log("=================================");
+
     if (resendLock.current) {
+      console.log("Resend already running.");
+
       return;
     }
 
     if (verifyLock.current) {
+      console.log("Resend blocked because verification is running.");
+
+      return;
+    }
+
+    if (resendCountdown > 0) {
+      console.log(`Resend blocked. ${resendCountdown}s remaining.`);
+
       return;
     }
 
     if (!email) {
-      Alert.alert(
-        "Session Expired",
-        "Please login again.",
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              router.replace("/login");
-            },
+      Alert.alert("Session Expired", "Please login again.", [
+        {
+          text: "OK",
+          onPress: () => {
+            router.replace("/login");
           },
-        ]
-      );
+        },
+      ]);
 
       return;
     }
@@ -257,76 +300,63 @@ export default function LoginOtpScreen() {
     setIsResending(true);
 
     try {
+      console.log("Calling sendOTP...");
+
       await sendOTP(email);
 
+      console.log("NEW OTP SENT SUCCESSFULLY");
+
+      // Clear old code
       setOtp("");
+
+      // Start cooldown
+      setResendCountdown(30);
 
       Alert.alert(
         "New Code Sent",
-        "A new verification code has been sent to your email."
+        "A new verification code has been sent to your email.",
       );
-
     } catch (error: any) {
-      console.error(
-        "Resend OTP error:",
-        error
-      );
+      console.error("RESEND OTP ERROR:", error);
 
       Alert.alert(
         "Resend Failed",
-        error?.message ||
-          "We could not send a new verification code."
+        error?.message || "We could not send a new verification code.",
       );
-
     } finally {
       resendLock.current = false;
       setIsResending(false);
+
+      console.log("Resend finished.");
     }
   };
 
-  const isBusy =
-    isVerifying ||
-    isResending;
+  // ==========================================
+  // BUSY
+  // ==========================================
+
+  const isBusy = isVerifying || isResending;
+
+  // ==========================================
+  // UI
+  // ==========================================
 
   return (
     <KeyboardAvoidingView
       style={styles.page}
-      behavior={
-        Platform.OS === "ios"
-          ? "padding"
-          : undefined
-      }
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
+      {/* Green background */}
 
-      {/* Decorative green background */}
+      <View style={styles.topGreen} />
 
-      <View
-        style={styles.topGreen}
-      />
+      <View style={[styles.content, isLargeScreen && styles.webContent]}>
+        {/* Card */}
 
-      <View
-        style={[
-          styles.content,
-          isLargeScreen &&
-            styles.webContent,
-        ]}
-      >
-
-        {/* Main card */}
-
-        <View
-          style={[
-            styles.card,
-            isLargeScreen &&
-              styles.webCard,
-          ]}
-        >
-
+        <View style={[styles.card, isLargeScreen && styles.webCard]}>
           {/* Logo */}
 
-          <View
-            style={styles.logoContainer}
-          >
+          <View style={styles.logoContainer}>
             <Image
               source={require("../../assets/images/siya-logo.png")}
               style={styles.logo}
@@ -334,86 +364,46 @@ export default function LoginOtpScreen() {
             />
           </View>
 
+          {/* Security badge */}
 
-          {/* Small security badge */}
+          <View style={styles.securityBadge}>
+            <View style={styles.securityDot} />
 
-          <View
-            style={styles.securityBadge}
-          >
-            <View
-              style={styles.securityDot}
-            />
-
-            <Text
-              style={styles.securityText}
-            >
-              SECURE LOGIN
-            </Text>
+            <Text style={styles.securityText}>SECURE LOGIN</Text>
           </View>
 
+          {/* Title */}
 
-          {/* Heading */}
-
-          <Text
-            style={styles.title}
-          >
-            Verify Your Login
-          </Text>
-
+          <Text style={styles.title}>Verify Your Login</Text>
 
           {/* Description */}
 
-          <Text
-            style={styles.description}
-          >
-            We've sent a 6-digit verification
-            code to your email address.
+          <Text style={styles.description}>
+            We've sent a 6-digit verification code to your email address.
           </Text>
-
 
           {/* Email */}
 
-          <View
-            style={styles.emailBox}
-          >
-            <Text
-              style={styles.emailLabel}
-            >
-              Verification email
-            </Text>
+          <View style={styles.emailBox}>
+            <Text style={styles.emailLabel}>Verification email</Text>
 
-            <Text
-              style={styles.email}
-              numberOfLines={1}
-            >
+            <Text style={styles.email} numberOfLines={1}>
               {email}
             </Text>
           </View>
 
+          {/* OTP label */}
 
-          {/* OTP Label */}
+          <Text style={styles.inputLabel}>Verification Code</Text>
 
-          <Text
-            style={styles.inputLabel}
-          >
-            Verification Code
-          </Text>
-
-
-          {/* OTP Input */}
+          {/* OTP input */}
 
           <TextInput
             value={otp}
             onChangeText={(value) => {
-              const numbersOnly =
-                value.replace(
-                  /[^0-9]/g,
-                  ""
-                );
+              const numbersOnly = value.replace(/[^0-9]/g, "");
 
-              setOtp(
-                numbersOnly.slice(0, 6)
-              );
+              setOtp(numbersOnly.slice(0, 6));
             }}
             placeholder="000000"
             placeholderTextColor="#C4C9D0"
@@ -423,25 +413,16 @@ export default function LoginOtpScreen() {
             autoFocus={!isWeb}
             autoComplete="one-time-code"
             textContentType="oneTimeCode"
-            style={[
-              styles.otpInput,
-              isBusy &&
-                styles.otpInputDisabled,
-            ]}
+            style={[styles.otpInput, isBusy && styles.otpInputDisabled]}
           />
 
+          {/* Helper */}
 
-          {/* Helper text */}
-
-          <Text
-            style={styles.helperText}
-          >
-            Enter the 6-digit code from
-            your Siya-Fund email.
+          <Text style={styles.helperText}>
+            Enter the 6-digit code from your Siya-Fund email.
           </Text>
 
-
-          {/* Verify button */}
+          {/* Verify */}
 
           <Pressable
             onPress={handleVerify}
@@ -449,99 +430,77 @@ export default function LoginOtpScreen() {
             style={({ pressed }) => [
               styles.verifyButton,
 
-              pressed &&
-                !isBusy &&
-                styles.buttonPressed,
+              pressed && !isBusy && styles.buttonPressed,
 
-              isBusy &&
-                styles.buttonDisabled,
+              isBusy && styles.buttonDisabled,
             ]}
           >
-
-            <Text
-              style={styles.verifyButtonText}
-            >
-              {isVerifying
-                ? "VERIFYING..."
-                : "VERIFY & CONTINUE"}
+            <Text style={styles.verifyButtonText}>
+              {isVerifying ? "VERIFYING..." : "VERIFY & CONTINUE"}
             </Text>
-
           </Pressable>
-
 
           {/* Resend */}
 
           <Pressable
-            onPress={handleResend}
-            disabled={isBusy}
+            onPress={() => {
+              console.log("RESEND PRESSABLE PRESSED");
+
+              handleResend();
+            }}
+            disabled={isBusy || resendCountdown > 0}
             style={({ pressed }) => [
               styles.resendButton,
 
               pressed &&
                 !isBusy &&
+                resendCountdown === 0 &&
                 styles.resendPressed,
+
+              (isBusy || resendCountdown > 0) && styles.resendButtonDisabled,
             ]}
           >
-
             <Text
               style={[
                 styles.resendText,
-                isBusy &&
-                  styles.resendDisabled,
+
+                (isBusy || resendCountdown > 0) && styles.resendDisabled,
               ]}
             >
               {isResending
                 ? "SENDING NEW CODE..."
-                : "Didn't receive the code? Resend"}
+                : resendCountdown > 0
+                  ? `RESEND AVAILABLE IN ${resendCountdown}s`
+                  : "Didn't receive the code? Resend"}
             </Text>
-
           </Pressable>
 
+          {/* Security info */}
 
-          {/* Security information */}
+          <View style={styles.securityInfo}>
+            <Text style={styles.lockIcon}>🔒</Text>
 
-          <View
-            style={styles.securityInfo}
-          >
-
-            <Text
-              style={styles.lockIcon}
-            >
-              🔒
+            <Text style={styles.securityInfoText}>
+              Your verification code expires after 5 minutes.
             </Text>
-
-            <Text
-              style={styles.securityInfoText}
-            >
-              Your verification code expires
-              after 5 minutes.
-            </Text>
-
           </View>
-
         </View>
-
 
         {/* Footer */}
 
-        <Text
-          style={[
-            styles.footer,
-            isLargeScreen &&
-              styles.webFooter,
-          ]}
-        >
+        <Text style={[styles.footer, isLargeScreen && styles.webFooter]}>
           © {new Date().getFullYear()} Siya-Fund
         </Text>
-
       </View>
-
     </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
+// ==========================================
+// STYLES
+// ==========================================
 
+const styles = StyleSheet.create({
   page: {
     flex: 1,
     backgroundColor: PAGE_BACKGROUND,
@@ -573,11 +532,8 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 500,
-
     backgroundColor: WHITE,
-
     borderRadius: 24,
-
     paddingHorizontal: 28,
     paddingVertical: 30,
 
@@ -589,7 +545,6 @@ const styles = StyleSheet.create({
     },
 
     shadowOpacity: 0.12,
-
     shadowRadius: 20,
 
     elevation: 8,
@@ -613,118 +568,83 @@ const styles = StyleSheet.create({
 
   securityBadge: {
     alignSelf: "center",
-
     flexDirection: "row",
     alignItems: "center",
-
     backgroundColor: "#F0FDF4",
-
     paddingHorizontal: 12,
     paddingVertical: 6,
-
     borderRadius: 30,
-
     marginBottom: 16,
   },
 
   securityDot: {
     width: 7,
     height: 7,
-
     borderRadius: 10,
-
     backgroundColor: GREEN,
-
     marginRight: 7,
   },
 
   securityText: {
     fontSize: 11,
     fontWeight: "800",
-
     color: GREEN,
-
     letterSpacing: 1,
   },
 
   title: {
     fontSize: 29,
-
     fontWeight: "800",
-
     color: BLACK,
-
     textAlign: "center",
-
     marginBottom: 10,
   },
 
   description: {
     fontSize: 15,
-
     lineHeight: 22,
-
     color: GREY,
-
     textAlign: "center",
-
     marginBottom: 22,
   },
 
   emailBox: {
     backgroundColor: "#F8FAFC",
-
     borderWidth: 1,
-
     borderColor: "#E5E7EB",
-
     borderRadius: 14,
-
     paddingHorizontal: 16,
     paddingVertical: 12,
-
     marginBottom: 22,
   },
 
   emailLabel: {
     fontSize: 11,
-
     fontWeight: "700",
-
     color: GREY,
-
     textTransform: "uppercase",
-
     letterSpacing: 0.7,
-
     marginBottom: 4,
   },
 
   email: {
     fontSize: 15,
-
     fontWeight: "600",
-
     color: BLACK,
   },
 
   inputLabel: {
     fontSize: 14,
-
     fontWeight: "700",
-
     color: BLACK,
-
     marginBottom: 8,
   },
 
   otpInput: {
     width: "100%",
-
     height: 64,
 
     borderWidth: 2,
-
     borderColor: GREEN,
 
     borderRadius: 15,
@@ -732,7 +652,6 @@ const styles = StyleSheet.create({
     backgroundColor: WHITE,
 
     fontSize: 27,
-
     fontWeight: "800",
 
     letterSpacing: 10,
@@ -752,25 +671,19 @@ const styles = StyleSheet.create({
 
   otpInputDisabled: {
     backgroundColor: LIGHT_GREY,
-
     borderColor: "#D1D5DB",
   },
 
   helperText: {
     fontSize: 12,
-
     color: GREY,
-
     textAlign: "center",
-
     marginTop: 9,
-
     marginBottom: 20,
   },
 
   verifyButton: {
     width: "100%",
-
     height: 54,
 
     backgroundColor: GREEN,
@@ -778,7 +691,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
 
     alignItems: "center",
-
     justifyContent: "center",
 
     shadowColor: GREEN,
@@ -789,7 +701,6 @@ const styles = StyleSheet.create({
     },
 
     shadowOpacity: 0.18,
-
     shadowRadius: 8,
 
     elevation: 4,
@@ -807,28 +718,27 @@ const styles = StyleSheet.create({
 
   buttonDisabled: {
     backgroundColor: "#9CA3AF",
-
     shadowOpacity: 0,
-
     elevation: 0,
   },
 
   verifyButtonText: {
     color: WHITE,
-
     fontSize: 15,
-
     fontWeight: "800",
-
     letterSpacing: 0.5,
   },
 
   resendButton: {
     alignItems: "center",
-
     justifyContent: "center",
-
     paddingVertical: 16,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+
+  resendButtonDisabled: {
+    opacity: 0.7,
   },
 
   resendPressed: {
@@ -837,10 +747,9 @@ const styles = StyleSheet.create({
 
   resendText: {
     color: GREEN,
-
     fontSize: 14,
-
     fontWeight: "700",
+    textAlign: "center",
   },
 
   resendDisabled: {
@@ -849,9 +758,7 @@ const styles = StyleSheet.create({
 
   securityInfo: {
     flexDirection: "row",
-
     alignItems: "center",
-
     justifyContent: "center",
 
     backgroundColor: "#F8FAFC",
@@ -859,7 +766,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
 
     paddingHorizontal: 14,
-
     paddingVertical: 11,
 
     marginTop: 4,
@@ -867,7 +773,6 @@ const styles = StyleSheet.create({
 
   lockIcon: {
     fontSize: 15,
-
     marginRight: 8,
   },
 
@@ -875,7 +780,6 @@ const styles = StyleSheet.create({
     flex: 1,
 
     fontSize: 11,
-
     lineHeight: 16,
 
     color: GREY,
@@ -885,16 +789,12 @@ const styles = StyleSheet.create({
 
   footer: {
     marginTop: 18,
-
     fontSize: 11,
-
     color: "#6B7280",
-
     textAlign: "center",
   },
 
   webFooter: {
     marginTop: 20,
   },
-
 });
