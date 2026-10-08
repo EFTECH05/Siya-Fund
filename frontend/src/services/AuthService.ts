@@ -1,50 +1,38 @@
-
-
-// ==========================================
-// FIREBASE AUTHENTICATION FUNCTIONS
-// ==========================================
-
-// Import Firebase Authentication functions
-
 import {
+  GoogleAuthProvider,
   createUserWithEmailAndPassword,
-  updateProfile,
-  signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  signInWithCredential,
+  signInWithEmailAndPassword,
   signOut,
-  getAuth,
+  updateProfile,
 } from "firebase/auth";
-
-// ==========================================
-// FIRESTORE FUNCTIONS
-// ==========================================
-
-// Import Firestore functions
 
 import {
   doc,
   getDoc,
-  setDoc,
   serverTimestamp,
+  setDoc,
 } from "firebase/firestore";
 
-// ==========================================
-// FIREBASE APPLICATION CONFIGURATION
-// ==========================================
+import {
+  GoogleSignin,
+} from "@react-native-google-signin/google-signin";
 
-import app, { db } from "./firebase";
+import {
+  auth,
+  db,
+} from "./firebase";
 
-// ==========================================
-// GET FIREBASE AUTH INSTANCE
-// ==========================================
+GoogleSignin.configure({
+  webClientId:
+    "636115954194-kinn7fjmes08ka559auuk2l1mkj618mb.apps.googleusercontent.com",
+});
 
-// Get the Firebase Authentication instance
 
-const auth = getAuth(app);
-
-// ==========================================
+// ============================================================
 // REGISTER USER
-// ==========================================
+// ============================================================
 
 export const registerUser = async (
   firstName: string,
@@ -52,10 +40,6 @@ export const registerUser = async (
   email: string,
   password: string,
 ) => {
-  // ========================================
-  // CLEAN USER INFORMATION
-  // ========================================
-
   const cleanFirstName =
     firstName.trim();
 
@@ -65,15 +49,6 @@ export const registerUser = async (
   const cleanEmail =
     email.trim().toLowerCase();
 
-  // ========================================
-  // CREATE FIREBASE AUTH ACCOUNT
-  // ========================================
-
-  console.log(
-    "Creating Firebase account for:",
-    cleanEmail,
-  );
-
   const userCredential =
     await createUserWithEmailAndPassword(
       auth,
@@ -81,132 +56,58 @@ export const registerUser = async (
       password,
     );
 
-  // Get the newly created Firebase user
-
   const user =
     userCredential.user;
-
-  console.log(
-    "Firebase account created successfully.",
-  );
-
-  console.log(
-    "Firebase UID:",
-    user.uid,
-  );
-
-  // ========================================
-  // SAVE DISPLAY NAME
-  // ========================================
 
   await updateProfile(user, {
     displayName:
       `${cleanFirstName} ${cleanLastName}`,
   });
 
-  console.log(
-    "Firebase display name updated:",
-    `${cleanFirstName} ${cleanLastName}`,
-  );
-
-  // ========================================
-  // CREATE FIRESTORE USER DOCUMENT
-  // ========================================
-
   await setDoc(
     doc(db, "users", user.uid),
     {
-      // Firebase Authentication UID
-
       uid: user.uid,
-
-      // User first name
-
       firstName:
         cleanFirstName,
-
-      // User last name
-
       lastName:
         cleanLastName,
-
-      // Full display name
-
       displayName:
         `${cleanFirstName} ${cleanLastName}`,
-
-      // User email
-
       email:
         cleanEmail,
-
-      // Normal users receive the user role
-
-      role: "user",
-
-      // Email has been verified
-      // through the Siya-Fund OTP system
-
-      emailVerified: true,
-
-      // Account creation timestamp
-
+      role:
+        "user",
+      emailVerified:
+        true,
+      provider:
+        "email",
       createdAt:
         serverTimestamp(),
-
-      // Last update timestamp
-
       updatedAt:
         serverTimestamp(),
     },
   );
 
   console.log(
-    "Firestore user document created successfully.",
+    "Registration completed:",
+    cleanEmail,
   );
-
-  // ========================================
-  // REGISTRATION COMPLETE
-  // ========================================
-
-  console.log(
-    "Registration completed successfully.",
-  );
-
-  console.log(
-    "Email was verified using Siya-Fund OTP.",
-  );
-
-  // ========================================
-  // RETURN FIREBASE USER
-  // ========================================
 
   return user;
 };
 
-// ==========================================
-// LOGIN USER
-// ==========================================
+
+// ============================================================
+// EMAIL + PASSWORD LOGIN
+// ============================================================
 
 export const loginUser = async (
   email: string,
   password: string,
 ) => {
-  // ========================================
-  // CLEAN EMAIL ADDRESS
-  // ========================================
-
   const cleanEmail =
     email.trim().toLowerCase();
-
-  // ========================================
-  // SIGN IN
-  // ========================================
-
-  console.log(
-    "Attempting login for:",
-    cleanEmail,
-  );
 
   const userCredential =
     await signInWithEmailAndPassword(
@@ -215,262 +116,305 @@ export const loginUser = async (
       password,
     );
 
-  // Get logged-in user
-
   const user =
     userCredential.user;
 
-  // ========================================
-  // LOG LOGIN INFORMATION
-  // ========================================
-
   console.log(
-    "Login successful.",
-  );
+    "Firebase login successful:",
+    {
+      uid:
+        user.uid,
 
-  console.log(
-    "Firebase UID:",
-    user.uid,
-  );
+      email:
+        user.email,
 
-  console.log(
-    "Email:",
-    user.email,
+      emailVerified:
+        user.emailVerified,
+    },
   );
-
-  console.log(
-    "Email verified:",
-    user.emailVerified,
-  );
-
-  // ========================================
-  // RETURN FIREBASE USER
-  // ========================================
 
   return user;
 };
 
-// ==========================================
-// RESET USER PASSWORD
-// ==========================================
 
-export const resetUserPassword = async (
-  email: string,
-): Promise<void> => {
-  // ========================================
-  // CLEAN EMAIL ADDRESS
-  // ========================================
+// ============================================================
+// GOOGLE LOGIN
+// ============================================================
 
-  const cleanEmail =
-    email.trim().toLowerCase();
+export const loginWithGoogle =
+  async () => {
+    try {
+      console.log(
+        "Starting Google login...",
+      );
 
-  // ========================================
-  // VALIDATE EMAIL
-  // ========================================
+      await GoogleSignin.hasPlayServices();
 
-  if (!cleanEmail) {
-    throw new Error(
-      "Email address is required.",
-    );
-  }
+      const response =
+        await GoogleSignin.signIn();
 
-  // ========================================
-  // SEND FIREBASE PASSWORD RESET EMAIL
-  // ========================================
+      if (
+        response.type !==
+        "success"
+      ) {
+        throw new Error(
+          "Google Sign-In was cancelled.",
+        );
+      }
 
-  console.log(
-    "Sending password reset email to:",
-    cleanEmail,
-  );
+      const idToken =
+        response.data?.idToken;
 
-  try {
+      if (!idToken) {
+        throw new Error(
+          "Google Sign-In failed: No ID token received.",
+        );
+      }
+
+      const googleCredential =
+        GoogleAuthProvider.credential(
+          idToken,
+        );
+
+      const userCredential =
+        await signInWithCredential(
+          auth,
+          googleCredential,
+        );
+
+      const user =
+        userCredential.user;
+
+      console.log(
+        "Firebase Google authentication successful:",
+        user.email,
+      );
+
+      const userRef =
+        doc(
+          db,
+          "users",
+          user.uid,
+        );
+
+      const userSnapshot =
+        await getDoc(userRef);
+
+
+      // --------------------------------------------------------
+      // NEW GOOGLE USER
+      // --------------------------------------------------------
+
+      if (
+        !userSnapshot.exists()
+      ) {
+        const displayName =
+          user.displayName ||
+          "";
+
+        const nameParts =
+          displayName
+            .trim()
+            .split(/\s+/);
+
+        const firstName =
+          nameParts[0] ||
+          "";
+
+        const lastName =
+          nameParts
+            .slice(1)
+            .join(" ");
+
+        await setDoc(
+          userRef,
+          {
+            uid:
+              user.uid,
+
+            firstName:
+              firstName,
+
+            lastName:
+              lastName,
+
+            displayName:
+              user.displayName ||
+              "",
+
+            email:
+              user.email ||
+              "",
+
+            role:
+              "user",
+
+            emailVerified:
+              true,
+
+            provider:
+              "google",
+
+            createdAt:
+              serverTimestamp(),
+
+            updatedAt:
+              serverTimestamp(),
+          },
+        );
+
+        console.log(
+          "New Google user created in Firestore:",
+          user.email,
+        );
+      }
+
+
+      // --------------------------------------------------------
+      // EXISTING GOOGLE USER
+      // --------------------------------------------------------
+
+      else {
+        await setDoc(
+          userRef,
+          {
+            updatedAt:
+              serverTimestamp(),
+          },
+          {
+            merge:
+              true,
+          },
+        );
+
+        console.log(
+          "Existing Google user found:",
+          user.email,
+        );
+      }
+
+      console.log(
+        "Google login successful:",
+        user.email,
+      );
+
+      return user;
+
+    } catch (error: any) {
+
+      console.error(
+        "Google login error:",
+        error,
+      );
+
+      throw error;
+    }
+  };
+
+
+// ============================================================
+// RESET PASSWORD
+// ============================================================
+
+export const resetUserPassword =
+  async (
+    email: string,
+  ) => {
+    const cleanEmail =
+      email.trim().toLowerCase();
+
     await sendPasswordResetEmail(
       auth,
       cleanEmail,
     );
 
     console.log(
-      "Password reset email sent successfully.",
+      "Password reset email sent:",
+      cleanEmail,
     );
-  } catch (error: any) {
-    // ========================================
-    // LOG TECHNICAL ERROR
-    // ========================================
+  };
 
-    console.error(
-      "Password reset error:",
-      error,
-    );
 
-    // ========================================
-    // FIREBASE ERROR HANDLING
-    // ========================================
-
-    if (
-      error?.code ===
-      "auth/invalid-email"
-    ) {
-      throw new Error(
-        "Please enter a valid email address.",
-      );
-    }
-
-    if (
-      error?.code ===
-      "auth/user-not-found"
-    ) {
-      throw new Error(
-        "No account was found with this email address.",
-      );
-    }
-
-    if (
-      error?.code ===
-      "auth/too-many-requests"
-    ) {
-      throw new Error(
-        "Too many password reset requests. Please wait a while and try again.",
-      );
-    }
-
-    if (
-      error?.code ===
-      "auth/network-request-failed"
-    ) {
-      throw new Error(
-        "Please check your internet connection and try again.",
-      );
-    }
-
-    // ========================================
-    // GENERIC ERROR
-    // ========================================
-
-    throw new Error(
-      "We could not send the password reset email. Please try again.",
-    );
-  }
-};
-
-// ==========================================
+// ============================================================
 // GET USER ROLE
-// ==========================================
+// ============================================================
 
-export const getUserRole = async () => {
-  // ========================================
-  // GET CURRENT USER
-  // ========================================
+export const getUserRole =
+  async () => {
+    const currentUser =
+      auth.currentUser;
 
-  const user =
-    auth.currentUser;
+    if (!currentUser) {
+      return "user";
+    }
 
-  // ========================================
-  // CHECK USER
-  // ========================================
-
-  if (!user) {
-    console.log(
-      "No logged-in user found.",
-    );
-
-    return null;
-  }
-
-  // ========================================
-  // GET FIRESTORE USER DOCUMENT
-  // ========================================
-
-  try {
     const userRef =
-      doc(db, "users", user.uid);
+      doc(
+        db,
+        "users",
+        currentUser.uid,
+      );
 
     const userSnapshot =
       await getDoc(userRef);
 
-    // ======================================
-    // CHECK IF DOCUMENT EXISTS
-    // ======================================
-
-    if (!userSnapshot.exists()) {
-      console.log(
-        "No Firestore user document found for:",
-        user.uid,
-      );
-
+    if (
+      !userSnapshot.exists()
+    ) {
       return "user";
     }
 
-    // ======================================
-    // GET USER DATA
-    // ======================================
-
-    const userData =
+    const data =
       userSnapshot.data();
 
-    // ======================================
-    // GET ROLE
-    // ======================================
+    return data.role ||
+      "user";
+  };
 
-    const role =
-      userData.role;
 
-    // ======================================
-    // LOG ROLE
-    // ======================================
+// ============================================================
+// LOGOUT
+// ============================================================
 
-    console.log(
-      "Firestore user role:",
-      role,
-    );
+export const logoutUser =
+  async () => {
+    try {
 
-    // ======================================
-    // RETURN ROLE
-    // ======================================
+      await signOut(auth);
 
-    return typeof role === "string"
-      ? role
-      : "user";
+      try {
 
-  } catch (error) {
-    // ======================================
-    // LOG TECHNICAL ERROR
-    // ======================================
+        await GoogleSignin.signOut();
 
-    console.error(
-      "Error retrieving user role:",
-      error,
-    );
+      } catch (googleError) {
 
-    // ======================================
-    // SAFE DEFAULT
-    // ======================================
+        console.log(
+          "Google sign out skipped:",
+          googleError,
+        );
+      }
 
-    return "user";
-  }
-};
+      console.log(
+        "User logged out successfully.",
+      );
 
-// ==========================================
-// LOGOUT USER
-// ==========================================
+    } catch (error) {
 
-export const logoutUser = async () => {
-  // ========================================
-  // SIGN OUT
-  // ========================================
+      console.error(
+        "Logout error:",
+        error,
+      );
 
-  await signOut(auth);
+      throw error;
+    }
+  };
 
-  console.log(
-    "User logged out successfully.",
-  );
-};
 
-// ==========================================
+// ============================================================
 // GET CURRENT USER
-// ==========================================
+// ============================================================
 
-export const getCurrentUser = () => {
-  // Return the currently signed-in user
-
-  return auth.currentUser;
-};
+export const getCurrentUser =
+  () => {
+    return auth.currentUser;
+  };

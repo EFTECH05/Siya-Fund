@@ -1,10 +1,13 @@
 
-
 import React, { useState } from "react";
 
-import { Alert } from "react-native";
+import {
+  Alert,
+} from "react-native";
 
-import { router } from "expo-router";
+import {
+  router,
+} from "expo-router";
 
 import ActualLoginScreen from "../views/screens/ActualLoginScreen";
 
@@ -12,42 +15,221 @@ import {
   loginUser,
   logoutUser,
   getUserRole,
+  loginWithGoogle,
 } from "../services/AuthService";
 
-import { sendOTP } from "../services/OtpService";
+import {
+  sendOTP,
+} from "../services/OtpService";
 
-import { setLoginEmail } from "../services/LoginOtpStore";
+import {
+  setLoginEmail,
+} from "../services/LoginOtpStore";
 
 // ==========================================
 // LOGIN ROUTE
 // ==========================================
 
 export default function LoginRoute() {
+
   // ==========================================
   // LOADING STATE
   // ==========================================
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [
+    isLoading,
+    setIsLoading,
+  ] = useState(false);
 
   // ==========================================
-  // LOGIN
+  // GOOGLE LOGIN
+  // ==========================================
+
+  const handleGoogleLogin = async () => {
+
+    try {
+
+      // ====================================
+      // START LOADING
+      // ====================================
+
+      setIsLoading(true);
+
+      console.log(
+        "Starting Google login...",
+      );
+
+      // ====================================
+      // STEP 1
+      // GOOGLE AUTHENTICATION
+      // ====================================
+
+      const user =
+        await loginWithGoogle();
+
+      console.log(
+        "Google login successful:",
+        user.email,
+      );
+
+      // ====================================
+      // STEP 2
+      // CHECK USER ROLE
+      // ====================================
+
+      const role =
+        await getUserRole();
+
+      console.log(
+        "Google user role:",
+        role,
+      );
+
+      // ====================================
+      // STEP 3
+      // SUPER ADMIN
+      // ====================================
+
+      if (
+        role === "super_admin"
+      ) {
+
+        console.log(
+          "Google Super Admin detected.",
+        );
+
+        router.replace(
+          "/super-admin",
+        );
+
+        return;
+      }
+
+      // ====================================
+      // STEP 4
+      // NORMAL GOOGLE USER
+      // ====================================
+
+      //
+      // Google already authenticated
+      // the user.
+      //
+      // Therefore we DO NOT send the
+      // existing email OTP.
+      //
+
+      console.log(
+        "Google normal user detected.",
+      );
+
+      // ====================================
+      // GO DIRECTLY TO DASHBOARD
+      // ====================================
+
+      router.replace(
+        "/dashboard",
+      );
+
+    } catch (error: any) {
+
+      console.error(
+        "Google login error:",
+        error,
+      );
+
+      // ====================================
+      // GOOGLE LOGIN CANCELLED
+      // ====================================
+
+      if (
+        error?.message?.includes(
+          "cancelled",
+        )
+      ) {
+
+        console.log(
+          "Google login was cancelled.",
+        );
+
+        return;
+      }
+
+      // ====================================
+      // DEFAULT ERROR
+      // ====================================
+
+      let message =
+        "We could not complete Google login. Please try again.";
+
+      // ====================================
+      // NETWORK ERROR
+      // ====================================
+
+      if (
+        error?.code ===
+        "auth/network-request-failed"
+      ) {
+
+        message =
+          "Please check your internet connection and try again.";
+
+      }
+
+      // ====================================
+      // ACCOUNT EXISTS
+      // ====================================
+
+      else if (
+        error?.code ===
+        "auth/account-exists-with-different-credential"
+      ) {
+
+        message =
+          "An account already exists with this email using another login method.";
+
+      }
+
+      // ====================================
+      // SHOW ERROR
+      // ====================================
+
+      Alert.alert(
+        "Google Login Failed",
+        message,
+      );
+
+    } finally {
+
+      // ====================================
+      // STOP LOADING
+      // ====================================
+
+      setIsLoading(false);
+    }
+  };
+
+  // ==========================================
+  // NORMAL LOGIN
   // ==========================================
 
   const handleLogin = async (
     email: string,
     password: string,
   ) => {
+
     // ========================================
     // CLEAN EMAIL
     // ========================================
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail =
+      email.trim().toLowerCase();
 
     // ========================================
     // CHECK EMAIL
     // ========================================
 
     if (!cleanEmail) {
+
       Alert.alert(
         "Email Required",
         "Please enter your email address.",
@@ -61,6 +243,7 @@ export default function LoginRoute() {
     // ========================================
 
     if (!password) {
+
       Alert.alert(
         "Password Required",
         "Please enter your password.",
@@ -70,6 +253,7 @@ export default function LoginRoute() {
     }
 
     try {
+
       // ========================================
       // START LOADING
       // ========================================
@@ -96,7 +280,8 @@ export default function LoginRoute() {
       // CHECK USER ROLE
       // ========================================
 
-      const role = await getUserRole();
+      const role =
+        await getUserRole();
 
       console.log(
         "Logged-in user role:",
@@ -107,16 +292,22 @@ export default function LoginRoute() {
       // STEP 3
       // SUPER ADMIN LOGIN
       // ========================================
+
       //
       // Super Admin does NOT require OTP.
       //
 
-      if (role === "super_admin") {
+      if (
+        role === "super_admin"
+      ) {
+
         console.log(
           "Super Admin detected. Skipping OTP.",
         );
 
-        router.replace("/super-admin");
+        router.replace(
+          "/super-admin",
+        );
 
         return;
       }
@@ -125,11 +316,14 @@ export default function LoginRoute() {
       // STEP 4
       // NORMAL USER LOGIN
       // ========================================
+
       //
       // Normal users still require OTP.
       //
 
-      await sendOTP(cleanEmail);
+      await sendOTP(
+        cleanEmail,
+      );
 
       console.log(
         "Login OTP sent successfully.",
@@ -140,19 +334,23 @@ export default function LoginRoute() {
       // SAVE EMAIL TEMPORARILY
       // ========================================
 
-      setLoginEmail(cleanEmail);
+      setLoginEmail(
+        cleanEmail,
+      );
 
       // ========================================
       // STEP 6
       // GO TO LOGIN OTP SCREEN
       // ========================================
 
-      router.push("/login-otp" as any);
+      router.push(
+        "/login-otp" as any,
+      );
 
     } catch (error: any) {
+
       // ========================================
-      // IMPORTANT:
-      // TECHNICAL ERROR ONLY GOES TO CONSOLE
+      // TECHNICAL ERROR
       // ========================================
 
       console.error(
@@ -161,7 +359,7 @@ export default function LoginRoute() {
       );
 
       // ========================================
-      // DEFAULT USER-FRIENDLY MESSAGE
+      // DEFAULT MESSAGE
       // ========================================
 
       let message =
@@ -177,6 +375,7 @@ export default function LoginRoute() {
         error?.code ===
           "auth/invalid-login-credentials"
       ) {
+
         message =
           "The email or password is incorrect. Please check your details and try again.";
       }
@@ -189,6 +388,7 @@ export default function LoginRoute() {
         error?.code ===
         "auth/user-not-found"
       ) {
+
         message =
           "No account was found with this email address.";
       }
@@ -201,6 +401,7 @@ export default function LoginRoute() {
         error?.code ===
         "auth/wrong-password"
       ) {
+
         message =
           "The password you entered is incorrect.";
       }
@@ -213,6 +414,7 @@ export default function LoginRoute() {
         error?.code ===
         "auth/invalid-email"
       ) {
+
         message =
           "Please enter a valid email address.";
       }
@@ -225,6 +427,7 @@ export default function LoginRoute() {
         error?.code ===
         "auth/too-many-requests"
       ) {
+
         message =
           "Too many login attempts. Please wait a moment and try again.";
       }
@@ -237,6 +440,7 @@ export default function LoginRoute() {
         error?.code ===
         "auth/network-request-failed"
       ) {
+
         message =
           "Please check your internet connection and try again.";
       }
@@ -250,6 +454,7 @@ export default function LoginRoute() {
           "Failed to send OTP",
         )
       ) {
+
         // ======================================
         // FIREBASE LOGIN SUCCEEDED
         // BUT OTP FAILED
@@ -265,13 +470,17 @@ export default function LoginRoute() {
         // ======================================
 
         try {
+
           await logoutUser();
 
           console.log(
             "User logged out after OTP failure.",
           );
 
-        } catch (logoutError) {
+        } catch (
+          logoutError
+        ) {
+
           console.error(
             "Logout after OTP failure failed:",
             logoutError,
@@ -287,6 +496,7 @@ export default function LoginRoute() {
       // ========================================
 
       else {
+
         console.error(
           "Unhandled login error:",
           error,
@@ -297,7 +507,7 @@ export default function LoginRoute() {
       }
 
       // ========================================
-      // SHOW ONLY FRIENDLY MESSAGE
+      // SHOW FRIENDLY MESSAGE
       // ========================================
 
       Alert.alert(
@@ -306,6 +516,7 @@ export default function LoginRoute() {
       );
 
     } finally {
+
       // ========================================
       // STOP LOADING
       // ========================================
@@ -318,19 +529,30 @@ export default function LoginRoute() {
   // FORGOT PASSWORD
   // ==========================================
 
-  const handleForgotPassword = () => {
-    router.push("/forgot-password");
-  };
+  const handleForgotPassword =
+    () => {
+
+      router.push(
+        "/forgot-password",
+      );
+    };
 
   // ==========================================
   // LOGIN SCREEN
   // ==========================================
 
   return (
+
     <ActualLoginScreen
       onLogin={handleLogin}
-      onForgotPassword={handleForgotPassword}
+      onGoogleLogin={
+        handleGoogleLogin
+      }
+      onForgotPassword={
+        handleForgotPassword
+      }
       isLoading={isLoading}
     />
+
   );
 }

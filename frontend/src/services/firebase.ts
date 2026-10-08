@@ -1,49 +1,33 @@
- // ==========================================
- // FIREBASE APP INITIALIZATION
- // ==========================================
+import {
+  getApp,
+  getApps,
+  initializeApp,
+} from "firebase/app";
 
- // Import Firebase app initialization functions
- import {
-   getApp,
-   getApps,
-   initializeApp,
- } from "firebase/app";
+import {
+  getFirestore,
+} from "firebase/firestore";
 
- // Import Firebase Firestore
- import { getFirestore } from "firebase/firestore";
+import {
+  getAuth,
+} from "firebase/auth";
 
- // ==========================================
- // FIREBASE CONFIGURATION
- // ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAcucO9djMD4NES9yxaIAvOf9jwwKmklto",
+  authDomain: "siya-fund.firebaseapp.com",
+  projectId: "siya-fund",
+  storageBucket: "siya-fund.firebasestorage.app",
+  messagingSenderId: "636115954194",
+  appId: "1:636115954194:web:8bb7135cf24b43411e86cb",
+};
 
- const firebaseConfig = {
-   apiKey: "AIzaSyAcucO9djMD4NES9yxaIAvOf9jwwKmklto",
-   authDomain: "siya-fund.firebaseapp.com",
-   projectId: "siya-fund",
-   storageBucket: "siya-fund.firebasestorage.app",
-   messagingSenderId: "636115954194",
-   appId: "1:636115954194:web:8bb7135cf24b43411e86cb",
- };
+const app =
+  getApps().length === 0
+    ? initializeApp(firebaseConfig)
+    : getApp();
 
- // ==========================================
- // INITIALIZE FIREBASE
- // ==========================================
+export const db = getFirestore(app);
 
- // Prevent Firebase from being initialized
- // more than once during development.
+export const auth = getAuth(app);
 
- const app = getApps().length === 0
-   ? initializeApp(firebaseConfig)
-   : getApp();
-
- // ==========================================
- // INITIALIZE FIRESTORE
- // ==========================================
-
- export const db = getFirestore(app);
-
- // ==========================================
- // EXPORT FIREBASE APP
- // ==========================================
-
- export default app;
+export default app;

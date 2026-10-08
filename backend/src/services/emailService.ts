@@ -1,7 +1,5 @@
 import nodemailer from "nodemailer";
-
 import fs from "fs";
-
 import path from "path";
 
 // ==========================================
@@ -11,12 +9,9 @@ import path from "path";
 const smtpHost =
   process.env.SMTP_HOST || "smtp.gmail.com";
 
-const smtpPort = Number(
-  process.env.SMTP_PORT || 587
-);
+const smtpPort = 465;
 
 const smtpUser = process.env.SMTP_USER;
-
 const smtpPass = process.env.SMTP_PASS;
 
 // ==========================================
@@ -41,17 +36,12 @@ if (!smtpPass) {
 
 const transporter = nodemailer.createTransport({
   host: smtpHost,
-
   port: smtpPort,
-
-  secure: false,
-
+  secure: true,
   auth: {
     user: smtpUser,
-
     pass: smtpPass,
   },
-
   tls: {
     rejectUnauthorized: true,
   },
@@ -388,7 +378,6 @@ Save • Borrow • Grow
 
                       If you did not request this code,
                       you can safely ignore this email.
-
                       Never share your verification code
                       with anyone.
 
@@ -503,23 +492,15 @@ Save • Borrow • Grow
     // ========================================
 
     const info = await transporter.sendMail({
-
       from: `"Siya-Fund" <${smtpUser}>`,
-
       to: email,
-
       subject,
-
       text,
-
       html,
-
       attachments: [
         {
           filename: "siya-logo.png",
-
           content: logo,
-
           cid: "siya-logo",
         },
       ],

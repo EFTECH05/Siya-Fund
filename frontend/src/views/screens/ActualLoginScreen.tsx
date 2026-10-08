@@ -1,8 +1,9 @@
 
-import React, { useState } from "react";
+import React, {
+  useState,
+} from "react";
 
-// React Native components used for the Login screen
-
+// React Native components
 import {
   Image,
   KeyboardAvoidingView,
@@ -14,15 +15,19 @@ import {
   View,
 } from "react-native";
 
-// Expo Router is used for navigation
+// Expo Router
+import {
+  router,
+} from "expo-router";
 
-import { router } from "expo-router";
+// Import styles
+import {
+  styles,
+} from "./ActualLoginScreen.styles";
 
-// Import the styles for this screen
-
-import { styles } from "./ActualLoginScreen.styles";
-
-// Props received from the route
+// ==========================================
+// PROPS
+// ==========================================
 
 type ActualLoginScreenProps = {
   onLogin: (
@@ -30,51 +35,74 @@ type ActualLoginScreenProps = {
     password: string,
   ) => Promise<void>;
 
+  onGoogleLogin: () => Promise<void>;
+
   onForgotPassword: () => void;
 
   isLoading: boolean;
 };
 
-// Actual Login screen
+// ==========================================
+// ACTUAL LOGIN SCREEN
+// ==========================================
 
 export default function ActualLoginScreen({
   onLogin,
+  onGoogleLogin,
   onForgotPassword,
   isLoading,
 }: ActualLoginScreenProps) {
-  // ==========================================
+  // ========================================
   // FORM STATE
-  // ==========================================
+  // ========================================
 
-  // Store the user's email
+  const [
+    email,
+    setEmail,
+  ] = useState("");
 
-  const [email, setEmail] = useState("");
+  const [
+    password,
+    setPassword,
+  ] = useState("");
 
-  // Store the user's password
+  // ========================================
+  // NORMAL LOGIN
+  // ========================================
 
-  const [password, setPassword] = useState("");
+  const handleLogin =
+    async () => {
+      await onLogin(
+        email,
+        password,
+      );
+    };
 
-  // ==========================================
-  // LOGIN
-  // ==========================================
+  // ========================================
+  // GOOGLE LOGIN
+  // ========================================
 
-  const handleLogin = async () => {
-    await onLogin(email, password);
-  };
+  const handleGoogleLogin =
+    async () => {
+      await onGoogleLogin();
+    };
 
-  // ==========================================
+  // ========================================
   // SIGN UP
-  // ==========================================
+  // ========================================
 
-  const handleSignUp = () => {
-    // Navigate to the Registration screen
+  const handleSignUp =
+    () => {
+      router.push(
+        "/register",
+      );
+    };
 
-    router.push("/register");
-  };
+  // ========================================
+  // UI
+  // ========================================
 
   return (
-    // Keeps the form visible when the keyboard appears
-
     <KeyboardAvoidingView
       style={styles.container}
       behavior={
@@ -83,54 +111,71 @@ export default function ActualLoginScreen({
           : undefined
       }
     >
-      {/* Allows scrolling on smaller mobile screens */}
-
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={
+          styles.scrollContent
+        }
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={
+          false
+        }
       >
-        {/* ========================================
-            LOGIN CARD
-        ========================================= */}
-
         <View style={styles.card}>
-          {/* ======================================
-              LOGO
-          ======================================= */}
 
-          <View style={styles.logoContainer}>
+          {/* ================================= */}
+          {/* LOGO */}
+          {/* ================================= */}
+
+          <View
+            style={
+              styles.logoContainer
+            }
+          >
             <Image
               source={require(
-                "../../../assets/images/siya-logo.png"
+                "../../../assets/images/siya-logo.png",
               )}
               style={styles.logo}
               resizeMode="contain"
             />
           </View>
 
-          {/* ======================================
-              TITLE
-          ======================================= */}
+          {/* ================================= */}
+          {/* TITLE */}
+          {/* ================================= */}
 
-          <Text style={styles.title}>
+          <Text
+            style={styles.title}
+          >
             Welcome Back!
           </Text>
 
-          {/* Description */}
+          {/* ================================= */}
+          {/* DESCRIPTION */}
+          {/* ================================= */}
 
-          <Text style={styles.description}>
-            Login to your Siya-Fund account and
-            continue saving, borrowing, and growing
-            together.
+          <Text
+            style={
+              styles.description
+            }
+          >
+            Login to your Siya-Fund account
+            and continue saving, borrowing,
+            and growing together.
           </Text>
 
-          {/* ======================================
-              EMAIL
-          ======================================= */}
+          {/* ================================= */}
+          {/* EMAIL */}
+          {/* ================================= */}
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>
+          <View
+            style={
+              styles.inputGroup
+            }
+          >
+            <Text
+              style={styles.label}
+            >
               Email Address
             </Text>
 
@@ -139,20 +184,30 @@ export default function ActualLoginScreen({
               placeholder="Enter your email"
               placeholderTextColor="#9CA3AF"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={
+                setEmail
+              }
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
-              editable={!isLoading}
+              editable={
+                !isLoading
+              }
             />
           </View>
 
-          {/* ======================================
-              PASSWORD
-          ======================================= */}
+          {/* ================================= */}
+          {/* PASSWORD */}
+          {/* ================================= */}
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>
+          <View
+            style={
+              styles.inputGroup
+            }
+          >
+            <Text
+              style={styles.label}
+            >
               Password
             </Text>
 
@@ -161,68 +216,178 @@ export default function ActualLoginScreen({
               placeholder="Enter your password"
               placeholderTextColor="#9CA3AF"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={
+                setPassword
+              }
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
-              editable={!isLoading}
+              editable={
+                !isLoading
+              }
             />
           </View>
 
-          {/* ======================================
-              FORGOT PASSWORD
-          ======================================= */}
+          {/* ================================= */}
+          {/* FORGOT PASSWORD */}
+          {/* ================================= */}
 
           <Pressable
-            style={styles.forgotButton}
-            onPress={onForgotPassword}
-            disabled={isLoading}
+            style={
+              styles.forgotButton
+            }
+            onPress={
+              onForgotPassword
+            }
+            disabled={
+              isLoading
+            }
           >
-            <Text style={styles.forgotText}>
+            <Text
+              style={
+                styles.forgotText
+              }
+            >
               Forgot Password?
             </Text>
           </Pressable>
 
-          {/* ======================================
-              LOGIN BUTTON
-          ======================================= */}
+          {/* ================================= */}
+          {/* NORMAL LOGIN */}
+          {/* ================================= */}
 
           <Pressable
-            style={({ pressed }) => [
+            style={({
+              pressed,
+            }) => [
               styles.loginButton,
-              pressed && styles.buttonPressed,
-              isLoading && styles.buttonLoading,
+
+              pressed &&
+                styles.buttonPressed,
+
+              isLoading &&
+                styles.buttonLoading,
             ]}
-            onPress={handleLogin}
-            disabled={isLoading}
+            onPress={
+              handleLogin
+            }
+            disabled={
+              isLoading
+            }
           >
-            <Text style={styles.loginButtonText}>
+            <Text
+              style={
+                styles.loginButtonText
+              }
+            >
               {isLoading
                 ? "LOGGING IN..."
                 : "LOGIN"}
             </Text>
           </Pressable>
 
-          {/* ======================================
-              SIGN UP
-          ======================================= */}
+          {/* ================================= */}
+          {/* GOOGLE DIVIDER */}
+          {/* ================================= */}
 
-          <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>
+          <View
+            style={
+              styles.googleDividerContainer
+            }
+          >
+            <View
+              style={
+                styles.googleDividerLine
+              }
+            />
+
+            <Text
+              style={
+                styles.googleDividerText
+              }
+            >
+              OR
+            </Text>
+
+            <View
+              style={
+                styles.googleDividerLine
+              }
+            />
+          </View>
+
+          {/* ================================= */}
+          {/* GOOGLE LOGIN */}
+          {/* ================================= */}
+
+          <Pressable
+            style={({
+              pressed,
+            }) => [
+              styles.googleButton,
+
+              pressed &&
+                styles.buttonPressed,
+
+              isLoading &&
+                styles.googleButtonLoading,
+            ]}
+            onPress={
+              handleGoogleLogin
+            }
+            disabled={
+              isLoading
+            }
+          >
+            <Text
+              style={
+                styles.googleButtonText
+              }
+            >
+              {isLoading
+                ? "CONNECTING TO GOOGLE..."
+                : "Continue with Google"}
+            </Text>
+          </Pressable>
+
+          {/* ================================= */}
+          {/* SIGN UP */}
+          {/* ================================= */}
+
+          <View
+            style={
+              styles.signUpContainer
+            }
+          >
+            <Text
+              style={
+                styles.signUpText
+              }
+            >
               Don't have an account?
             </Text>
 
             <Pressable
-              onPress={handleSignUp}
-              disabled={isLoading}
+              onPress={
+                handleSignUp
+              }
+              disabled={
+                isLoading
+              }
             >
-              <Text style={styles.signUpLink}>
+              <Text
+                style={
+                  styles.signUpLink
+                }
+              >
                 Sign Up
               </Text>
             </Pressable>
           </View>
+
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
