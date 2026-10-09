@@ -1,193 +1,173 @@
-// React is required for useState
+
 import React, { useState } from "react";
 
-// React Native Alert is used to show messages to the user
-import { Alert } from "react-native";
+import {
+  Alert,
+} from "react-native";
 
-// Expo Router is used for navigation
-import { router } from "expo-router";
+import {
+  router,
+} from "expo-router";
 
-// Import the Login screen UI
 import ActualLoginScreen from "../views/screens/ActualLoginScreen";
 
-// Import Firebase Authentication services
 import {
   loginUser,
+  logoutUser,
   getUserRole,
+  loginWithGoogle,
 } from "../services/AuthService";
 
-// Login route
+import {
+  sendOTP,
+} from "../services/OtpService";
+
+import {
+  setLoginEmail,
+} from "../services/LoginOtpStore";
+
+// ==========================================
+// LOGIN ROUTE
+// ==========================================
+
 export default function LoginRoute() {
 
   // ==========================================
   // LOADING STATE
   // ==========================================
 
-  // Tracks whether Firebase is currently logging in
-  const [isLoading, setIsLoading] = useState(false);
+  const [
+    isLoading,
+    setIsLoading,
+  ] = useState(false);
 
   // ==========================================
-  // LOGIN
+  // GOOGLE LOGIN
   // ==========================================
 
-  const handleLogin = async (
-    email: string,
-    password: string,
-  ) => {
-
-    // Remove unnecessary spaces from the email
-    const cleanEmail = email.trim();
-
-    // ==========================================
-    // BASIC VALIDATION
-    // ==========================================
-
-    // Check if email is empty
-    if (!cleanEmail) {
-      Alert.alert(
-        "Email Required",
-        "Please enter your email address.",
-      );
-      return;
-    }
-
-    // Check if password is empty
-    if (!password) {
-      Alert.alert(
-        "Password Required",
-        "Please enter your password.",
-      );
-      return;
-    }
+  const handleGoogleLogin = async () => {
 
     try {
 
-      // Start loading
+      // ====================================
+      // START LOADING
+      // ====================================
+
       setIsLoading(true);
 
-      // ==========================================
-      // FIREBASE LOGIN
-      // ==========================================
-
-      // Sign the user into Firebase
-      await loginUser(
-        cleanEmail,
-        password,
+      console.log(
+        "Starting Google login...",
       );
 
-      // ==========================================
-      // GET USER ROLE
-      // ==========================================
+      // ====================================
+      // STEP 1
+      // GOOGLE AUTHENTICATION
+      // ====================================
 
-      // Get the role from Firebase custom claims
-      const role = await getUserRole();
+      const user =
+        await loginWithGoogle();
 
-      // ==========================================
-      // LOGIN SUCCESS
-      // ==========================================
-
-      Alert.alert(
-        "Login Successful",
-        "Welcome back to Siya-Fund!",
+      console.log(
+        "Google login successful:",
+        user.email,
       );
 
-      // ==========================================
-      // ROLE-BASED NAVIGATION
-      // ==========================================
+      // ====================================
+      // STEP 2
+      // CHECK USER ROLE
+      // ====================================
 
-      if (role === "super_admin") {
+      const role =
+        await getUserRole();
 
-        // Super Admin goes to Super Admin dashboard
-        router.replace("/super-admin");
+      console.log(
+        "Google user role:",
+        role,
+      );
 
-      } else {
+      // ====================================
+      // STEP 3
+      // SUPER ADMIN
+      // ====================================
 
-        // Normal users go to normal dashboard
-        router.replace("/dashboard");
+      if (
+        role === "super_admin"
+      ) {
 
+        console.log(
+          "Google Super Admin detected.",
+        );
+
+        router.replace(
+          "/super-admin",
+        );
+
+        return;
       }
+
+      // ====================================
+      // STEP 4
+      // NORMAL GOOGLE USER
+      // ====================================
+
+      //
+      // Google already authenticated
+      // the user.
+      //
+      // Therefore we DO NOT send the
+      // existing email OTP.
+      //
+
+      console.log(
+        "Google normal user detected.",
+      );
+
+      // ====================================
+      // GO DIRECTLY TO DASHBOARD
+      // ====================================
+
+      router.replace(
+        "/dashboard",
+      );
 
     } catch (error: any) {
 
-      // ==========================================
-      // DEFAULT ERROR
-      // ==========================================
+      console.error(
+        "Google login error:",
+        error,
+      );
 
-      let message =
-        "Something went wrong. Please try again.";
-
-      // ==========================================
-      // INVALID CREDENTIALS
-      // ==========================================
+      // ====================================
+      // GOOGLE LOGIN CANCELLED
+      // ====================================
 
       if (
-        error?.code === "auth/invalid-credential" ||
-        error?.code === "auth/invalid-login-credentials"
+        error?.message?.includes(
+          "cancelled",
+        )
       ) {
 
-        message =
-          "The email or password is incorrect. Please check your details and try again.";
+        console.log(
+          "Google login was cancelled.",
+        );
 
+        return;
       }
 
-      // ==========================================
-      // USER NOT FOUND
-      // ==========================================
+      // ====================================
+      // DEFAULT ERROR
+      // ====================================
 
-      else if (
-        error?.code === "auth/user-not-found"
-      ) {
+      let message =
+        "We could not complete Google login. Please try again.";
 
-        message =
-          "No account was found with this email address.";
-
-      }
-
-      // ==========================================
-      // WRONG PASSWORD
-      // ==========================================
-
-      else if (
-        error?.code === "auth/wrong-password"
-      ) {
-
-        message =
-          "The password you entered is incorrect.";
-
-      }
-
-      // ==========================================
-      // INVALID EMAIL
-      // ==========================================
-
-      else if (
-        error?.code === "auth/invalid-email"
-      ) {
-
-        message =
-          "Please enter a valid email address.";
-
-      }
-
-      // ==========================================
-      // TOO MANY REQUESTS
-      // ==========================================
-
-      else if (
-        error?.code === "auth/too-many-requests"
-      ) {
-
-        message =
-          "Too many login attempts. Please wait a moment and try again.";
-
-      }
-
-      // ==========================================
+      // ====================================
       // NETWORK ERROR
-      // ==========================================
+      // ====================================
 
-      else if (
-        error?.code === "auth/network-request-failed"
+      if (
+        error?.code ===
+        "auth/network-request-failed"
       ) {
 
         message =
@@ -195,9 +175,340 @@ export default function LoginRoute() {
 
       }
 
-      // ==========================================
+      // ====================================
+      // ACCOUNT EXISTS
+      // ====================================
+
+      else if (
+        error?.code ===
+        "auth/account-exists-with-different-credential"
+      ) {
+
+        message =
+          "An account already exists with this email using another login method.";
+
+      }
+
+      // ====================================
       // SHOW ERROR
-      // ==========================================
+      // ====================================
+
+      Alert.alert(
+        "Google Login Failed",
+        message,
+      );
+
+    } finally {
+
+      // ====================================
+      // STOP LOADING
+      // ====================================
+
+      setIsLoading(false);
+    }
+  };
+
+  // ==========================================
+  // NORMAL LOGIN
+  // ==========================================
+
+  const handleLogin = async (
+    email: string,
+    password: string,
+  ) => {
+
+    // ========================================
+    // CLEAN EMAIL
+    // ========================================
+
+    const cleanEmail =
+      email.trim().toLowerCase();
+
+    // ========================================
+    // CHECK EMAIL
+    // ========================================
+
+    if (!cleanEmail) {
+
+      Alert.alert(
+        "Email Required",
+        "Please enter your email address.",
+      );
+
+      return;
+    }
+
+    // ========================================
+    // CHECK PASSWORD
+    // ========================================
+
+    if (!password) {
+
+      Alert.alert(
+        "Password Required",
+        "Please enter your password.",
+      );
+
+      return;
+    }
+
+    try {
+
+      // ========================================
+      // START LOADING
+      // ========================================
+
+      setIsLoading(true);
+
+      // ========================================
+      // STEP 1
+      // CHECK EMAIL AND PASSWORD
+      // ========================================
+
+      await loginUser(
+        cleanEmail,
+        password,
+      );
+
+      console.log(
+        "Login successful for:",
+        cleanEmail,
+      );
+
+      // ========================================
+      // STEP 2
+      // CHECK USER ROLE
+      // ========================================
+
+      const role =
+        await getUserRole();
+
+      console.log(
+        "Logged-in user role:",
+        role,
+      );
+
+      // ========================================
+      // STEP 3
+      // SUPER ADMIN LOGIN
+      // ========================================
+
+      //
+      // Super Admin does NOT require OTP.
+      //
+
+      if (
+        role === "super_admin"
+      ) {
+
+        console.log(
+          "Super Admin detected. Skipping OTP.",
+        );
+
+        router.replace(
+          "/super-admin",
+        );
+
+        return;
+      }
+
+      // ========================================
+      // STEP 4
+      // NORMAL USER LOGIN
+      // ========================================
+
+      //
+      // Normal users still require OTP.
+      //
+
+      await sendOTP(
+        cleanEmail,
+      );
+
+      console.log(
+        "Login OTP sent successfully.",
+      );
+
+      // ========================================
+      // STEP 5
+      // SAVE EMAIL TEMPORARILY
+      // ========================================
+
+      setLoginEmail(
+        cleanEmail,
+      );
+
+      // ========================================
+      // STEP 6
+      // GO TO LOGIN OTP SCREEN
+      // ========================================
+
+      router.push(
+        "/login-otp" as any,
+      );
+
+    } catch (error: any) {
+
+      // ========================================
+      // TECHNICAL ERROR
+      // ========================================
+
+      console.error(
+        "Login error:",
+        error,
+      );
+
+      // ========================================
+      // DEFAULT MESSAGE
+      // ========================================
+
+      let message =
+        "Something went wrong. Please try again.";
+
+      // ========================================
+      // INVALID LOGIN DETAILS
+      // ========================================
+
+      if (
+        error?.code ===
+          "auth/invalid-credential" ||
+        error?.code ===
+          "auth/invalid-login-credentials"
+      ) {
+
+        message =
+          "The email or password is incorrect. Please check your details and try again.";
+      }
+
+      // ========================================
+      // USER NOT FOUND
+      // ========================================
+
+      else if (
+        error?.code ===
+        "auth/user-not-found"
+      ) {
+
+        message =
+          "No account was found with this email address.";
+      }
+
+      // ========================================
+      // WRONG PASSWORD
+      // ========================================
+
+      else if (
+        error?.code ===
+        "auth/wrong-password"
+      ) {
+
+        message =
+          "The password you entered is incorrect.";
+      }
+
+      // ========================================
+      // INVALID EMAIL
+      // ========================================
+
+      else if (
+        error?.code ===
+        "auth/invalid-email"
+      ) {
+
+        message =
+          "Please enter a valid email address.";
+      }
+
+      // ========================================
+      // TOO MANY REQUESTS
+      // ========================================
+
+      else if (
+        error?.code ===
+        "auth/too-many-requests"
+      ) {
+
+        message =
+          "Too many login attempts. Please wait a moment and try again.";
+      }
+
+      // ========================================
+      // NETWORK ERROR
+      // ========================================
+
+      else if (
+        error?.code ===
+        "auth/network-request-failed"
+      ) {
+
+        message =
+          "Please check your internet connection and try again.";
+      }
+
+      // ========================================
+      // OTP FAILED
+      // ========================================
+
+      else if (
+        error?.message?.includes(
+          "Failed to send OTP",
+        )
+      ) {
+
+        // ======================================
+        // FIREBASE LOGIN SUCCEEDED
+        // BUT OTP FAILED
+        // ======================================
+
+        console.error(
+          "Login succeeded, but OTP sending failed.",
+          error,
+        );
+
+        // ======================================
+        // LOG USER OUT
+        // ======================================
+
+        try {
+
+          await logoutUser();
+
+          console.log(
+            "User logged out after OTP failure.",
+          );
+
+        } catch (
+          logoutError
+        ) {
+
+          console.error(
+            "Logout after OTP failure failed:",
+            logoutError,
+          );
+        }
+
+        message =
+          "We could not send your verification code. Please try again.";
+      }
+
+      // ========================================
+      // UNKNOWN ERROR
+      // ========================================
+
+      else {
+
+        console.error(
+          "Unhandled login error:",
+          error,
+        );
+
+        message =
+          "We could not complete your login. Please try again.";
+      }
+
+      // ========================================
+      // SHOW FRIENDLY MESSAGE
+      // ========================================
 
       Alert.alert(
         "Login Failed",
@@ -206,9 +517,11 @@ export default function LoginRoute() {
 
     } finally {
 
-      // Stop loading
-      setIsLoading(false);
+      // ========================================
+      // STOP LOADING
+      // ========================================
 
+      setIsLoading(false);
     }
   };
 
@@ -216,25 +529,30 @@ export default function LoginRoute() {
   // FORGOT PASSWORD
   // ==========================================
 
-  const handleForgotPassword = () => {
+  const handleForgotPassword =
+    () => {
 
-    // Firebase password reset will be connected next
-    Alert.alert(
-      "Forgot Password",
-      "Password reset will be available soon.",
-    );
-
-  };
+      router.push(
+        "/forgot-password",
+      );
+    };
 
   // ==========================================
-  // DISPLAY LOGIN SCREEN
+  // LOGIN SCREEN
   // ==========================================
 
   return (
+
     <ActualLoginScreen
       onLogin={handleLogin}
-      onForgotPassword={handleForgotPassword}
+      onGoogleLogin={
+        handleGoogleLogin
+      }
+      onForgotPassword={
+        handleForgotPassword
+      }
       isLoading={isLoading}
     />
+
   );
 }

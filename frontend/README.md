@@ -12,7 +12,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 2. Start the app
 
-1. Start the backend:
+3. Start the backend:
 
 cd ~/Documents/GitHub/Siya-Fund/backend
 npm run dev
@@ -28,16 +28,34 @@ adb devices
 
 You should see:
 
-   ```bash
-   npx expo start
-   android
-   npx expo run:android
-   ```
+### How to run the project
 
-   web
-   cd frontend
-   npx expo start --web
-   You should see something similar to:
+_1. Start the backend:_
+
+⁠ bash
+cd ~/Documents/GitHub/Siya-Fund/backend
+npm run dev
+ ⁠
+
+_2. In another terminal, start the frontend:_
+
+⁠ bash
+cd ~/Documents/GitHub/Siya-Fund/frontend
+npx expo start
+ ⁠Super admin :
+gmail: dikiiffrana@gmail.com
+passowrd : franklin
+
+```bash
+npx expo start
+android
+npx expo run:android
+```
+
+web
+cd frontend
+npx expo start --web
+You should see something similar to:
 
 Web Bundled
 Web: http://localhost:8081

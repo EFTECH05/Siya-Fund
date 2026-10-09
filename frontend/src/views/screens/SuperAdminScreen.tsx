@@ -20,7 +20,6 @@ import { SuperAdminController } from "../../controllers/SuperAdminController";
 
 import { styles } from "./SuperAdminScreen.styles";
 
-
 // ==========================================
 // TYPES
 // ==========================================
@@ -33,13 +32,11 @@ type DashboardStats = {
   totalTransactions: number;
 };
 
-
 // ==========================================
 // SUPER ADMIN SCREEN
 // ==========================================
 
 export default function SuperAdminScreen() {
-
   // ==========================================
   // STATE
   // ==========================================
@@ -53,22 +50,16 @@ export default function SuperAdminScreen() {
   });
 
   const [isLoading, setIsLoading] = useState(true);
-
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-
   const [isAuthorized, setIsAuthorized] = useState(false);
-
 
   // ==========================================
   // LOAD DASHBOARD
   // ==========================================
 
   useEffect(() => {
-
     const loadDashboard = async () => {
-
       try {
-
         // --------------------------------------
         // Check current Firebase user
         // --------------------------------------
@@ -80,7 +71,6 @@ export default function SuperAdminScreen() {
           return;
         }
 
-
         // --------------------------------------
         // Check Firebase custom role
         // --------------------------------------
@@ -88,19 +78,15 @@ export default function SuperAdminScreen() {
         const role = await getUserRole();
 
         if (role !== "super_admin") {
-
           router.replace("/dashboard");
-
           return;
         }
-
 
         // --------------------------------------
         // User is authorized
         // --------------------------------------
 
         setIsAuthorized(true);
-
 
         // --------------------------------------
         // Load dashboard statistics
@@ -110,8 +96,9 @@ export default function SuperAdminScreen() {
           await SuperAdminController.getDashboardStats();
 
         setStats(dashboardStats);
-
       } catch (error) {
+        // Keep technical error in developer console.
+        // Never display the technical error to the user.
 
         console.error(
           "Failed to load Super Admin dashboard:",
@@ -119,35 +106,27 @@ export default function SuperAdminScreen() {
         );
 
         router.replace("/dashboard");
-
       } finally {
-
         setIsLoading(false);
-
       }
     };
 
-
     loadDashboard();
-
   }, []);
-
 
   // ==========================================
   // LOGOUT
   // ==========================================
 
   const handleLogout = async () => {
-
     try {
-
       setIsLoggingOut(true);
 
       await logoutUser();
 
       router.replace("/login");
-
     } catch (error) {
+      // Keep technical error in developer console.
 
       console.error(
         "Logout failed:",
@@ -158,55 +137,37 @@ export default function SuperAdminScreen() {
     }
   };
 
-
   // ==========================================
   // MANAGEMENT ACTIONS
   // ==========================================
 
   const handleUsers = () => {
-
     SuperAdminController.manageUsers();
-
   };
-
 
   const handleGroups = () => {
-
     SuperAdminController.manageGroups();
-
   };
-
 
   const handleContributions = () => {
-
     SuperAdminController.manageContributions();
-
   };
-
 
   const handleLoans = () => {
-
     SuperAdminController.manageLoans();
-
   };
-
 
   const handleTransactions = () => {
-
     SuperAdminController.manageTransactions();
-
   };
-
 
   // ==========================================
   // LOADING SCREEN
   // ==========================================
 
   if (isLoading) {
-
     return (
       <View style={styles.loadingContainer}>
-
         <ActivityIndicator
           size="large"
           color="#2E8B57"
@@ -215,12 +176,9 @@ export default function SuperAdminScreen() {
         <Text style={styles.loadingText}>
           Loading Super Admin Dashboard...
         </Text>
-
       </View>
     );
-
   }
-
 
   // ==========================================
   // AUTHORIZATION CHECK
@@ -229,7 +187,6 @@ export default function SuperAdminScreen() {
   if (!isAuthorized) {
     return null;
   }
-
 
   // ==========================================
   // CURRENT USER
@@ -240,28 +197,22 @@ export default function SuperAdminScreen() {
   const displayName =
     currentUser?.displayName || "Super Admin";
 
-
   // ==========================================
   // DASHBOARD
   // ==========================================
 
   return (
-
     <View style={styles.container}>
-
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-
         {/* ======================================
             HEADER
-        ====================================== */}
+        ======================================= */}
 
         <View style={styles.header}>
-
           <View style={styles.headerTextContainer}>
-
             <Text style={styles.smallHeaderText}>
               SIYA-FUND ADMINISTRATION
             </Text>
@@ -273,9 +224,7 @@ export default function SuperAdminScreen() {
             <Text style={styles.welcomeText}>
               Welcome back, {displayName}.
             </Text>
-
           </View>
-
 
           {/* Logout */}
 
@@ -287,33 +236,24 @@ export default function SuperAdminScreen() {
             onPress={handleLogout}
             disabled={isLoggingOut}
           >
-
             {isLoggingOut ? (
-
               <ActivityIndicator
                 size="small"
                 color="#FFFFFF"
               />
-
             ) : (
-
               <Text style={styles.logoutButtonText}>
                 LOGOUT
               </Text>
-
             )}
-
           </Pressable>
-
         </View>
-
 
         {/* ======================================
             OVERVIEW
-        ====================================== */}
+        ======================================= */}
 
         <View style={styles.sectionHeader}>
-
           <Text style={styles.sectionTitle}>
             Platform Overview
           </Text>
@@ -321,27 +261,20 @@ export default function SuperAdminScreen() {
           <Text style={styles.sectionDescription}>
             Monitor the main Siya-Fund platform activity.
           </Text>
-
         </View>
-
 
         {/* ======================================
             STATISTICS
-        ====================================== */}
+        ======================================= */}
 
         <View style={styles.statsGrid}>
-
-
           {/* USERS */}
 
           <View style={styles.statCard}>
-
             <View style={styles.statIconContainer}>
-
               <Text style={styles.statIcon}>
                 👤
               </Text>
-
             </View>
 
             <Text style={styles.statValue}>
@@ -351,20 +284,15 @@ export default function SuperAdminScreen() {
             <Text style={styles.statLabel}>
               Total Users
             </Text>
-
           </View>
-
 
           {/* GROUPS */}
 
           <View style={styles.statCard}>
-
             <View style={styles.statIconContainer}>
-
               <Text style={styles.statIcon}>
                 👥
               </Text>
-
             </View>
 
             <Text style={styles.statValue}>
@@ -374,20 +302,15 @@ export default function SuperAdminScreen() {
             <Text style={styles.statLabel}>
               Total Groups
             </Text>
-
           </View>
-
 
           {/* CONTRIBUTIONS */}
 
           <View style={styles.statCard}>
-
             <View style={styles.statIconContainer}>
-
               <Text style={styles.statIcon}>
                 💰
               </Text>
-
             </View>
 
             <Text style={styles.statValue}>
@@ -397,20 +320,15 @@ export default function SuperAdminScreen() {
             <Text style={styles.statLabel}>
               Contributions
             </Text>
-
           </View>
-
 
           {/* LOANS */}
 
           <View style={styles.statCard}>
-
             <View style={styles.statIconContainer}>
-
               <Text style={styles.statIcon}>
                 💳
               </Text>
-
             </View>
 
             <Text style={styles.statValue}>
@@ -420,20 +338,15 @@ export default function SuperAdminScreen() {
             <Text style={styles.statLabel}>
               Loans
             </Text>
-
           </View>
-
 
           {/* TRANSACTIONS */}
 
           <View style={styles.statCard}>
-
             <View style={styles.statIconContainer}>
-
               <Text style={styles.statIcon}>
                 🔄
               </Text>
-
             </View>
 
             <Text style={styles.statValue}>
@@ -443,18 +356,14 @@ export default function SuperAdminScreen() {
             <Text style={styles.statLabel}>
               Transactions
             </Text>
-
           </View>
-
         </View>
-
 
         {/* ======================================
             MANAGEMENT
-        ====================================== */}
+        ======================================= */}
 
         <View style={styles.sectionHeader}>
-
           <Text style={styles.sectionTitle}>
             Management
           </Text>
@@ -462,17 +371,13 @@ export default function SuperAdminScreen() {
           <Text style={styles.sectionDescription}>
             Manage and monitor Siya-Fund platform data.
           </Text>
-
         </View>
-
 
         {/* ======================================
             MANAGEMENT CARDS
-        ====================================== */}
+        ======================================= */}
 
         <View style={styles.managementContainer}>
-
-
           {/* USERS */}
 
           <Pressable
@@ -482,17 +387,13 @@ export default function SuperAdminScreen() {
             ]}
             onPress={handleUsers}
           >
-
             <View style={styles.managementIcon}>
-
               <Text style={styles.managementIconText}>
                 👤
               </Text>
-
             </View>
 
             <View style={styles.managementTextContainer}>
-
               <Text style={styles.managementTitle}>
                 User Management
               </Text>
@@ -500,15 +401,12 @@ export default function SuperAdminScreen() {
               <Text style={styles.managementDescription}>
                 View and manage Siya-Fund users.
               </Text>
-
             </View>
 
             <Text style={styles.arrow}>
               ›
             </Text>
-
           </Pressable>
-
 
           {/* GROUPS */}
 
@@ -519,17 +417,13 @@ export default function SuperAdminScreen() {
             ]}
             onPress={handleGroups}
           >
-
             <View style={styles.managementIcon}>
-
               <Text style={styles.managementIconText}>
                 👥
               </Text>
-
             </View>
 
             <View style={styles.managementTextContainer}>
-
               <Text style={styles.managementTitle}>
                 Group Management
               </Text>
@@ -537,15 +431,12 @@ export default function SuperAdminScreen() {
               <Text style={styles.managementDescription}>
                 Monitor savings groups and memberships.
               </Text>
-
             </View>
 
             <Text style={styles.arrow}>
               ›
             </Text>
-
           </Pressable>
-
 
           {/* CONTRIBUTIONS */}
 
@@ -556,17 +447,13 @@ export default function SuperAdminScreen() {
             ]}
             onPress={handleContributions}
           >
-
             <View style={styles.managementIcon}>
-
               <Text style={styles.managementIconText}>
                 💰
               </Text>
-
             </View>
 
             <View style={styles.managementTextContainer}>
-
               <Text style={styles.managementTitle}>
                 Contribution Management
               </Text>
@@ -574,15 +461,12 @@ export default function SuperAdminScreen() {
               <Text style={styles.managementDescription}>
                 Monitor member contributions and savings.
               </Text>
-
             </View>
 
             <Text style={styles.arrow}>
               ›
             </Text>
-
           </Pressable>
-
 
           {/* LOANS */}
 
@@ -593,17 +477,13 @@ export default function SuperAdminScreen() {
             ]}
             onPress={handleLoans}
           >
-
             <View style={styles.managementIcon}>
-
               <Text style={styles.managementIconText}>
                 💳
               </Text>
-
             </View>
 
             <View style={styles.managementTextContainer}>
-
               <Text style={styles.managementTitle}>
                 Loan Management
               </Text>
@@ -611,15 +491,12 @@ export default function SuperAdminScreen() {
               <Text style={styles.managementDescription}>
                 Review and monitor member loans.
               </Text>
-
             </View>
 
             <Text style={styles.arrow}>
               ›
             </Text>
-
           </Pressable>
-
 
           {/* TRANSACTIONS */}
 
@@ -630,17 +507,13 @@ export default function SuperAdminScreen() {
             ]}
             onPress={handleTransactions}
           >
-
             <View style={styles.managementIcon}>
-
               <Text style={styles.managementIconText}>
                 🔄
               </Text>
-
             </View>
 
             <View style={styles.managementTextContainer}>
-
               <Text style={styles.managementTitle}>
                 Transaction Management
               </Text>
@@ -648,24 +521,19 @@ export default function SuperAdminScreen() {
               <Text style={styles.managementDescription}>
                 Monitor Siya-Fund financial transactions.
               </Text>
-
             </View>
 
             <Text style={styles.arrow}>
               ›
             </Text>
-
           </Pressable>
-
         </View>
-
 
         {/* ======================================
             ADMIN FOOTER
-        ====================================== */}
+        ======================================= */}
 
         <View style={styles.footer}>
-
           <Text style={styles.footerTitle}>
             Siya-Fund Administration
           </Text>
@@ -678,12 +546,8 @@ export default function SuperAdminScreen() {
           <Text style={styles.footerVersion}>
             Development Administration Panel
           </Text>
-
         </View>
-
       </ScrollView>
-
     </View>
-
   );
 }

@@ -1,7 +1,5 @@
-// React is required for the component
-import React, { useState } from "react";
 
-// React Native components used for the Login screen
+import React, { useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -12,74 +10,45 @@ import {
   TextInput,
   View,
 } from "react-native";
-
-// Expo Router is used for navigation
 import { router } from "expo-router";
-
-// Import the styles for this screen
+import { AntDesign } from "@expo/vector-icons";
 import { styles } from "./ActualLoginScreen.styles";
 
-// Props received from the route
 type ActualLoginScreenProps = {
   onLogin: (email: string, password: string) => Promise<void>;
+  onGoogleLogin: () => Promise<void>;
   onForgotPassword: () => void;
   isLoading: boolean;
 };
 
-// Actual Login screen
 export default function ActualLoginScreen({
   onLogin,
+  onGoogleLogin,
   onForgotPassword,
   isLoading,
 }: ActualLoginScreenProps) {
-  // ==========================================
-  // FORM STATE
-  // ==========================================
-
-  // Store the user's email
   const [email, setEmail] = useState("");
-
-  // Store the user's password
   const [password, setPassword] = useState("");
 
-  // ==========================================
-  // LOGIN
-  // ==========================================
-
   const handleLogin = async () => {
-    await onLogin(email, password);
+    await onLogin(email.trim(), password);
   };
 
-  // ==========================================
-  // SIGN UP
-  // ==========================================
-
-  const handleSignUp = () => {
-    // Navigate to the Registration screen
-    router.push("/register");
+  const handleGoogleLogin = async () => {
+    await onGoogleLogin();
   };
 
   return (
-    // Keeps the form visible when the keyboard appears
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      {/* Allows scrolling on smaller mobile screens */}
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* ========================================
-            LOGIN CARD
-        ========================================= */}
-
         <View style={styles.card}>
-          {/* ======================================
-              LOGO
-          ======================================= */}
-
           <View style={styles.logoContainer}>
             <Image
               source={require("../../../assets/images/siya-logo.png")}
@@ -88,22 +57,11 @@ export default function ActualLoginScreen({
             />
           </View>
 
-          {/* ======================================
-              TITLE
-          ======================================= */}
-
-          <Text style={styles.title}>Welcome Back!</Text>
-
-          {/* Description */}
+          <Text style={styles.title}>Welcome Back</Text>
 
           <Text style={styles.description}>
-            Login to your Siya-Fund account and continue saving, borrowing, and
-            growing together.
+            Sign in to continue to your Siya-Fund account.
           </Text>
-
-          {/* ======================================
-              EMAIL
-          ======================================= */}
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email Address</Text>
@@ -118,12 +76,9 @@ export default function ActualLoginScreen({
               autoCapitalize="none"
               autoCorrect={false}
               editable={!isLoading}
+              returnKeyType="next"
             />
           </View>
-
-          {/* ======================================
-              PASSWORD
-          ======================================= */}
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Password</Text>
@@ -136,14 +91,11 @@ export default function ActualLoginScreen({
               onChangeText={setPassword}
               secureTextEntry
               autoCapitalize="none"
-              autoCorrect={false}
               editable={!isLoading}
+              returnKeyType="done"
+              onSubmitEditing={handleLogin}
             />
           </View>
-
-          {/* ======================================
-              FORGOT PASSWORD
-          ======================================= */}
 
           <Pressable
             style={styles.forgotButton}
@@ -152,10 +104,6 @@ export default function ActualLoginScreen({
           >
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </Pressable>
-
-          {/* ======================================
-              LOGIN BUTTON
-          ======================================= */}
 
           <Pressable
             style={({ pressed }) => [
@@ -167,19 +115,52 @@ export default function ActualLoginScreen({
             disabled={isLoading}
           >
             <Text style={styles.loginButtonText}>
-              {isLoading ? "LOGGING IN..." : "LOGIN"}
+              {isLoading ? "PLEASE WAIT..." : "Sign In"}
             </Text>
           </Pressable>
 
-          {/* ======================================
-              SIGN UP
-          ======================================= */}
+          <View style={styles.googleDividerContainer}>
+            <View style={styles.googleDividerLine} />
+
+            <Text style={styles.googleDividerText}>OR</Text>
+
+            <View style={styles.googleDividerLine} />
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.googleButton,
+              pressed && styles.buttonPressed,
+              isLoading && styles.googleButtonLoading,
+            ]}
+            onPress={handleGoogleLogin}
+            disabled={isLoading}
+          >
+            <View style={styles.googleButtonContent}>
+              <AntDesign
+                name="google"
+                size={21}
+                color="#4285F4"
+              />
+
+              <Text style={styles.googleButtonText}>
+                {isLoading
+                  ? "Connecting to Google..."
+                  : "Continue with Google"}
+              </Text>
+            </View>
+          </Pressable>
 
           <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>Don't have an account?</Text>
+            <Text style={styles.signUpText}>
+              Don't have an account?
+            </Text>
 
-            <Pressable onPress={handleSignUp} disabled={isLoading}>
-              <Text style={styles.signUpLink}>Sign Up</Text>
+            <Pressable
+              onPress={() => router.push("/register")}
+              disabled={isLoading}
+            >
+              <Text style={styles.signUpLink}> Sign Up</Text>
             </Pressable>
           </View>
         </View>
@@ -187,3 +168,4 @@ export default function ActualLoginScreen({
     </KeyboardAvoidingView>
   );
 }
+
