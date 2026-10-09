@@ -1,25 +1,22 @@
-import React from "react";
 
+import React from "react";
 import {
+  Alert,
   Pressable,
   ScrollView,
   Text,
   View,
 } from "react-native";
-
 import { router } from "expo-router";
-
 import { styles } from "./DashboardScreen.styles";
 
 // ==========================================
 // DASHBOARD SCREEN
 // ==========================================
-
 export default function DashboardScreen() {
   // ==========================================
   // NAVIGATION
   // ==========================================
-
   const goToContributions = () => {
     router.push("/contributions");
   };
@@ -37,19 +34,38 @@ export default function DashboardScreen() {
   };
 
   // ==========================================
+  // LOG OUT
+  // ==========================================
+  const handleLogout = () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out of Siya-Fund?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Log Out",
+          style: "destructive",
+          onPress: () => {
+            router.replace("/login");
+          },
+        },
+      ]
+    );
+  };
+
+  // ==========================================
   // SCREEN
   // ==========================================
-
   return (
     <View style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ======================================
-            HEADER
-        ======================================= */}
-
+        {/* HEADER */}
         <View style={styles.header}>
           <View>
             <Text style={styles.smallGreeting}>
@@ -61,8 +77,7 @@ export default function DashboardScreen() {
             </Text>
           </View>
 
-          {/* Notification */}
-
+          {/* NOTIFICATION */}
           <Pressable
             style={({ pressed }) => [
               styles.notificationButton,
@@ -77,10 +92,7 @@ export default function DashboardScreen() {
           </Pressable>
         </View>
 
-        {/* ======================================
-            TOTAL SAVINGS
-        ======================================= */}
-
+        {/* TOTAL SAVINGS */}
         <View style={styles.savingsCard}>
           <View style={styles.savingsHeader}>
             <Text style={styles.savingsLabel}>
@@ -115,17 +127,13 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* ======================================
-            FINANCIAL SUMMARY
-        ======================================= */}
-
+        {/* FINANCIAL SUMMARY */}
         <Text style={styles.sectionTitle}>
           Financial Summary
         </Text>
 
         <View style={styles.summaryRow}>
-          {/* Contributions */}
-
+          {/* CONTRIBUTIONS */}
           <View style={styles.summaryCard}>
             <View style={styles.summaryIconGreen}>
               <Text style={styles.summaryIconText}>
@@ -146,8 +154,7 @@ export default function DashboardScreen() {
             </Text>
           </View>
 
-          {/* Outstanding Loan */}
-
+          {/* OUTSTANDING LOAN */}
           <View style={styles.summaryCard}>
             <View style={styles.summaryIconOrange}>
               <Text
@@ -174,10 +181,7 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* ======================================
-            AVAILABLE LOAN
-        ======================================= */}
-
+        {/* AVAILABLE LOAN */}
         <View style={styles.loanCard}>
           <View style={styles.loanIconContainer}>
             <Text style={styles.loanIcon}>
@@ -212,17 +216,13 @@ export default function DashboardScreen() {
           </Pressable>
         </View>
 
-        {/* ======================================
-            QUICK ACTIONS
-        ======================================= */}
-
+        {/* QUICK ACTIONS */}
         <Text style={styles.sectionTitle}>
           Quick Actions
         </Text>
 
         <View style={styles.actionsGrid}>
-          {/* Add Contribution */}
-
+          {/* ADD CONTRIBUTION */}
           <Pressable
             style={({ pressed }) => [
               styles.actionCard,
@@ -245,16 +245,13 @@ export default function DashboardScreen() {
             </Text>
           </Pressable>
 
-          {/* Request Loan */}
-
+          {/* REQUEST LOAN */}
           <Pressable
             style={({ pressed }) => [
               styles.actionCard,
               pressed && styles.buttonPressed,
             ]}
-            onPress={() =>
-              router.push("/loans/request")
-            }
+            onPress={() => router.push("/loans/request")}
           >
             <View style={styles.actionIconBlue}>
               <Text
@@ -276,8 +273,7 @@ export default function DashboardScreen() {
             </Text>
           </Pressable>
 
-          {/* My Groups */}
-
+          {/* MY GROUPS */}
           <Pressable
             style={({ pressed }) => [
               styles.actionCard,
@@ -305,8 +301,7 @@ export default function DashboardScreen() {
             </Text>
           </Pressable>
 
-          {/* Transactions */}
-
+          {/* TRANSACTIONS */}
           <Pressable
             style={({ pressed }) => [
               styles.actionCard,
@@ -335,10 +330,7 @@ export default function DashboardScreen() {
           </Pressable>
         </View>
 
-        {/* ======================================
-            RECENT TRANSACTIONS HEADER
-        ======================================= */}
-
+        {/* RECENT TRANSACTIONS HEADER */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
             Recent Transactions
@@ -351,10 +343,7 @@ export default function DashboardScreen() {
           </Pressable>
         </View>
 
-        {/* ======================================
-            TRANSACTION 1
-        ======================================= */}
-
+        {/* TRANSACTION 1 */}
         <View style={styles.transactionCard}>
           <View style={styles.transactionIconGreen}>
             <Text style={styles.transactionIconText}>
@@ -383,10 +372,7 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* ======================================
-            TRANSACTION 2
-        ======================================= */}
-
+        {/* TRANSACTION 2 */}
         <View style={styles.transactionCard}>
           <View style={styles.transactionIconOrange}>
             <Text style={styles.transactionIconText}>
@@ -415,10 +401,7 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* ======================================
-            MY GROUP
-        ======================================= */}
-
+        {/* MY GROUP */}
         <Text style={styles.sectionTitle}>
           My Group
         </Text>
@@ -453,13 +436,26 @@ export default function DashboardScreen() {
           </Pressable>
         </View>
 
-        {/* ======================================
-            BOTTOM NAVIGATION
-        ======================================= */}
+        {/* LOG OUT BUTTON */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.logoutButton,
+            pressed && styles.buttonPressed,
+          ]}
+          onPress={handleLogout}
+        >
+          <Text style={styles.logoutIcon}>
+            ↪
+          </Text>
 
+          <Text style={styles.logoutButtonText}>
+            Log Out
+          </Text>
+        </Pressable>
+
+        {/* BOTTOM NAVIGATION */}
         <View style={styles.bottomNavigation}>
-          {/* Dashboard */}
-
+          {/* DASHBOARD */}
           <Pressable style={styles.navItem}>
             <Text style={styles.navIconActive}>
               ◉
@@ -470,8 +466,7 @@ export default function DashboardScreen() {
             </Text>
           </Pressable>
 
-          {/* Contributions */}
-
+          {/* CONTRIBUTIONS */}
           <Pressable
             style={styles.navItem}
             onPress={goToContributions}
@@ -485,8 +480,7 @@ export default function DashboardScreen() {
             </Text>
           </Pressable>
 
-          {/* Loans */}
-
+          {/* LOANS */}
           <Pressable
             style={styles.navItem}
             onPress={goToLoans}
@@ -500,8 +494,7 @@ export default function DashboardScreen() {
             </Text>
           </Pressable>
 
-          {/* Groups */}
-
+          {/* GROUPS */}
           <Pressable
             style={styles.navItem}
             onPress={goToGroups}
@@ -519,3 +512,4 @@ export default function DashboardScreen() {
     </View>
   );
 }
+

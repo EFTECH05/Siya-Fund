@@ -1,9 +1,5 @@
 
-import React, {
-  useState,
-} from "react";
-
-// React Native components
+import React, { useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -14,37 +10,16 @@ import {
   TextInput,
   View,
 } from "react-native";
-
-// Expo Router
-import {
-  router,
-} from "expo-router";
-
-// Import styles
-import {
-  styles,
-} from "./ActualLoginScreen.styles";
-
-// ==========================================
-// PROPS
-// ==========================================
+import { router } from "expo-router";
+import { AntDesign } from "@expo/vector-icons";
+import { styles } from "./ActualLoginScreen.styles";
 
 type ActualLoginScreenProps = {
-  onLogin: (
-    email: string,
-    password: string,
-  ) => Promise<void>;
-
+  onLogin: (email: string, password: string) => Promise<void>;
   onGoogleLogin: () => Promise<void>;
-
   onForgotPassword: () => void;
-
   isLoading: boolean;
 };
-
-// ==========================================
-// ACTUAL LOGIN SCREEN
-// ==========================================
 
 export default function ActualLoginScreen({
   onLogin,
@@ -52,339 +27,142 @@ export default function ActualLoginScreen({
   onForgotPassword,
   isLoading,
 }: ActualLoginScreenProps) {
-  // ========================================
-  // FORM STATE
-  // ========================================
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [
-    email,
-    setEmail,
-  ] = useState("");
+  const handleLogin = async () => {
+    await onLogin(email.trim(), password);
+  };
 
-  const [
-    password,
-    setPassword,
-  ] = useState("");
-
-  // ========================================
-  // NORMAL LOGIN
-  // ========================================
-
-  const handleLogin =
-    async () => {
-      await onLogin(
-        email,
-        password,
-      );
-    };
-
-  // ========================================
-  // GOOGLE LOGIN
-  // ========================================
-
-  const handleGoogleLogin =
-    async () => {
-      await onGoogleLogin();
-    };
-
-  // ========================================
-  // SIGN UP
-  // ========================================
-
-  const handleSignUp =
-    () => {
-      router.push(
-        "/register",
-      );
-    };
-
-  // ========================================
-  // UI
-  // ========================================
+  const handleGoogleLogin = async () => {
+    await onGoogleLogin();
+  };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={
-        Platform.OS === "ios"
-          ? "padding"
-          : undefined
-      }
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
-        contentContainerStyle={
-          styles.scrollContent
-        }
+        contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={
-          false
-        }
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.card}>
-
-          {/* ================================= */}
-          {/* LOGO */}
-          {/* ================================= */}
-
-          <View
-            style={
-              styles.logoContainer
-            }
-          >
+          <View style={styles.logoContainer}>
             <Image
-              source={require(
-                "../../../assets/images/siya-logo.png",
-              )}
+              source={require("../../../assets/images/siya-logo.png")}
               style={styles.logo}
               resizeMode="contain"
             />
           </View>
 
-          {/* ================================= */}
-          {/* TITLE */}
-          {/* ================================= */}
+          <Text style={styles.title}>Welcome Back</Text>
 
-          <Text
-            style={styles.title}
-          >
-            Welcome Back!
+          <Text style={styles.description}>
+            Sign in to continue to your Siya-Fund account.
           </Text>
 
-          {/* ================================= */}
-          {/* DESCRIPTION */}
-          {/* ================================= */}
-
-          <Text
-            style={
-              styles.description
-            }
-          >
-            Login to your Siya-Fund account
-            and continue saving, borrowing,
-            and growing together.
-          </Text>
-
-          {/* ================================= */}
-          {/* EMAIL */}
-          {/* ================================= */}
-
-          <View
-            style={
-              styles.inputGroup
-            }
-          >
-            <Text
-              style={styles.label}
-            >
-              Email Address
-            </Text>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Email Address</Text>
 
             <TextInput
               style={styles.input}
               placeholder="Enter your email"
               placeholderTextColor="#9CA3AF"
               value={email}
-              onChangeText={
-                setEmail
-              }
+              onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
-              editable={
-                !isLoading
-              }
+              editable={!isLoading}
+              returnKeyType="next"
             />
           </View>
 
-          {/* ================================= */}
-          {/* PASSWORD */}
-          {/* ================================= */}
-
-          <View
-            style={
-              styles.inputGroup
-            }
-          >
-            <Text
-              style={styles.label}
-            >
-              Password
-            </Text>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Password</Text>
 
             <TextInput
               style={styles.input}
               placeholder="Enter your password"
               placeholderTextColor="#9CA3AF"
               value={password}
-              onChangeText={
-                setPassword
-              }
+              onChangeText={setPassword}
               secureTextEntry
               autoCapitalize="none"
-              autoCorrect={false}
-              editable={
-                !isLoading
-              }
+              editable={!isLoading}
+              returnKeyType="done"
+              onSubmitEditing={handleLogin}
             />
           </View>
 
-          {/* ================================= */}
-          {/* FORGOT PASSWORD */}
-          {/* ================================= */}
-
           <Pressable
-            style={
-              styles.forgotButton
-            }
-            onPress={
-              onForgotPassword
-            }
-            disabled={
-              isLoading
-            }
+            style={styles.forgotButton}
+            onPress={onForgotPassword}
+            disabled={isLoading}
           >
-            <Text
-              style={
-                styles.forgotText
-              }
-            >
-              Forgot Password?
-            </Text>
+            <Text style={styles.forgotText}>Forgot Password?</Text>
           </Pressable>
 
-          {/* ================================= */}
-          {/* NORMAL LOGIN */}
-          {/* ================================= */}
-
           <Pressable
-            style={({
-              pressed,
-            }) => [
+            style={({ pressed }) => [
               styles.loginButton,
-
-              pressed &&
-                styles.buttonPressed,
-
-              isLoading &&
-                styles.buttonLoading,
+              pressed && styles.buttonPressed,
+              isLoading && styles.buttonLoading,
             ]}
-            onPress={
-              handleLogin
-            }
-            disabled={
-              isLoading
-            }
+            onPress={handleLogin}
+            disabled={isLoading}
           >
-            <Text
-              style={
-                styles.loginButtonText
-              }
-            >
-              {isLoading
-                ? "LOGGING IN..."
-                : "LOGIN"}
+            <Text style={styles.loginButtonText}>
+              {isLoading ? "PLEASE WAIT..." : "Sign In"}
             </Text>
           </Pressable>
 
-          {/* ================================= */}
-          {/* GOOGLE DIVIDER */}
-          {/* ================================= */}
+          <View style={styles.googleDividerContainer}>
+            <View style={styles.googleDividerLine} />
 
-          <View
-            style={
-              styles.googleDividerContainer
-            }
-          >
-            <View
-              style={
-                styles.googleDividerLine
-              }
-            />
+            <Text style={styles.googleDividerText}>OR</Text>
 
-            <Text
-              style={
-                styles.googleDividerText
-              }
-            >
-              OR
-            </Text>
-
-            <View
-              style={
-                styles.googleDividerLine
-              }
-            />
+            <View style={styles.googleDividerLine} />
           </View>
 
-          {/* ================================= */}
-          {/* GOOGLE LOGIN */}
-          {/* ================================= */}
-
           <Pressable
-            style={({
-              pressed,
-            }) => [
+            style={({ pressed }) => [
               styles.googleButton,
-
-              pressed &&
-                styles.buttonPressed,
-
-              isLoading &&
-                styles.googleButtonLoading,
+              pressed && styles.buttonPressed,
+              isLoading && styles.googleButtonLoading,
             ]}
-            onPress={
-              handleGoogleLogin
-            }
-            disabled={
-              isLoading
-            }
+            onPress={handleGoogleLogin}
+            disabled={isLoading}
           >
-            <Text
-              style={
-                styles.googleButtonText
-              }
-            >
-              {isLoading
-                ? "CONNECTING TO GOOGLE..."
-                : "Continue with Google"}
-            </Text>
+            <View style={styles.googleButtonContent}>
+              <AntDesign
+                name="google"
+                size={21}
+                color="#4285F4"
+              />
+
+              <Text style={styles.googleButtonText}>
+                {isLoading
+                  ? "Connecting to Google..."
+                  : "Continue with Google"}
+              </Text>
+            </View>
           </Pressable>
 
-          {/* ================================= */}
-          {/* SIGN UP */}
-          {/* ================================= */}
-
-          <View
-            style={
-              styles.signUpContainer
-            }
-          >
-            <Text
-              style={
-                styles.signUpText
-              }
-            >
+          <View style={styles.signUpContainer}>
+            <Text style={styles.signUpText}>
               Don't have an account?
             </Text>
 
             <Pressable
-              onPress={
-                handleSignUp
-              }
-              disabled={
-                isLoading
-              }
+              onPress={() => router.push("/register")}
+              disabled={isLoading}
             >
-              <Text
-                style={
-                  styles.signUpLink
-                }
-              >
-                Sign Up
-              </Text>
+              <Text style={styles.signUpLink}> Sign Up</Text>
             </Pressable>
           </View>
-
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

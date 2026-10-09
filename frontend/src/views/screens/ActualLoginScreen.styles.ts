@@ -1,440 +1,184 @@
-// StyleSheet is used to keep the screen design separate
-// from the Login screen component.
 
 import { StyleSheet } from "react-native";
 
-// Siya-Fund Login screen styles
-
 export const styles = StyleSheet.create({
-
-  // ==========================================
-  // MAIN CONTAINER
-  // ==========================================
-
   container: {
-
     flex: 1,
-
-    backgroundColor: "#F4F8F5",
-
+    backgroundColor: "#F8FAFC",
   },
-
-  // ==========================================
-  // SCROLL CONTENT
-  // ==========================================
 
   scrollContent: {
-
     flexGrow: 1,
-
-    alignItems: "center",
-
     justifyContent: "center",
-
-    paddingHorizontal: 20,
-
-    paddingVertical: 35,
-
+    paddingHorizontal: 24,
+    paddingVertical: 32,
   },
-
-  // ==========================================
-  // LOGIN CARD
-  // ==========================================
 
   card: {
-
     width: "100%",
-
-    maxWidth: 460,
-
+    maxWidth: 440,
+    alignSelf: "center",
     backgroundColor: "#FFFFFF",
-
-    borderRadius: 24,
-
-    paddingHorizontal: 30,
-
-    paddingVertical: 36,
-
-    // iOS shadow
-
+    borderRadius: 20,
+    padding: 24,
     shadowColor: "#000000",
-
     shadowOffset: {
-
       width: 0,
-
-      height: 8,
-
+      height: 4,
     },
-
-    shadowOpacity: 0.08,
-
-    shadowRadius: 20,
-
-    // Android shadow
-
-    elevation: 5,
-
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 4,
   },
 
-  // ==========================================
-  // LOGO
-  // ==========================================
-
   logoContainer: {
-
-    width: 105,
-
-    height: 105,
-
-    borderRadius: 52.5,
-
-    backgroundColor: "#F3F8F4",
-
     alignItems: "center",
-
-    justifyContent: "center",
-
-    alignSelf: "center",
-
-    marginBottom: 22,
-
+    marginBottom: 20,
   },
 
   logo: {
-
-    width: 82,
-
-    height: 82,
-
+    width: 110,
+    height: 110,
   },
-
-  // ==========================================
-  // TITLE
-  // ==========================================
 
   title: {
-
-    color: "#17231B",
-
-    fontSize: 30,
-
+    fontSize: 28,
     fontWeight: "700",
-
+    color: "#111827",
     textAlign: "center",
-
-    marginBottom: 10,
-
+    marginBottom: 8,
   },
-
-  // ==========================================
-  // DESCRIPTION
-  // ==========================================
 
   description: {
-
-    color: "#6B756F",
-
-    fontSize: 15,
-
-    lineHeight: 23,
-
+    fontSize: 14,
+    color: "#6B7280",
     textAlign: "center",
-
-    marginBottom: 30,
-
+    lineHeight: 21,
+    marginBottom: 28,
   },
-
-  // ==========================================
-  // INPUT GROUP
-  // ==========================================
 
   inputGroup: {
-
-    width: "100%",
-
     marginBottom: 18,
-
   },
-
-  // ==========================================
-  // INPUT LABEL
-  // ==========================================
 
   label: {
-
-    color: "#27332C",
-
     fontSize: 14,
-
     fontWeight: "600",
-
+    color: "#374151",
     marginBottom: 8,
-
   },
-
-  // ==========================================
-  // TEXT INPUT
-  // ==========================================
 
   input: {
-
     width: "100%",
-
-    height: 54,
-
-    backgroundColor: "#F8FAF9",
-
+    height: 52,
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-
-    borderColor: "#DCE5DF",
-
+    borderColor: "#D1D5DB",
     borderRadius: 12,
-
-    paddingHorizontal: 16,
-
-    color: "#17231B",
-
+    paddingHorizontal: 15,
     fontSize: 15,
-
+    color: "#111827",
   },
 
-  // ==========================================
-  // FORGOT PASSWORD
-  // ==========================================
-
   forgotButton: {
-
     alignSelf: "flex-end",
-
-    marginTop: -3,
-
-    marginBottom: 24,
-
+    marginTop: -4,
+    marginBottom: 22,
   },
 
   forgotText: {
-
-    color: "#2E8B57",
-
-    fontSize: 14,
-
+    color: "#2563EB",
+    fontSize: 13,
     fontWeight: "600",
-
   },
-
-  // ==========================================
-  // LOGIN BUTTON
-  // ==========================================
 
   loginButton: {
-
     width: "100%",
-
-    height: 56,
-
-    backgroundColor: "#2E8B57",
-
+    height: 54,
+    backgroundColor: "#166534",
     borderRadius: 13,
-
     alignItems: "center",
-
     justifyContent: "center",
-
-    // iOS shadow
-
-    shadowColor: "#2E8B57",
-
-    shadowOffset: {
-
-      width: 0,
-
-      height: 5,
-
-    },
-
-    shadowOpacity: 0.18,
-
-    shadowRadius: 8,
-
-    // Android shadow
-
-    elevation: 3,
-
   },
-
-  // Login button while loading
 
   buttonLoading: {
-
-    opacity: 0.75,
-
+    opacity: 0.65,
   },
-
-  // ==========================================
-  // BUTTON PRESS EFFECT
-  // ==========================================
 
   buttonPressed: {
-
-    opacity: 0.75,
-
-    transform: [
-
-      {
-
-        scale: 0.98,
-
-      },
-
-    ],
-
+    opacity: 0.8,
   },
-
-  // ==========================================
-  // LOGIN BUTTON TEXT
-  // ==========================================
 
   loginButtonText: {
-
     color: "#FFFFFF",
-
     fontSize: 16,
-
     fontWeight: "700",
-
-    letterSpacing: 1,
-
   },
 
-  // ==========================================
-  // GOOGLE DIVIDER
-  // ==========================================
-
   googleDividerContainer: {
-
     flexDirection: "row",
-
     alignItems: "center",
-
-    width: "100%",
-
-    marginVertical: 20,
-
+    marginVertical: 24,
   },
 
   googleDividerLine: {
-
     flex: 1,
-
     height: 1,
-
     backgroundColor: "#E5E7EB",
-
   },
 
   googleDividerText: {
-
-    marginHorizontal: 12,
-
-    color: "#6B7280",
-
-    fontSize: 14,
-
-    fontWeight: "500",
-
+    color: "#9CA3AF",
+    fontSize: 12,
+    fontWeight: "600",
+    marginHorizontal: 14,
   },
-
-  // ==========================================
-  // GOOGLE LOGIN BUTTON
-  // ==========================================
 
   googleButton: {
-
     width: "100%",
-
     height: 56,
-
     backgroundColor: "#FFFFFF",
-
     borderWidth: 1,
-
     borderColor: "#D1D5DB",
-
     borderRadius: 13,
-
     alignItems: "center",
-
     justifyContent: "center",
-
   },
 
-  // ==========================================
-  // GOOGLE BUTTON TEXT
-  // ==========================================
+  googleButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+  },
 
   googleButtonText: {
-
     color: "#1F2937",
-
     fontSize: 16,
-
     fontWeight: "600",
-
   },
-
-  // ==========================================
-  // GOOGLE BUTTON LOADING
-  // ==========================================
 
   googleButtonLoading: {
-
     opacity: 0.6,
-
   },
-
-  // ==========================================
-  // SIGN UP CONTAINER
-  // ==========================================
 
   signUpContainer: {
-
     flexDirection: "row",
-
-    alignItems: "center",
-
     justifyContent: "center",
-
-    marginTop: 28,
-
-    gap: 5,
-
+    alignItems: "center",
+    flexWrap: "wrap",
+    marginTop: 26,
   },
-
-  // ==========================================
-  // SIGN UP TEXT
-  // ==========================================
 
   signUpText: {
-
-    color: "#7A837D",
-
+    color: "#6B7280",
     fontSize: 14,
-
   },
-
-  // ==========================================
-  // SIGN UP LINK
-  // ==========================================
 
   signUpLink: {
-
-    color: "#2E8B57",
-
+    color: "#166534",
     fontSize: 14,
-
     fontWeight: "700",
-
   },
-
 });
+
