@@ -1,515 +1,450 @@
-
-import React from "react";
+import React, { useState } from "react";
 import {
   Alert,
+  Platform,
   Pressable,
   ScrollView,
   Text,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { router } from "expo-router";
-import { styles } from "./DashboardScreen.styles";
+import styles from "./DashboardScreen.styles";
 
-// ==========================================
-// DASHBOARD SCREEN
-// ==========================================
+const transactions = [
+  {
+    id: "1",
+    title: "Monthly contribution",
+    subtitle: "Savings Group A",
+    amount: "-R500.00",
+    date: "Today",
+    type: "out",
+    symbol: "↗",
+  },
+  {
+    id: "2",
+    title: "Contribution received",
+    subtitle: "Community Savings",
+    amount: "+R1,200.00",
+    date: "Yesterday",
+    type: "in",
+    symbol: "↙",
+  },
+  {
+    id: "3",
+    title: "Group savings",
+    subtitle: "Family Savings",
+    amount: "-R250.00",
+    date: "08 Oct",
+    type: "out",
+    symbol: "↗",
+  },
+];
+
+const quickActions = [
+  { label: "Groups", symbol: "◫", route: "/groups" },
+  { label: "Contribute", symbol: "+", route: "/contributions" },
+  { label: "Transactions", symbol: "⇄", route: "/transactions" },
+  { label: "Reports", symbol: "▤", route: "/reports" },
+];
+
+const navigationItems = [
+  { label: "Dashboard", symbol: "⌂", route: "/dashboard" },
+  { label: "Groups", symbol: "◫", route: "/groups" },
+  { label: "Transactions", symbol: "⇄", route: "/transactions" },
+  { label: "Profile", symbol: "○", route: "/profile" },
+];
+
 export default function DashboardScreen() {
-  // ==========================================
-  // NAVIGATION
-  // ==========================================
-  const goToContributions = () => {
-    router.push("/contributions");
+  const { width } = useWindowDimensions();
+  const [balanceVisible, setBalanceVisible] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const isWeb = Platform.OS === "web";
+  const isWide = width >= 900;
+  const showMobileNav = !isWeb || width < 768;
+
+  const navigateTo = (path: string) => {
+    setDrawerOpen(false);
+    router.push(path as never);
   };
 
-  const goToLoans = () => {
-    router.push("/loans");
+  const confirmLogout = () => {
+    setDrawerOpen(false);
+
+    Alert.alert("Sign out", "Are you sure you want to sign out?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Sign out",
+        style: "destructive",
+        onPress: () => router.replace("/login" as never),
+      },
+    ]);
   };
 
-  const goToGroups = () => {
-    router.push("/groups");
-  };
+  const displayBalance = (amount: string) =>
+    balanceVisible ? amount : "••••••";
 
-  const goToTransactions = () => {
-    router.push("/transactions");
-  };
-
-  // ==========================================
-  // LOG OUT
-  // ==========================================
-  const handleLogout = () => {
-    Alert.alert(
-      "Log Out",
-      "Are you sure you want to log out of Siya-Fund?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Log Out",
-          style: "destructive",
-          onPress: () => {
-            router.replace("/login");
-          },
-        },
-      ]
-    );
-  };
-
-  // ==========================================
-  // SCREEN
-  // ==========================================
   return (
-    <View style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* HEADER */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.smallGreeting}>
-              Welcome back,
-            </Text>
-
-            <Text style={styles.userName}>
-              Franklin 👋
-            </Text>
-          </View>
-
-          {/* NOTIFICATION */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.notificationButton,
-              pressed && styles.buttonPressed,
-            ]}
-          >
-            <Text style={styles.notificationIcon}>
-              🔔
-            </Text>
-
-            <View style={styles.notificationDot} />
-          </Pressable>
-        </View>
-
-        {/* TOTAL SAVINGS */}
-        <View style={styles.savingsCard}>
-          <View style={styles.savingsHeader}>
-            <Text style={styles.savingsLabel}>
-              Total Savings
-            </Text>
-
-            <Text style={styles.savingsIcon}>
-              💰
-            </Text>
-          </View>
-
-          <Text style={styles.savingsAmount}>
-            R12,500.00
-          </Text>
-
-          <View style={styles.savingsFooter}>
-            <View>
-              <Text style={styles.savingsFooterLabel}>
-                This Month
-              </Text>
-
-              <Text style={styles.savingsFooterValue}>
-                + R500.00
-              </Text>
-            </View>
-
-            <View style={styles.growthBadge}>
-              <Text style={styles.growthText}>
-                ↑ 4.2%
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* FINANCIAL SUMMARY */}
-        <Text style={styles.sectionTitle}>
-          Financial Summary
-        </Text>
-
-        <View style={styles.summaryRow}>
-          {/* CONTRIBUTIONS */}
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryIconGreen}>
-              <Text style={styles.summaryIconText}>
-                ↑
-              </Text>
-            </View>
-
-            <Text style={styles.summaryLabel}>
-              Contributions
-            </Text>
-
-            <Text style={styles.summaryAmount}>
-              R500.00
-            </Text>
-
-            <Text style={styles.summaryStatus}>
-              This month
-            </Text>
-          </View>
-
-          {/* OUTSTANDING LOAN */}
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryIconOrange}>
-              <Text
-                style={[
-                  styles.summaryIconText,
-                  styles.orangeIconText,
-                ]}
-              >
-                ↓
-              </Text>
-            </View>
-
-            <Text style={styles.summaryLabel}>
-              Outstanding Loan
-            </Text>
-
-            <Text style={styles.summaryAmount}>
-              R2,000.00
-            </Text>
-
-            <Text style={styles.summaryStatus}>
-              Active loan
-            </Text>
-          </View>
-        </View>
-
-        {/* AVAILABLE LOAN */}
-        <View style={styles.loanCard}>
-          <View style={styles.loanIconContainer}>
-            <Text style={styles.loanIcon}>
-              💳
-            </Text>
-          </View>
-
-          <View style={styles.loanContent}>
-            <Text style={styles.loanTitle}>
-              Available Loan
-            </Text>
-
-            <Text style={styles.loanAmount}>
-              R5,000.00
-            </Text>
-
-            <Text style={styles.loanDescription}>
-              Based on your current savings
-            </Text>
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.loanButton,
-              pressed && styles.buttonPressed,
-            ]}
-            onPress={goToLoans}
-          >
-            <Text style={styles.loanButtonText}>
-              VIEW
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* QUICK ACTIONS */}
-        <Text style={styles.sectionTitle}>
-          Quick Actions
-        </Text>
-
-        <View style={styles.actionsGrid}>
-          {/* ADD CONTRIBUTION */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.actionCard,
-              pressed && styles.buttonPressed,
-            ]}
-            onPress={goToContributions}
-          >
-            <View style={styles.actionIconGreen}>
-              <Text style={styles.actionIconText}>
-                +
-              </Text>
-            </View>
-
-            <Text style={styles.actionTitle}>
-              Add Contribution
-            </Text>
-
-            <Text style={styles.actionDescription}>
-              Make a contribution
-            </Text>
-          </Pressable>
-
-          {/* REQUEST LOAN */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.actionCard,
-              pressed && styles.buttonPressed,
-            ]}
-            onPress={() => router.push("/loans/request")}
-          >
-            <View style={styles.actionIconBlue}>
-              <Text
-                style={[
-                  styles.actionIconText,
-                  styles.blueIconText,
-                ]}
-              >
-                R
-              </Text>
-            </View>
-
-            <Text style={styles.actionTitle}>
-              Request Loan
-            </Text>
-
-            <Text style={styles.actionDescription}>
-              Apply for a loan
-            </Text>
-          </Pressable>
-
-          {/* MY GROUPS */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.actionCard,
-              pressed && styles.buttonPressed,
-            ]}
-            onPress={goToGroups}
-          >
-            <View style={styles.actionIconPurple}>
-              <Text
-                style={[
-                  styles.actionIconText,
-                  styles.purpleIconText,
-                ]}
-              >
-                G
-              </Text>
-            </View>
-
-            <Text style={styles.actionTitle}>
-              My Groups
-            </Text>
-
-            <Text style={styles.actionDescription}>
-              View your groups
-            </Text>
-          </Pressable>
-
-          {/* TRANSACTIONS */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.actionCard,
-              pressed && styles.buttonPressed,
-            ]}
-            onPress={goToTransactions}
-          >
-            <View style={styles.actionIconOrange}>
-              <Text
-                style={[
-                  styles.actionIconText,
-                  styles.orangeIconText,
-                ]}
-              >
-                $
-              </Text>
-            </View>
-
-            <Text style={styles.actionTitle}>
-              Transactions
-            </Text>
-
-            <Text style={styles.actionDescription}>
-              View transaction history
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* RECENT TRANSACTIONS HEADER */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>
-            Recent Transactions
-          </Text>
-
-          <Pressable onPress={goToTransactions}>
-            <Text style={styles.viewAllText}>
-              View All
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* TRANSACTION 1 */}
-        <View style={styles.transactionCard}>
-          <View style={styles.transactionIconGreen}>
-            <Text style={styles.transactionIconText}>
-              ↑
-            </Text>
-          </View>
-
-          <View style={styles.transactionContent}>
-            <Text style={styles.transactionTitle}>
-              Monthly Contribution
-            </Text>
-
-            <Text style={styles.transactionDate}>
-              01 October 2026
-            </Text>
-          </View>
-
-          <View style={styles.transactionAmountContainer}>
-            <Text style={styles.transactionPositive}>
-              +R500.00
-            </Text>
-
-            <Text style={styles.completedText}>
-              Completed
-            </Text>
-          </View>
-        </View>
-
-        {/* TRANSACTION 2 */}
-        <View style={styles.transactionCard}>
-          <View style={styles.transactionIconOrange}>
-            <Text style={styles.transactionIconText}>
-              ↓
-            </Text>
-          </View>
-
-          <View style={styles.transactionContent}>
-            <Text style={styles.transactionTitle}>
-              Loan Repayment
-            </Text>
-
-            <Text style={styles.transactionDate}>
-              28 September 2026
-            </Text>
-          </View>
-
-          <View style={styles.transactionAmountContainer}>
-            <Text style={styles.transactionNegative}>
-              -R300.00
-            </Text>
-
-            <Text style={styles.completedText}>
-              Completed
-            </Text>
-          </View>
-        </View>
-
-        {/* MY GROUP */}
-        <Text style={styles.sectionTitle}>
-          My Group
-        </Text>
-
-        <View style={styles.groupCard}>
-          <View style={styles.groupAvatar}>
-            <Text style={styles.groupAvatarText}>
-              SF
-            </Text>
-          </View>
-
-          <View style={styles.groupContent}>
-            <Text style={styles.groupName}>
-              Siyaphambili Stokfela
-            </Text>
-
-            <Text style={styles.groupMembers}>
-              12 members
-            </Text>
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.groupButton,
-              pressed && styles.buttonPressed,
-            ]}
-            onPress={goToGroups}
-          >
-            <Text style={styles.groupButtonText}>
-              VIEW
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* LOG OUT BUTTON */}
+    <View style={styles.screen}>
+      {isWeb && drawerOpen && (
         <Pressable
-          style={({ pressed }) => [
-            styles.logoutButton,
-            pressed && styles.buttonPressed,
+          style={styles.drawerOverlay}
+          onPress={() => setDrawerOpen(false)}
+        />
+      )}
+
+      {isWeb && (
+        <View
+          style={[
+            styles.drawer,
+            drawerOpen ? styles.drawerOpen : styles.drawerClosed,
           ]}
-          onPress={handleLogout}
         >
-          <Text style={styles.logoutIcon}>
-            ↪
-          </Text>
+          <View style={styles.drawerHeader}>
+            <View style={styles.logoMark}>
+              <Text style={styles.logoMarkText}>S</Text>
+            </View>
+            <View>
+              <Text style={styles.brandName}>Siya-Fund</Text>
+              <Text style={styles.brandSubtitle}>YOUR MONEY. YOUR FUTURE.</Text>
+            </View>
+          </View>
 
-          <Text style={styles.logoutButtonText}>
-            Log Out
-          </Text>
-        </Pressable>
+          <Text style={styles.drawerSectionLabel}>MENU</Text>
 
-        {/* BOTTOM NAVIGATION */}
-        <View style={styles.bottomNavigation}>
-          {/* DASHBOARD */}
-          <Pressable style={styles.navItem}>
-            <Text style={styles.navIconActive}>
-              ◉
-            </Text>
+          {navigationItems.map((item) => (
+            <Pressable
+              key={item.label}
+              style={[
+                styles.drawerNavItem,
+                item.label === "Dashboard" && styles.drawerNavItemActive,
+              ]}
+              onPress={() => navigateTo(item.route)}
+            >
+              <Text
+                style={[
+                  styles.drawerNavSymbol,
+                  item.label === "Dashboard" && styles.drawerNavSymbolActive,
+                ]}
+              >
+                {item.symbol}
+              </Text>
+              <Text
+                style={[
+                  styles.drawerNavText,
+                  item.label === "Dashboard" && styles.drawerNavTextActive,
+                ]}
+              >
+                {item.label}
+              </Text>
+            </Pressable>
+          ))}
 
-            <Text style={styles.navTextActive}>
-              Dashboard
-            </Text>
-          </Pressable>
+          <View style={styles.drawerSpacer} />
 
-          {/* CONTRIBUTIONS */}
-          <Pressable
-            style={styles.navItem}
-            onPress={goToContributions}
-          >
-            <Text style={styles.navIcon}>
-              +
-            </Text>
-
-            <Text style={styles.navText}>
-              Contributions
-            </Text>
-          </Pressable>
-
-          {/* LOANS */}
-          <Pressable
-            style={styles.navItem}
-            onPress={goToLoans}
-          >
-            <Text style={styles.navIcon}>
-              $
-            </Text>
-
-            <Text style={styles.navText}>
-              Loans
-            </Text>
-          </Pressable>
-
-          {/* GROUPS */}
-          <Pressable
-            style={styles.navItem}
-            onPress={goToGroups}
-          >
-            <Text style={styles.navIcon}>
-              G
-            </Text>
-
-            <Text style={styles.navText}>
-              Groups
-            </Text>
+          <Pressable style={styles.logoutButton} onPress={confirmLogout}>
+            <Text style={styles.logoutSymbol}>↪</Text>
+            <Text style={styles.logoutText}>Sign out</Text>
           </Pressable>
         </View>
-      </ScrollView>
+      )}
+
+      <View style={[styles.main, isWeb && isWide && styles.mainWithWideDrawer]}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.content,
+            showMobileNav && styles.contentWithBottomNav,
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.topBar}>
+            <View style={styles.topBarLeft}>
+              {isWeb && (
+                <Pressable
+                  style={styles.menuButton}
+                  onPress={() => setDrawerOpen(!drawerOpen)}
+                >
+                  <Text style={styles.menuButtonText}>☰</Text>
+                </Pressable>
+              )}
+
+              <View>
+                <Text style={styles.greeting}>Welcome back,</Text>
+                <Text style={styles.pageTitle}>Your Dashboard</Text>
+              </View>
+            </View>
+
+            <Pressable
+              style={styles.profileButton}
+              onPress={() => navigateTo("/profile")}
+            >
+              <Text style={styles.profileInitial}>U</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.welcomeRow}>
+            <View>
+              <Text style={styles.welcomeTitle}>
+                Take control of your money.
+              </Text>
+              <Text style={styles.welcomeSubtitle}>
+                Here's an overview of your savings.
+              </Text>
+            </View>
+            <View style={styles.statusBadge}>
+              <View style={styles.statusDot} />
+              <Text style={styles.statusText}>Account active</Text>
+            </View>
+          </View>
+
+          <View
+            style={[styles.overviewGrid, isWide && styles.overviewGridWide]}
+          >
+            <View style={styles.balanceCard}>
+              <View style={styles.balanceCardTop}>
+                <View>
+                  <Text style={styles.cardEyebrow}>TOTAL SAVINGS</Text>
+                  <Text style={styles.balanceAmount}>
+                    {displayBalance("R 12,450.00")}
+                  </Text>
+                  <View style={styles.trendRow}>
+                    <Text style={styles.trendArrow}>↗</Text>
+                    <Text style={styles.trendText}>8.4%</Text>
+                    <Text style={styles.trendCaption}>this month</Text>
+                  </View>
+                </View>
+
+                <Pressable
+                  style={styles.visibilityButton}
+                  onPress={() => setBalanceVisible(!balanceVisible)}
+                  accessibilityLabel={
+                    balanceVisible ? "Hide balance" : "Show balance"
+                  }
+                >
+                  <Text style={styles.visibilityIcon}>
+                    {balanceVisible ? "◉" : "◎"}
+                  </Text>
+                </Pressable>
+              </View>
+
+              <View style={styles.chartArea}>
+                <View style={styles.chartLabels}>
+                  <Text style={styles.chartLabel}>SAVINGS GROWTH</Text>
+                  <Text style={styles.chartPeriod}>LAST 7 MONTHS</Text>
+                </View>
+                <View style={styles.chartBars}>
+                  {[35, 48, 42, 60, 53, 75, 92].map((height, index) => (
+                    <View key={index} style={styles.chartBarTrack}>
+                      <View
+                        style={[
+                          styles.chartBar,
+                          { height: `${height}%` },
+                          index === 6 && styles.chartBarActive,
+                        ]}
+                      />
+                    </View>
+                  ))}
+                </View>
+                <View style={styles.chartMonths}>
+                  {["APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT"].map(
+                    (month) => (
+                      <Text key={month} style={styles.chartMonth}>
+                        {month}
+                      </Text>
+                    ),
+                  )}
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.summaryColumn}>
+              <View style={styles.summaryCard}>
+                <View style={styles.summaryIconGreen}>
+                  <Text style={styles.summaryIconText}>↗</Text>
+                </View>
+                <Text style={styles.summaryLabel}>Total contributions</Text>
+                <Text style={styles.summaryAmount}>
+                  {displayBalance("R 8,250.00")}
+                </Text>
+                <Text style={styles.summaryCaption}>Across your groups</Text>
+              </View>
+
+              <View style={styles.summaryCard}>
+                <View style={styles.summaryIconBlue}>
+                  <Text style={styles.summaryIconText}>◫</Text>
+                </View>
+                <Text style={styles.summaryLabel}>Active groups</Text>
+                <Text style={styles.summaryAmount}>03</Text>
+                <Text style={styles.summaryCaption}>Groups you belong to</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.sectionHeader}>
+            <View>
+              <Text style={styles.sectionTitle}>Quick actions</Text>
+              <Text style={styles.sectionSubtitle}>Manage your finances</Text>
+            </View>
+          </View>
+
+          <View style={styles.actionsGrid}>
+            {quickActions.map((action) => (
+              <Pressable
+                key={action.label}
+                style={[styles.actionCard, { width: isWide ? "23.5%" : "48%" }]}
+                onPress={() => navigateTo(action.route)}
+              >
+                <View style={styles.actionIcon}>
+                  <Text style={styles.actionIconText}>{action.symbol}</Text>
+                </View>
+                <Text style={styles.actionLabel}>{action.label}</Text>
+                <Text style={styles.actionArrow}>↗</Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <View style={styles.sectionHeader}>
+            <View>
+              <Text style={styles.sectionTitle}>Recent transactions</Text>
+              <Text style={styles.sectionSubtitle}>
+                Keep track of your money
+              </Text>
+            </View>
+            <Pressable onPress={() => navigateTo("/transactions")}>
+              <Text style={styles.viewAll}>View all ↗</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.transactionsCard}>
+            {transactions.map((transaction, index) => (
+              <View
+                key={transaction.id}
+                style={[
+                  styles.transactionRow,
+                  index === transactions.length - 1 &&
+                    styles.transactionRowLast,
+                ]}
+              >
+                <View
+                  style={[
+                    styles.transactionIcon,
+                    transaction.type === "in"
+                      ? styles.transactionIconIn
+                      : styles.transactionIconOut,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.transactionSymbol,
+                      transaction.type === "in"
+                        ? styles.amountPositive
+                        : styles.amountNegative,
+                    ]}
+                  >
+                    {transaction.symbol}
+                  </Text>
+                </View>
+
+                <View style={styles.transactionDetails}>
+                  <Text style={styles.transactionTitle}>
+                    {transaction.title}
+                  </Text>
+                  <Text style={styles.transactionSubtitle}>
+                    {transaction.subtitle}
+                  </Text>
+                </View>
+
+                <View style={styles.transactionRight}>
+                  <Text
+                    style={[
+                      styles.transactionAmount,
+                      transaction.type === "in"
+                        ? styles.amountPositive
+                        : styles.amountNegative,
+                    ]}
+                  >
+                    {displayBalance(transaction.amount)}
+                  </Text>
+                  <Text style={styles.transactionDate}>{transaction.date}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.sectionHeader}>
+            <View>
+              <Text style={styles.sectionTitle}>Your savings groups</Text>
+              <Text style={styles.sectionSubtitle}>
+                Stay connected to your goals
+              </Text>
+            </View>
+            <Pressable onPress={() => navigateTo("/groups")}>
+              <Text style={styles.viewAll}>View all ↗</Text>
+            </Pressable>
+          </View>
+
+          <Pressable
+            style={styles.groupCard}
+            onPress={() => navigateTo("/groups")}
+          >
+            <View style={styles.groupIcon}>
+              <Text style={styles.groupIconText}>◫</Text>
+            </View>
+            <View style={styles.groupDetails}>
+              <Text style={styles.groupTitle}>Community Savings</Text>
+              <Text style={styles.groupSubtitle}>
+                8 members · Monthly contributions
+              </Text>
+              <View style={styles.progressTrack}>
+                <View style={styles.progressFill} />
+              </View>
+              <Text style={styles.progressCaption}>
+                68% of group savings goal
+              </Text>
+            </View>
+            <Text style={styles.groupArrow}>›</Text>
+          </Pressable>
+
+          <Text style={styles.footerText}>
+            Siya-Fund · Building better financial futures
+          </Text>
+        </ScrollView>
+      </View>
+
+      {showMobileNav && (
+        <View style={styles.bottomNav}>
+          {navigationItems.map((item) => {
+            const active = item.label === "Dashboard";
+
+            return (
+              <Pressable
+                key={item.label}
+                style={styles.bottomNavItem}
+                onPress={() => navigateTo(item.route)}
+              >
+                <Text
+                  style={[
+                    styles.bottomNavSymbol,
+                    active && styles.bottomNavSymbolActive,
+                  ]}
+                >
+                  {item.symbol}
+                </Text>
+                <Text
+                  style={[
+                    styles.bottomNavLabel,
+                    active && styles.bottomNavLabelActive,
+                  ]}
+                >
+                  {item.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 }
-

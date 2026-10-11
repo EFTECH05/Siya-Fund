@@ -1,685 +1,674 @@
+import { Platform, StyleSheet } from "react-native";
 
-import { StyleSheet } from "react-native";
+const isWeb = Platform.OS === "web";
 
-export const styles = StyleSheet.create({
-  // ==========================================
-  // MAIN CONTAINER
-  // ==========================================
-  container: {
+const styles = StyleSheet.create({
+  screen: {
     flex: 1,
-    backgroundColor: "#F4F8F5",
+    minHeight: "100%",
+    backgroundColor: "#080D17",
   },
-
-  // ==========================================
-  // SCROLL CONTENT
-  // ==========================================
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 25,
-    paddingBottom: 35,
+  main: {
+    flex: 1,
+    minWidth: 0,
+  },
+  mainWithWideDrawer: {
+    marginLeft: 250,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
     width: "100%",
-    maxWidth: 900,
+    maxWidth: 1200,
     alignSelf: "center",
+    paddingHorizontal: 22,
+    paddingTop: 24,
+    paddingBottom: 35,
+  },
+  contentWithBottomNav: {
+    paddingBottom: 110,
   },
 
-  // ==========================================
-  // HEADER
-  // ==========================================
-  header: {
-    width: "100%",
+  // Header
+  topBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 25,
+    marginBottom: 26,
   },
-
-  smallGreeting: {
-    color: "#7A837D",
-    fontSize: 14,
-    marginBottom: 3,
+  topBarLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
   },
-
-  userName: {
-    color: "#17231B",
-    fontSize: 27,
-    fontWeight: "700",
-  },
-
-  // ==========================================
-  // NOTIFICATION
-  // ==========================================
-  notificationButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#FFFFFF",
+  menuButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: "#151D2B",
+    borderWidth: 1,
+    borderColor: "#273247",
+  },
+  menuButtonText: {
+    color: "#EAF0FA",
+    fontSize: 21,
+  },
+  greeting: {
+    color: "#8B97AA",
+    fontSize: 13,
+    marginBottom: 4,
+  },
+  pageTitle: {
+    color: "#F4F7FC",
+    fontSize: 25,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+  },
+  profileButton: {
+    width: 43,
+    height: 43,
+    borderRadius: 22,
+    backgroundColor: "#1D2A3D",
+    borderWidth: 1,
+    borderColor: "#34435A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  profileInitial: {
+    color: "#66E3A4",
+    fontWeight: "800",
+    fontSize: 16,
   },
 
-  notificationIcon: {
-    fontSize: 20,
+  // Welcome
+  welcomeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 23,
   },
-
-  notificationDot: {
-    position: "absolute",
-    top: 10,
-    right: 11,
+  welcomeTitle: {
+    color: "#F1F5FB",
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+  welcomeSubtitle: {
+    color: "#8591A5",
+    fontSize: 13,
+  },
+  statusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    backgroundColor: "#10271F",
+    borderColor: "#214B38",
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+  },
+  statusDot: {
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: "#E45B5B",
-    borderWidth: 1,
-    borderColor: "#FFFFFF",
+    backgroundColor: "#55D99A",
   },
-
-  // ==========================================
-  // SAVINGS CARD
-  // ==========================================
-  savingsCard: {
-    width: "100%",
-    backgroundColor: "#2E8B57",
-    borderRadius: 22,
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-    marginBottom: 28,
-    shadowColor: "#2E8B57",
-    shadowOffset: {
-      width: 0,
-      height: 7,
-    },
-    shadowOpacity: 0.18,
-    shadowRadius: 14,
-    elevation: 5,
-  },
-
-  savingsHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  savingsLabel: {
-    color: "#DDF3E5",
-    fontSize: 14,
+  statusText: {
+    color: "#7AE6B0",
+    fontSize: 11,
     fontWeight: "600",
   },
 
-  savingsIcon: {
-    fontSize: 22,
+  // Balance and summary cards
+  overviewGrid: {
+    gap: 15,
+    marginBottom: 30,
   },
-
-  savingsAmount: {
+  overviewGridWide: {
+    flexDirection: "row",
+    alignItems: "stretch",
+  },
+  balanceCard: {
+    flex: 1,
+    minWidth: 0,
+    backgroundColor: "#111B2B",
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "#27364A",
+    padding: 22,
+    overflow: "hidden",
+  },
+  balanceCardTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  cardEyebrow: {
+    color: "#92A0B5",
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+    marginBottom: 13,
+  },
+  balanceAmount: {
     color: "#FFFFFF",
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: "800",
-    marginTop: 7,
+    letterSpacing: -1,
+    marginBottom: 10,
+  },
+  trendRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  trendArrow: {
+    color: "#5EE6A3",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  trendText: {
+    color: "#5EE6A3",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  trendCaption: {
+    color: "#8C9AAF",
+    fontSize: 11,
+  },
+  visibilityButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: "#1C293B",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  visibilityIcon: {
+    color: "#C3CEDD",
+    fontSize: 18,
   },
 
-  savingsFooter: {
+  // Decorative savings chart
+  chartArea: {
+    marginTop: 28,
+  },
+  chartLabels: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  chartLabel: {
+    color: "#9BA8BB",
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+  chartPeriod: {
+    color: "#68788F",
+    fontSize: 9,
+    fontWeight: "600",
+  },
+  chartBars: {
+    height: 88,
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
-    marginTop: 18,
+    gap: 9,
+    borderBottomWidth: 1,
+    borderBottomColor: "#293649",
+    paddingHorizontal: 2,
   },
-
-  savingsFooterLabel: {
-    color: "#DDF3E5",
-    fontSize: 12,
-    marginBottom: 3,
+  chartBarTrack: {
+    flex: 1,
+    height: "100%",
+    justifyContent: "flex-end",
+    alignItems: "center",
   },
-
-  savingsFooterValue: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "700",
+  chartBar: {
+    width: "72%",
+    maxWidth: 28,
+    minHeight: 8,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    backgroundColor: "#285943",
   },
-
-  growthBadge: {
-    backgroundColor: "rgba(255,255,255,0.16)",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+  chartBarActive: {
+    backgroundColor: "#5CE5A1",
   },
-
-  growthText: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "700",
+  chartMonths: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 9,
   },
-
-  // ==========================================
-  // SECTION TITLE
-  // ==========================================
-  sectionTitle: {
-    color: "#17231B",
-    fontSize: 19,
-    fontWeight: "700",
-    marginBottom: 14,
+  chartMonth: {
+    color: "#77869B",
+    fontSize: 9,
+    textAlign: "center",
   },
-
-  // ==========================================
-  // FINANCIAL SUMMARY
-  // ==========================================
-  summaryRow: {
-    width: "100%",
+  summaryColumn: {
+    flex: 1,
     flexDirection: "row",
     gap: 12,
-    marginBottom: 18,
   },
-
   summaryCard: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    minWidth: 0,
+    backgroundColor: "#111B2B",
     borderRadius: 18,
-    padding: 17,
-    minHeight: 155,
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
-  },
-
-  summaryIconGreen: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "#EAF6EE",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 13,
-  },
-
-  summaryIconOrange: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "#FFF3E8",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 13,
-  },
-
-  summaryIconText: {
-    color: "#2E8B57",
-    fontSize: 19,
-    fontWeight: "800",
-  },
-
-  orangeIconText: {
-    color: "#D66A43",
-  },
-
-  summaryLabel: {
-    color: "#6B756F",
-    fontSize: 12,
-    lineHeight: 17,
-    marginBottom: 5,
-  },
-
-  summaryAmount: {
-    color: "#17231B",
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 5,
-  },
-
-  summaryStatus: {
-    color: "#9AA39D",
-    fontSize: 11,
-  },
-
-  // ==========================================
-  // AVAILABLE LOAN
-  // ==========================================
-  loanCard: {
-    width: "100%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 18,
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 28,
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
-  },
-
-  loanIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 15,
-    backgroundColor: "#EAF6EE",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 13,
-  },
-
-  loanIcon: {
-    fontSize: 22,
-  },
-
-  loanContent: {
-    flex: 1,
-  },
-
-  loanTitle: {
-    color: "#6B756F",
-    fontSize: 12,
-    marginBottom: 3,
-  },
-
-  loanAmount: {
-    color: "#17231B",
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 2,
-  },
-
-  loanDescription: {
-    color: "#9AA39D",
-    fontSize: 11,
-  },
-
-  loanButton: {
-    backgroundColor: "#EAF6EE",
-    borderRadius: 10,
-    paddingHorizontal: 13,
-    paddingVertical: 9,
-  },
-
-  loanButtonText: {
-    color: "#2E8B57",
-    fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 0.5,
-  },
-
-  // ==========================================
-  // QUICK ACTIONS
-  // ==========================================
-  actionsGrid: {
-    width: "100%",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    marginBottom: 28,
-  },
-
-  actionCard: {
-    width: "48%",
-    minWidth: 145,
-    flexGrow: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: "#27364A",
     padding: 16,
-    minHeight: 135,
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    justifyContent: "center",
   },
-
-  actionIconGreen: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "#EAF6EE",
+  summaryIconGreen: {
+    width: 34,
+    height: 34,
+    borderRadius: 11,
+    backgroundColor: "#153A2B",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+    marginBottom: 15,
   },
-
-  actionIconBlue: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "#EAF2FA",
+  summaryIconBlue: {
+    width: 34,
+    height: 34,
+    borderRadius: 11,
+    backgroundColor: "#1B304A",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+    marginBottom: 15,
   },
-
-  actionIconPurple: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "#F1ECFA",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-
-  actionIconOrange: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: "#FFF3E8",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-
-  actionIconText: {
-    color: "#2E8B57",
-    fontSize: 18,
-    fontWeight: "800",
-  },
-
-  blueIconText: {
-    color: "#3C7DB5",
-  },
-
-  purpleIconText: {
-    color: "#7654B5",
-  },
-
-  actionTitle: {
-    color: "#17231B",
-    fontSize: 14,
+  summaryIconText: {
+    color: "#72E6AC",
+    fontSize: 19,
     fontWeight: "700",
-    marginBottom: 4,
   },
-
-  actionDescription: {
-    color: "#8A938D",
+  summaryLabel: {
+    color: "#9AA7BA",
     fontSize: 11,
-    lineHeight: 16,
+    marginBottom: 9,
+  },
+  summaryAmount: {
+    color: "#F4F7FC",
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 7,
+  },
+  summaryCaption: {
+    color: "#738198",
+    fontSize: 10,
+    lineHeight: 15,
   },
 
-  // ==========================================
-  // SECTION HEADER
-  // ==========================================
+  // Section headings
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 14,
+    marginTop: 4,
+    marginBottom: 15,
   },
-
-  viewAllText: {
-    color: "#2E8B57",
-    fontSize: 13,
+  sectionTitle: {
+    color: "#F0F4FB",
+    fontSize: 17,
     fontWeight: "700",
+    marginBottom: 5,
   },
-
-  // ==========================================
-  // TRANSACTIONS
-  // ==========================================
-  transactionCard: {
-    width: "100%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 15,
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
-  },
-
-  transactionIconGreen: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    backgroundColor: "#EAF6EE",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-
-  transactionIconOrange: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    backgroundColor: "#FFF3E8",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-
-  transactionIconText: {
-    color: "#2E8B57",
-    fontSize: 19,
-    fontWeight: "800",
-  },
-
-  transactionContent: {
-    flex: 1,
-  },
-
-  transactionTitle: {
-    color: "#27332C",
-    fontSize: 13,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-
-  transactionDate: {
-    color: "#9AA39D",
+  sectionSubtitle: {
+    color: "#7F8CA1",
     fontSize: 11,
   },
+  viewAll: {
+    color: "#66DFA2",
+    fontSize: 12,
+    fontWeight: "700",
+  },
 
-  transactionAmountContainer: {
+  // Quick actions
+  actionsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    rowGap: 12,
+    marginBottom: 30,
+  },
+  actionCard: {
+    minHeight: 122,
+    backgroundColor: "#111B2B",
+    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: "#263449",
+    padding: 15,
+    position: "relative",
+  },
+  actionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 11,
+    backgroundColor: "#173629",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 15,
+  },
+  actionIconText: {
+    color: "#68E4A5",
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  actionLabel: {
+    color: "#E8EDF6",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  actionArrow: {
+    position: "absolute",
+    top: 17,
+    right: 15,
+    color: "#75849A",
+    fontSize: 15,
+  },
+
+  // Transactions
+  transactionsCard: {
+    backgroundColor: "#111B2B",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "#263449",
+    paddingHorizontal: 16,
+    marginBottom: 30,
+  },
+  transactionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#253145",
+    gap: 12,
+  },
+  transactionRowLast: {
+    borderBottomWidth: 0,
+  },
+  transactionIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  transactionIconIn: {
+    backgroundColor: "#15392B",
+  },
+  transactionIconOut: {
+    backgroundColor: "#30283A",
+  },
+  transactionSymbol: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  transactionDetails: {
+    flex: 1,
+    minWidth: 0,
+  },
+  transactionTitle: {
+    color: "#E7ECF5",
+    fontSize: 12,
+    fontWeight: "600",
+    marginBottom: 5,
+  },
+  transactionSubtitle: {
+    color: "#7E8BA0",
+    fontSize: 10,
+  },
+  transactionRight: {
     alignItems: "flex-end",
   },
-
-  transactionPositive: {
-    color: "#2E8B57",
-    fontSize: 13,
+  transactionAmount: {
+    fontSize: 12,
     fontWeight: "700",
-    marginBottom: 3,
+    marginBottom: 5,
   },
-
-  transactionNegative: {
-    color: "#D66A43",
-    fontSize: 13,
-    fontWeight: "700",
-    marginBottom: 3,
+  amountPositive: {
+    color: "#63E2A0",
   },
-
-  completedText: {
-    color: "#9AA39D",
+  amountNegative: {
+    color: "#E7A1A8",
+  },
+  transactionDate: {
+    color: "#7E8BA0",
     fontSize: 10,
   },
 
-  // ==========================================
-  // GROUP
-  // ==========================================
+  // Savings group
   groupCard: {
-    width: "100%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 17,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 25,
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
-  },
-
-  groupAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: "#2E8B57",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 13,
-  },
-
-  groupAvatarText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "800",
-  },
-
-  groupContent: {
-    flex: 1,
-  },
-
-  groupName: {
-    color: "#17231B",
-    fontSize: 14,
-    fontWeight: "700",
-    marginBottom: 4,
-  },
-
-  groupMembers: {
-    color: "#8A938D",
-    fontSize: 11,
-  },
-
-  groupButton: {
-    backgroundColor: "#EAF6EE",
-    borderRadius: 10,
-    paddingHorizontal: 13,
-    paddingVertical: 9,
-  },
-
-  groupButtonText: {
-    color: "#2E8B57",
-    fontSize: 11,
-    fontWeight: "800",
-  },
-
-  // ==========================================
-  // LOG OUT BUTTON
-  // ==========================================
-  logoutButton: {
-    width: "100%",
-    backgroundColor: "#FFFFFF",
+    gap: 13,
+    backgroundColor: "#111B2B",
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#F0D8D5",
-    borderRadius: 16,
-    minHeight: 52,
-    flexDirection: "row",
+    borderColor: "#263449",
+    padding: 17,
+    marginBottom: 25,
+  },
+  groupIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 15,
+    backgroundColor: "#193B2E",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 2,
-    marginBottom: 20,
-    gap: 10,
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
   },
-
-  logoutIcon: {
-    color: "#D9534F",
-    fontSize: 22,
-    fontWeight: "700",
+  groupIconText: {
+    color: "#70E6AA",
+    fontSize: 23,
   },
-
-  logoutButtonText: {
-    color: "#D9534F",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-
-  // ==========================================
-  // BOTTOM NAVIGATION
-  // ==========================================
-  bottomNavigation: {
-    width: "100%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    marginTop: 5,
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-
-  navItem: {
+  groupDetails: {
     flex: 1,
+    minWidth: 0,
+  },
+  groupTitle: {
+    color: "#EEF2F9",
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: 5,
+  },
+  groupSubtitle: {
+    color: "#8794A8",
+    fontSize: 10,
+    marginBottom: 13,
+  },
+  progressTrack: {
+    height: 5,
+    borderRadius: 5,
+    backgroundColor: "#273548",
+    overflow: "hidden",
+  },
+  progressFill: {
+    width: "68%",
+    height: "100%",
+    borderRadius: 5,
+    backgroundColor: "#5DE3A0",
+  },
+  progressCaption: {
+    color: "#8190A5",
+    fontSize: 10,
+    marginTop: 7,
+  },
+  groupArrow: {
+    color: "#8290A5",
+    fontSize: 26,
+  },
+  footerText: {
+    color: "#5F6C80",
+    fontSize: 10,
+    textAlign: "center",
+    marginTop: 3,
+  },
+
+  // Web drawer
+  drawer: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    width: 250,
+    backgroundColor: "#0D1522",
+    borderRightWidth: 1,
+    borderRightColor: "#243146",
+    paddingHorizontal: 19,
+    paddingTop: 28,
+    paddingBottom: 22,
+    zIndex: 20,
+  },
+  drawerOpen: {
+    transform: [{ translateX: 0 }],
+  },
+  drawerClosed: {
+    transform: [{ translateX: -260 }],
+  },
+  drawerHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 11,
+    marginBottom: 42,
+  },
+  logoMark: {
+    width: 40,
+    height: 40,
+    borderRadius: 13,
+    backgroundColor: "#1C4934",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 4,
   },
-
-  navIcon: {
-    color: "#9AA39D",
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 4,
+  logoMarkText: {
+    color: "#73E8AD",
+    fontSize: 22,
+    fontWeight: "900",
   },
-
-  navIconActive: {
-    color: "#2E8B57",
-    fontSize: 18,
+  brandName: {
+    color: "#F3F6FB",
+    fontSize: 16,
     fontWeight: "800",
-    marginBottom: 4,
   },
-
-  navText: {
-    color: "#9AA39D",
-    fontSize: 9,
+  brandSubtitle: {
+    color: "#7F8EA3",
+    fontSize: 8,
+    letterSpacing: 1,
+    marginTop: 4,
+  },
+  drawerSectionLabel: {
+    color: "#65758B",
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+    marginBottom: 13,
+    marginLeft: 9,
+  },
+  drawerNavItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 13,
+    borderRadius: 12,
+    paddingVertical: 13,
+    paddingHorizontal: 12,
+    marginBottom: 6,
+  },
+  drawerNavItemActive: {
+    backgroundColor: "#173629",
+  },
+  drawerNavSymbol: {
+    color: "#8795AA",
+    fontSize: 19,
+    width: 22,
+    textAlign: "center",
+  },
+  drawerNavSymbolActive: {
+    color: "#6CE4A7",
+  },
+  drawerNavText: {
+    color: "#A3AEC0",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  drawerNavTextActive: {
+    color: "#76E7AE",
+    fontWeight: "700",
+  },
+  drawerSpacer: {
+    flex: 1,
+  },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 13,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#263449",
+  },
+  logoutSymbol: {
+    color: "#E8A0A6",
+    fontSize: 20,
+  },
+  logoutText: {
+    color: "#E8A0A6",
+    fontSize: 12,
     fontWeight: "600",
   },
-
-  navTextActive: {
-    color: "#2E8B57",
-    fontSize: 9,
-    fontWeight: "700",
+  drawerOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    zIndex: 15,
   },
 
-  // ==========================================
-  // PRESSED STATE
-  // ==========================================
-  buttonPressed: {
-    opacity: 0.75,
-    transform: [
-      {
-        scale: 0.98,
-      },
-    ],
+  // Mobile bottom navigation
+  bottomNav: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    minHeight: 72,
+    paddingTop: 9,
+    paddingBottom: isWeb ? 9 : Platform.select({ ios: 20, default: 9 }),
+    backgroundColor: "#0D1522",
+    borderTopWidth: 1,
+    borderTopColor: "#253247",
+    zIndex: 10,
+    ...(isWeb ? { position: "fixed" as const } : {}),
+  },
+  bottomNavItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+    paddingVertical: 4,
+  },
+  bottomNavSymbol: {
+    color: "#7F8DA2",
+    fontSize: 20,
+  },
+  bottomNavSymbolActive: {
+    color: "#69E5A6",
+  },
+  bottomNavLabel: {
+    color: "#7F8DA2",
+    fontSize: 9,
+    fontWeight: "500",
+  },
+  bottomNavLabelActive: {
+    color: "#69E5A6",
+    fontWeight: "700",
   },
 });
 
+export default styles;
