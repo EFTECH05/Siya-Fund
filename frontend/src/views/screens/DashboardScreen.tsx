@@ -25,11 +25,7 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { label: "Dashboard", icon: "grid-outline", route: "/dashboard" },
-  {
-    label: "Contributions",
-    icon: "wallet-outline",
-    route: "/contributions",
-  },
+  { label: "Contributions", icon: "wallet-outline", route: "/contributions" },
   { label: "Loans", icon: "cash-outline", route: "/loans" },
   { label: "Groups", icon: "people-outline", route: "/groups" },
   {
@@ -126,16 +122,11 @@ export default function DashboardScreen() {
       "Confirm sign out",
       "Are you sure you want to sign out of Siya-Fund?",
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Sign out",
           style: "destructive",
-          onPress: () => {
-            void performLogout();
-          },
+          onPress: () => void performLogout(),
         },
       ],
       { cancelable: true },
@@ -227,18 +218,24 @@ export default function DashboardScreen() {
       {isDesktop && renderSidebar()}
 
       <View style={styles.mainArea}>
-        {/* Top bar: deliberately no Sign Out button here */}
         <View style={styles.topBar}>
           <View style={styles.topBarLeft}>
             {!isDesktop && (
               <Pressable
-                onPress={() => setMenuOpen((open) => !open)}
+                onPress={(event) => {
+                  event.stopPropagation();
+                  setMenuOpen((previous) => !previous);
+                }}
                 style={({ pressed }) => [
                   styles.menuButton,
                   pressed && styles.pressed,
                 ]}
                 accessibilityRole="button"
-                accessibilityLabel="Open navigation menu"
+                accessibilityLabel={
+                  menuOpen ? "Close navigation menu" : "Open navigation menu"
+                }
+                accessibilityState={{ expanded: menuOpen }}
+                hitSlop={8}
               >
                 <Ionicons
                   name={menuOpen ? "close" : "menu"}
@@ -282,19 +279,17 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Mobile navigation menu */}
         {!isDesktop && menuOpen && (
           <View style={styles.mobileMenu}>
             <ScrollView
               style={styles.mobileMenuScroll}
               showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
             >
               <Text style={styles.menuHeading}>NAVIGATION</Text>
-
               {menuItems.map(renderMenuItem)}
             </ScrollView>
 
-            {/* Sign Out is at the bottom of the menu, not the top bar */}
             <View style={styles.mobileMenuFooter}>
               <View style={styles.sidebarFooterDivider} />
               {renderSignOutButton(true)}
@@ -328,7 +323,6 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          {/* Balance card */}
           <View style={styles.balanceCard}>
             <View style={styles.balanceCardContent}>
               <View style={styles.balanceLabelRow}>
@@ -384,7 +378,6 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          {/* Summary cards */}
           <View style={styles.sectionHeader}>
             <View>
               <Text style={styles.sectionTitle}>Financial Summary</Text>
@@ -429,7 +422,6 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          {/* Quick actions */}
           <View style={styles.sectionHeader}>
             <View>
               <Text style={styles.sectionTitle}>Quick Actions</Text>
@@ -468,7 +460,6 @@ export default function DashboardScreen() {
             ))}
           </View>
 
-          {/* Recent activity */}
           <View style={styles.sectionHeader}>
             <View>
               <Text style={styles.sectionTitle}>Recent Activity</Text>
@@ -494,7 +485,6 @@ export default function DashboardScreen() {
           </Text>
         </ScrollView>
 
-        {/* Fixed mobile bottom navigation */}
         {!isDesktop && (
           <View style={styles.bottomNavigation}>
             {[

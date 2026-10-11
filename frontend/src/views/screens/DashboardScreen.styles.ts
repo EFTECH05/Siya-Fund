@@ -1,614 +1,658 @@
 import { Platform, StyleSheet } from "react-native";
-const COLORS = {
-  background: "#080D17",
-  surface: "#101827",
-  surfaceLight: "#151F30",
-  border: "#243047",
-  text: "#F4F7FC",
-  muted: "#8D9AB0",
-  green: "#39D98A",
-  greenDark: "#153C31",
-  red: "#F28B82",
-};
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: COLORS.background,
+    backgroundColor: "#080D17",
   },
 
-  // Desktop sidebar
+  mainArea: {
+    flex: 1,
+    minWidth: 0,
+    backgroundColor: "#080D17",
+    position: "relative",
+  },
+
   sidebar: {
-    width: 250,
-    backgroundColor: "#0C1320",
+    width: 255,
+    backgroundColor: "#0D1422",
     borderRightWidth: 1,
-    borderRightColor: COLORS.border,
-    paddingTop: 26,
-    paddingHorizontal: 16,
+    borderRightColor: "#202B3D",
+    paddingHorizontal: 18,
+    paddingTop: 28,
     paddingBottom: 18,
   },
+
   brand: {
     flexDirection: "row",
     alignItems: "center",
-    minHeight: 58,
     marginBottom: 38,
-    paddingHorizontal: 4,
+    gap: 10,
   },
+
   logo: {
-    width: 45,
-    height: 45,
-    marginRight: 10,
+    width: 46,
+    height: 46,
   },
+
   brandTextContainer: {
     flex: 1,
   },
+
   brandName: {
-    color: COLORS.text,
+    color: "#F4F7FC",
     fontSize: 23,
     fontWeight: "800",
     letterSpacing: -0.8,
   },
+
   brandNameAccent: {
-    color: COLORS.green,
+    color: "#39D98A",
   },
+
   brandSubtitle: {
-    color: COLORS.muted,
+    color: "#8290A6",
     fontSize: 8,
-    letterSpacing: 0.7,
+    fontWeight: "700",
+    letterSpacing: 0.8,
     marginTop: 3,
   },
+
   menuHeading: {
-    color: "#66758D",
+    color: "#71819A",
     fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.6,
-    marginBottom: 12,
-    marginLeft: 12,
+    fontWeight: "800",
+    letterSpacing: 1.5,
+    marginBottom: 14,
+    marginTop: 4,
   },
+
   sidebarNavigation: {
-    gap: 6,
+    gap: 7,
   },
+
   sidebarItem: {
-    minHeight: 48,
-    borderRadius: 12,
+    minHeight: 47,
+    borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 13,
-    marginBottom: 3,
+    gap: 12,
     position: "relative",
   },
+
   sidebarItemActive: {
-    backgroundColor: "#142B29",
+    backgroundColor: "#142B27",
   },
+
   sidebarItemText: {
     color: "#A9B5C8",
-    fontSize: 14,
-    fontWeight: "500",
-    marginLeft: 13,
+    fontSize: 13,
+    fontWeight: "600",
     flex: 1,
   },
+
   sidebarItemTextActive: {
-    color: COLORS.green,
+    color: "#39D98A",
     fontWeight: "700",
   },
+
   activeIndicator: {
-    width: 4,
+    width: 3,
     height: 23,
-    backgroundColor: COLORS.green,
-    borderRadius: 4,
+    borderRadius: 3,
+    backgroundColor: "#39D98A",
     position: "absolute",
     right: 0,
   },
+
   sidebarFooter: {
     marginTop: "auto",
+    gap: 13,
   },
+
   sidebarFooterDivider: {
     height: 1,
-    backgroundColor: COLORS.border,
-    marginBottom: 14,
+    backgroundColor: "#263246",
+    marginBottom: 5,
   },
+
   signOutButton: {
-    minHeight: 47,
+    minHeight: 45,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 13,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#452C30",
-    backgroundColor: "#20171D",
     gap: 12,
-  },
-  signOutText: {
-    color: COLORS.red,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  versionText: {
-    color: "#65728A",
-    fontSize: 10,
-    textAlign: "center",
-    marginTop: 15,
+    borderRadius: 10,
+    backgroundColor: "#241B25",
   },
 
-  // Main content and top bar
-  mainArea: {
-    flex: 1,
-    minWidth: 0,
-    position: "relative",
-    backgroundColor: COLORS.background,
+  mobileSignOutButton: {
+    marginTop: 10,
+    marginBottom: 12,
   },
+
+  signOutText: {
+    color: "#F28B82",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+
+  disabled: {
+    opacity: 0.5,
+  },
+
+  versionText: {
+    color: "#71819A",
+    fontSize: 10,
+    textAlign: "center",
+  },
+
+  pressed: {
+    opacity: 0.72,
+  },
+
   topBar: {
     minHeight: 82,
-    paddingHorizontal: 30,
-    paddingVertical: 14,
+    paddingHorizontal: 26,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#202B3D",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-    backgroundColor: "#0B1220",
-    zIndex: 2,
+    gap: 12,
+    zIndex: 20,
+    backgroundColor: "#0B111D",
   },
+
   topBarLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 13,
+    gap: 14,
     flex: 1,
+    minWidth: 0,
   },
+
+  menuButton: {
+    width: 43,
+    height: 43,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+    backgroundColor: "#172234",
+    borderWidth: 1,
+    borderColor: "#29364B",
+  },
+
   topBarTitle: {
-    color: COLORS.text,
-    fontSize: 21,
-    fontWeight: "700",
+    color: "#F4F7FC",
+    fontSize: 20,
+    fontWeight: "800",
   },
+
   topBarSubtitle: {
-    color: COLORS.muted,
-    fontSize: 12,
+    color: "#8290A6",
+    fontSize: 11,
     marginTop: 4,
   },
+
   topBarRight: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
+
   secureBadge: {
-    minHeight: 36,
+    minHeight: 34,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 7,
-    paddingHorizontal: 11,
+    gap: 6,
+    paddingHorizontal: 10,
     borderRadius: 20,
-    backgroundColor: "#122720",
-    borderWidth: 1,
-    borderColor: "#204737",
+    backgroundColor: "#142B27",
   },
+
   secureBadgeText: {
-    color: COLORS.green,
+    color: "#39D98A",
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
   },
+
   profileButton: {
     width: 40,
     height: 40,
-    borderRadius: 13,
-    backgroundColor: COLORS.surfaceLight,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  menuButton: {
-    width: 42,
-    height: 42,
     borderRadius: 12,
-    backgroundColor: COLORS.surfaceLight,
+    backgroundColor: "#172234",
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: "#29364B",
     alignItems: "center",
     justifyContent: "center",
   },
 
-  // Mobile dropdown
   mobileMenu: {
     position: "absolute",
     top: 72,
     left: 12,
     right: 12,
-    maxHeight: 520,
+    zIndex: 1000,
+    elevation: 12,
     backgroundColor: "#101827",
     borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 16,
-    padding: 15,
-    zIndex: 20,
-    elevation: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 15,
-  },
-  mobileMenuScroll: {
-    flexGrow: 0,
-    flexShrink: 1,
-  },
-  mobileMenuFooter: {
-    paddingTop: 14,
-    marginTop: 8,
-  },
-  mobileSignOutButton: {
-    minHeight: 48,
-    marginTop: 0,
+    borderColor: "#29364B",
+    borderRadius: 14,
+    maxHeight: 420,
+    overflow: "hidden",
+    ...(Platform.OS === "web"
+      ? {
+          boxShadow: "0px 10px 28px rgba(0,0,0,0.4)",
+        }
+      : {}),
   },
 
-  // Scrollable dashboard content
+  mobileMenuScroll: {
+    flexShrink: 1,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+  },
+
+  mobileMenuFooter: {
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    backgroundColor: "#101827",
+    borderTopWidth: 1,
+    borderTopColor: "#202B3D",
+  },
+
   contentScroll: {
     flex: 1,
   },
+
   contentContainer: {
-    width: "100%",
-    maxWidth: 1320,
-    alignSelf: "center",
-    paddingHorizontal: 30,
+    paddingHorizontal: 28,
     paddingTop: 28,
     paddingBottom: 35,
+    gap: 24,
+    maxWidth: 1450,
+    width: "100%",
+    alignSelf: "center",
   },
+
   mobileContentContainer: {
     paddingHorizontal: 16,
     paddingTop: 22,
-    paddingBottom: 28,
+    paddingBottom: 110,
+    gap: 22,
   },
+
   welcomeSection: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 18,
-    marginBottom: 25,
+    flexWrap: "wrap",
   },
+
   welcomeTextContainer: {
     flex: 1,
+    minWidth: 200,
+    gap: 7,
   },
+
   welcomeEyebrow: {
-    color: COLORS.green,
+    color: "#39D98A",
     fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.6,
-    marginBottom: 8,
+    fontWeight: "800",
+    letterSpacing: 1.5,
   },
+
   welcomeTitle: {
-    color: COLORS.text,
-    fontSize: 28,
+    color: "#F4F7FC",
+    fontSize: 27,
     fontWeight: "800",
     letterSpacing: -0.7,
   },
+
   welcomeSubtitle: {
-    color: COLORS.muted,
+    color: "#9AA8BD",
     fontSize: 13,
     lineHeight: 20,
-    marginTop: 7,
   },
+
   growthBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
     paddingHorizontal: 15,
-    paddingVertical: 13,
-    borderRadius: 14,
-    backgroundColor: "#10251F",
+    paddingVertical: 12,
+    borderRadius: 13,
     borderWidth: 1,
-    borderColor: "#204737",
+    borderColor: "#244638",
+    backgroundColor: "#10231F",
   },
+
   growthBadgeTitle: {
-    color: COLORS.text,
+    color: "#EAFBF2",
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "800",
   },
+
   growthBadgeSubtitle: {
-    color: COLORS.green,
-    fontSize: 11,
+    color: "#8EA99A",
+    fontSize: 10,
     marginTop: 4,
   },
 
-  // Total balance card
   balanceCard: {
-    backgroundColor: "#111D2A",
-    borderWidth: 1,
-    borderColor: "#263C3A",
+    backgroundColor: "#101D2B",
     borderRadius: 20,
-    padding: 24,
+    borderWidth: 1,
+    borderColor: "#26394A",
+    padding: 23,
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     gap: 25,
-    marginBottom: 30,
     overflow: "hidden",
   },
+
   balanceCardContent: {
     flex: 1,
     minWidth: 0,
+    justifyContent: "center",
   },
+
   balanceLabelRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    maxWidth: 310,
+    gap: 12,
   },
+
   balanceLabel: {
-    color: "#A9B8C9",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.2,
+    color: "#A5B4C8",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1.4,
   },
+
   balanceAmount: {
-    color: COLORS.text,
+    color: "#F4F7FC",
     fontSize: 36,
     fontWeight: "800",
-    letterSpacing: -1.2,
-    marginTop: 17,
+    letterSpacing: -1,
+    marginTop: 13,
   },
+
   balanceNote: {
-    color: COLORS.muted,
-    fontSize: 12,
-    marginTop: 8,
+    color: "#8290A6",
+    fontSize: 11,
+    marginTop: 6,
   },
+
   balanceDivider: {
     height: 1,
-    backgroundColor: "#283746",
-    marginTop: 23,
-    marginBottom: 14,
-    maxWidth: 330,
+    backgroundColor: "#29394A",
+    marginVertical: 19,
   },
+
   balanceFooter: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
+
   balanceStatusDot: {
     width: 7,
     height: 7,
     borderRadius: 5,
-    backgroundColor: COLORS.green,
+    backgroundColor: "#39D98A",
   },
+
   balanceStatusText: {
-    color: "#A9B8C9",
+    color: "#A9B5C8",
     fontSize: 11,
   },
+
   chartArea: {
-    width: 260,
-    alignSelf: "stretch",
+    flex: 0.9,
+    minWidth: 150,
     justifyContent: "center",
-    padding: 15,
-    borderRadius: 15,
-    backgroundColor: "#0C1722",
-    borderWidth: 1,
-    borderColor: "#20312F",
+    gap: 15,
   },
+
   chartHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 7,
-  },
-  chartLabel: {
-    color: "#A9B8C9",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  chartBars: {
-    height: 95,
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: 7,
-    marginTop: 13,
-  },
-  chartBarTrack: {
-    height: "100%",
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "#152A29",
-    borderRadius: 5,
-    overflow: "hidden",
-  },
-  chartBar: {
-    width: "100%",
-    backgroundColor: "#237B58",
-    borderTopLeftRadius: 5,
-    borderTopRightRadius: 5,
-  },
-  chartBarHighlighted: {
-    backgroundColor: COLORS.green,
-  },
-  chartCaption: {
-    color: COLORS.muted,
-    fontSize: 10,
-    marginTop: 10,
+    gap: 8,
   },
 
-  // Section headings
+  chartLabel: {
+    color: "#A9B5C8",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+
+  chartBars: {
+    height: 100,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 7,
+  },
+
+  chartBarTrack: {
+    flex: 1,
+    height: "100%",
+    justifyContent: "flex-end",
+  },
+
+  chartBar: {
+    width: "100%",
+    minHeight: 5,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+    backgroundColor: "#24634C",
+  },
+
+  chartBarHighlighted: {
+    backgroundColor: "#39D98A",
+  },
+
+  chartCaption: {
+    color: "#8290A6",
+    fontSize: 10,
+  },
+
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 15,
-    marginTop: 2,
+    gap: 12,
   },
+
   sectionTitle: {
-    color: COLORS.text,
-    fontSize: 18,
-    fontWeight: "700",
+    color: "#F4F7FC",
+    fontSize: 17,
+    fontWeight: "800",
   },
+
   sectionSubtitle: {
-    color: COLORS.muted,
-    fontSize: 12,
+    color: "#8290A6",
+    fontSize: 11,
     marginTop: 5,
   },
 
-  // Summary cards
   summaryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 14,
-    marginBottom: 30,
   },
+
   summaryCard: {
     flexGrow: 1,
-    flexBasis: 180,
+    flexBasis: 175,
     minWidth: 0,
-    padding: 17,
-    backgroundColor: COLORS.surface,
+    padding: 18,
+    borderRadius: 15,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 16,
+    borderColor: "#253246",
+    backgroundColor: "#101827",
+    gap: 9,
   },
+
   summaryIcon: {
     width: 43,
     height: 43,
-    borderRadius: 13,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
-  },
-  summaryLabel: {
-    color: COLORS.muted,
-    fontSize: 12,
-  },
-  summaryValue: {
-    color: COLORS.text,
-    fontSize: 23,
-    fontWeight: "800",
-    marginTop: 8,
-  },
-  summaryFootnote: {
-    color: "#738199",
-    fontSize: 10,
-    marginTop: 6,
+    marginBottom: 4,
   },
 
-  // Quick actions
+  summaryLabel: {
+    color: "#A9B5C8",
+    fontSize: 11,
+    fontWeight: "600",
+  },
+
+  summaryValue: {
+    color: "#F4F7FC",
+    fontSize: 23,
+    fontWeight: "800",
+  },
+
+  summaryFootnote: {
+    color: "#71819A",
+    fontSize: 10,
+  },
+
   quickActionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 14,
-    marginBottom: 30,
   },
+
   quickActionCard: {
     flexGrow: 1,
-    flexBasis: 190,
+    flexBasis: 200,
     minWidth: 0,
-    minHeight: 158,
+    minHeight: 160,
     padding: 17,
-    backgroundColor: COLORS.surface,
+    borderRadius: 15,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 16,
+    borderColor: "#253246",
+    backgroundColor: "#101827",
+    position: "relative",
+    gap: 9,
   },
+
   quickActionIcon: {
     width: 43,
     height: 43,
-    borderRadius: 13,
+    borderRadius: 12,
     backgroundColor: "#153C31",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 14,
-  },
-  quickActionTitle: {
-    color: COLORS.text,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  quickActionSubtitle: {
-    color: COLORS.muted,
-    fontSize: 11,
-    marginTop: 6,
-    paddingRight: 10,
-  },
-  quickActionArrow: {
-    position: "absolute",
-    right: 15,
-    bottom: 16,
+    marginBottom: 3,
   },
 
-  // Recent activity
+  quickActionTitle: {
+    color: "#F4F7FC",
+    fontSize: 13,
+    fontWeight: "800",
+  },
+
+  quickActionSubtitle: {
+    color: "#8290A6",
+    fontSize: 11,
+    lineHeight: 17,
+  },
+
+  quickActionArrow: {
+    position: "absolute",
+    right: 16,
+    top: 18,
+  },
+
   activityCard: {
-    minHeight: 190,
-    padding: 25,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: COLORS.surface,
+    paddingHorizontal: 22,
+    paddingVertical: 30,
+    borderRadius: 15,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 16,
+    borderColor: "#253246",
+    backgroundColor: "#101827",
+    gap: 10,
   },
+
   emptyActivityIcon: {
     width: 54,
     height: 54,
-    borderRadius: 17,
+    borderRadius: 27,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: COLORS.surfaceLight,
-    marginBottom: 13,
-  },
-  emptyActivityTitle: {
-    color: COLORS.text,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  emptyActivitySubtitle: {
-    maxWidth: 350,
-    color: COLORS.muted,
-    fontSize: 12,
-    textAlign: "center",
-    lineHeight: 19,
-    marginTop: 8,
-  },
-  footerNote: {
-    color: "#66758D",
-    fontSize: 10,
-    textAlign: "center",
-    marginTop: 25,
+    backgroundColor: "#192437",
+    marginBottom: 3,
   },
 
-  // Fixed mobile navigation
+  emptyActivityTitle: {
+    color: "#E8EDF6",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+
+  emptyActivitySubtitle: {
+    color: "#8290A6",
+    fontSize: 11,
+    lineHeight: 18,
+    textAlign: "center",
+    maxWidth: 360,
+  },
+
+  footerNote: {
+    color: "#65748B",
+    fontSize: 10,
+    textAlign: "center",
+    marginTop: 4,
+  },
+
   bottomNavigation: {
-    minHeight: 66,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    minHeight: 70,
+    paddingTop: 9,
+    paddingBottom: Platform.OS === "web" ? 9 : 15,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    backgroundColor: "#0B1220",
+    backgroundColor: "#0D1422",
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    paddingHorizontal: 8,
-    paddingTop: 7,
-    paddingBottom: Platform.select({
-      ios: 10,
-      android: 7,
-      default: 7,
-    }),
+    borderTopColor: "#263246",
+    zIndex: 10,
+    elevation: 8,
   },
+
   bottomNavItem: {
     flex: 1,
+    minHeight: 48,
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
-    minHeight: 48,
-  },
-  bottomNavLabel: {
-    color: "#8290A6",
-    fontSize: 10,
-    fontWeight: "500",
-  },
-  bottomNavLabelActive: {
-    color: COLORS.green,
-    fontWeight: "700",
   },
 
-  // Interaction states
-  pressed: {
-    opacity: 0.72,
+  bottomNavLabel: {
+    color: "#8290A6",
+    fontSize: 9,
+    fontWeight: "600",
   },
-  disabled: {
-    opacity: 0.5,
+
+  bottomNavLabelActive: {
+    color: "#39D98A",
+    fontWeight: "800",
   },
 });
 
