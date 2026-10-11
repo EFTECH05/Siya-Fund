@@ -1,679 +1,699 @@
-import { Platform, StyleSheet } from "react-native";
-
-const isWeb = Platform.OS === "web";
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   screen: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: "#080D14",
-    minHeight: "100%",
+    backgroundColor: "#080D0C",
   },
 
+  pressed: {
+    opacity: 0.75,
+  },
+
+  disabled: {
+    opacity: 0.5,
+  },
+
+  // Desktop sidebar
   sidebar: {
     width: 250,
-    backgroundColor: "#0D141E",
+    backgroundColor: "#0D1513",
     borderRightWidth: 1,
-    borderRightColor: "#202B39",
-    paddingHorizontal: 22,
+    borderRightColor: "#1D2B26",
+    paddingHorizontal: 20,
     paddingTop: 28,
-    paddingBottom: 18,
-    justifyContent: "space-between",
+    paddingBottom: 20,
   },
-  sidebarTop: {
-    flexShrink: 1,
-  },
-  sidebarLogo: {
-    width: 170,
-    height: 62,
-    alignSelf: "flex-start",
-    marginBottom: 8,
-  },
-  sidebarCaption: {
-    color: "#7F8DA0",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 1.5,
-    marginBottom: 25,
-  },
-  sidebarDivider: {
-    height: 1,
-    backgroundColor: "#202B39",
-    marginBottom: 24,
-  },
-  sidebarSectionLabel: {
-    color: "#6F7E91",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.5,
-    marginBottom: 12,
-    marginLeft: 10,
-  },
-  sidebarNavItem: {
+
+  brand: {
     flexDirection: "row",
     alignItems: "center",
-    minHeight: 46,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    marginBottom: 6,
     gap: 12,
+    marginBottom: 43,
+    paddingHorizontal: 4,
   },
-  sidebarNavItemActive: {
-    backgroundColor: "#143326",
-    borderWidth: 1,
-    borderColor: "#22533D",
+
+  logo: {
+    width: 43,
+    height: 43,
   },
-  sidebarNavText: {
-    color: "#A0AAB8",
+
+  brandName: {
+    color: "#F4F8F5",
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: 0.1,
+  },
+
+  brandCaption: {
+    color: "#7D9189",
+    fontSize: 11,
+    marginTop: 3,
+  },
+
+  sidebarSectionTitle: {
+    color: "#657871",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1.7,
+    marginBottom: 14,
+    marginLeft: 12,
+  },
+
+  sidebarNavigation: {
+    gap: 7,
+  },
+
+  sidebarItem: {
+    minHeight: 47,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 13,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    position: "relative",
+  },
+
+  sidebarItemActive: {
+    backgroundColor: "#173026",
+  },
+
+  sidebarItemText: {
+    color: "#A1B0AA",
     fontSize: 13,
     fontWeight: "500",
   },
-  sidebarNavTextActive: {
-    color: "#49E39A",
+
+  navigationTextActive: {
+    color: "#82E8A8",
     fontWeight: "700",
   },
+
+  activeIndicator: {
+    width: 3,
+    height: 23,
+    backgroundColor: "#76E0A0",
+    borderRadius: 4,
+    position: "absolute",
+    right: 0,
+  },
+
   sidebarBottom: {
-    marginTop: 20,
-    gap: 14,
+    marginTop: "auto",
+    gap: 17,
   },
+
   helpCard: {
-    backgroundColor: "#111D29",
-    borderColor: "#233243",
+    backgroundColor: "#111E19",
     borderWidth: 1,
-    borderRadius: 14,
-    padding: 14,
+    borderColor: "#23372D",
+    borderRadius: 13,
+    padding: 15,
     gap: 8,
-    marginBottom: 4,
   },
+
   helpTitle: {
-    color: "#E8EEF5",
-    fontSize: 12,
+    color: "#E6F0E9",
+    fontSize: 13,
     fontWeight: "700",
+    marginTop: 2,
   },
-  helpDescription: {
-    color: "#8998AA",
+
+  helpText: {
+    color: "#8FA199",
     fontSize: 11,
     lineHeight: 17,
   },
+
   logoutButton: {
-    minHeight: 46,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    borderWidth: 1,
-    borderColor: "#492A32",
-    backgroundColor: "#25171D",
+    gap: 12,
+    minHeight: 45,
+    paddingHorizontal: 12,
     borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  mobileLogoutButton: {
-    width: "100%",
-    minHeight: 48,
-  },
-  logoutButtonText: {
-    color: "#FF7777",
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  sidebarFooter: {
-    color: "#657386",
-    fontSize: 10,
-    textAlign: "center",
   },
 
+  logoutText: {
+    color: "#F28B82",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  // Main layout
   main: {
     flex: 1,
     minWidth: 0,
-    backgroundColor: "#080D14",
-    position: "relative",
+    backgroundColor: "#080D0C",
   },
+
   topBar: {
-    minHeight: 82,
-    paddingHorizontal: isWeb ? 34 : 18,
-    paddingVertical: 14,
+    minHeight: 78,
+    paddingHorizontal: 30,
     borderBottomWidth: 1,
-    borderBottomColor: "#18222E",
+    borderBottomColor: "#1A2722",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
-    backgroundColor: "#0B111A",
   },
-  topBarEyebrow: {
-    color: "#8795A7",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 1.6,
-    marginBottom: 5,
-  },
-  topBarTitle: {
-    color: "#F3F7FC",
-    fontSize: 20,
-    fontWeight: "800",
-  },
-  mobileLogo: {
-    width: 132,
-    height: 44,
-    flexShrink: 1,
-  },
-  topBarRight: {
+
+  topBarLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 13,
   },
-  iconButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: "#131D29",
-    borderWidth: 1,
-    borderColor: "#263444",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-  },
-  notificationDot: {
-    position: "absolute",
-    top: 9,
-    right: 9,
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: "#49E39A",
-  },
-  avatar: {
-    width: 39,
-    height: 39,
-    borderRadius: 20,
-    backgroundColor: "#174C38",
-    borderWidth: 1,
-    borderColor: "#2A855C",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: {
-    color: "#70F0B2",
-    fontSize: 15,
+
+  topBarTitle: {
+    color: "#F3F7F5",
+    fontSize: 19,
     fontWeight: "800",
   },
 
-  mobileMenu: {
-    backgroundColor: "#0D141E",
-    borderBottomWidth: 1,
-    borderBottomColor: "#253140",
-    padding: 14,
-    gap: 6,
-    zIndex: 10,
-    elevation: 6,
+  topBarSubtitle: {
+    color: "#82938C",
+    fontSize: 12,
+    marginTop: 4,
   },
-  mobileMenuItem: {
-    minHeight: 42,
-    flexDirection: "row",
+
+  profileBadge: {
+    width: 39,
+    height: 39,
+    borderRadius: 13,
+    backgroundColor: "#14241C",
+    borderWidth: 1,
+    borderColor: "#294333",
     alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 12,
-    borderRadius: 9,
+    justifyContent: "center",
   },
-  mobileMenuText: {
-    color: "#D9E2EC",
-    fontSize: 13,
-    fontWeight: "500",
+
+  menuButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 11,
+    backgroundColor: "#121C18",
+    borderWidth: 1,
+    borderColor: "#24342D",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   scrollView: {
     flex: 1,
   },
+
   content: {
     width: "100%",
-    maxWidth: 1250,
+    maxWidth: 1240,
     alignSelf: "center",
-    paddingHorizontal: 34,
-    paddingTop: 30,
-    paddingBottom: 38,
-    gap: 22,
+    paddingHorizontal: 30,
+    paddingTop: 28,
+    paddingBottom: 36,
   },
+
   mobileContent: {
     paddingHorizontal: 17,
     paddingTop: 23,
-    paddingBottom: 24,
-    gap: 19,
-  },
-  welcomeRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 14,
-  },
-  welcomeTextContainer: {
-    flex: 1,
-    minWidth: 220,
-    gap: 6,
-  },
-  welcomeEyebrow: {
-    color: "#49E39A",
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1.6,
-  },
-  welcomeTitle: {
-    color: "#F3F7FC",
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: "800",
-  },
-  welcomeSubtitle: {
-    color: "#8D9BAD",
-    fontSize: 13,
-    lineHeight: 20,
-  },
-  statusPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-    backgroundColor: "#10271E",
-    borderWidth: 1,
-    borderColor: "#20523A",
-    borderRadius: 30,
-    paddingHorizontal: 11,
-    paddingVertical: 8,
-  },
-  statusDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: "#49E39A",
-  },
-  statusText: {
-    color: "#86E8B5",
-    fontSize: 10,
-    fontWeight: "700",
+    paddingBottom: 28,
   },
 
-  balanceCard: {
-    overflow: "hidden",
-    backgroundColor: "#10271E",
-    borderColor: "#246443",
-    borderWidth: 1,
-    borderRadius: 19,
-    padding: 24,
-    minHeight: 250,
-    gap: 18,
+  welcomeSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 23,
   },
+
+  welcomeTextContainer: {
+    flexShrink: 1,
+  },
+
+  welcomeTitle: {
+    color: "#F3F7F5",
+    fontSize: 25,
+    fontWeight: "800",
+    letterSpacing: -0.6,
+  },
+
+  welcomeSubtitle: {
+    color: "#91A19A",
+    fontSize: 13,
+    lineHeight: 20,
+    marginTop: 7,
+  },
+
+  secureBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#12241B",
+    borderWidth: 1,
+    borderColor: "#254332",
+    paddingHorizontal: 11,
+    paddingVertical: 8,
+    borderRadius: 30,
+  },
+
+  secureBadgeText: {
+    color: "#A8D9B8",
+    fontSize: 11,
+    fontWeight: "600",
+  },
+
+  // Balance and chart
+  balanceCard: {
+    backgroundColor: "#101A16",
+    borderWidth: 1,
+    borderColor: "#263B30",
+    borderRadius: 19,
+    padding: 23,
+    marginBottom: 30,
+    overflow: "hidden",
+  },
+
   balanceCardTop: {
     flexDirection: "row",
-    alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: 14,
+    alignItems: "flex-start",
+    gap: 12,
   },
+
   balanceLabel: {
-    color: "#A5CDB7",
+    color: "#93A79C",
     fontSize: 10,
     fontWeight: "800",
-    letterSpacing: 1.3,
-    marginBottom: 10,
+    letterSpacing: 1.5,
   },
-  balanceAmountRow: {
+
+  balanceValueRow: {
     flexDirection: "row",
     alignItems: "center",
     flexWrap: "wrap",
     gap: 10,
+    marginTop: 11,
   },
+
   balanceAmount: {
-    color: "#F5FFF9",
+    color: "#F4F8F5",
     fontSize: 33,
     fontWeight: "800",
     letterSpacing: -0.8,
   },
-  balanceEyeButton: {
-    padding: 5,
-    borderRadius: 8,
-  },
-  growthPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    alignSelf: "flex-start",
-    marginTop: 12,
-    backgroundColor: "#163B2A",
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  growthText: {
-    color: "#A9EBC7",
-    fontSize: 10,
-    fontWeight: "600",
-  },
-  balanceIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 15,
-    backgroundColor: "#173C2B",
-    borderWidth: 1,
-    borderColor: "#286546",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  chartArea: {
-    height: 75,
-    justifyContent: "flex-end",
-    position: "relative",
-    overflow: "hidden",
-  },
-  chartLine: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: "50%",
-    height: 1,
-    backgroundColor: "#28533D",
-  },
-  chartBars: {
-    height: "100%",
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: 6,
-  },
-  chartBar: {
-    flex: 1,
-    minHeight: 8,
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
-    backgroundColor: "#49E39A",
-    opacity: 0.72,
-  },
-  chartFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  chartFooterText: {
-    color: "#A5CDB7",
-    fontSize: 10,
+
+  currencyBadge: {
+    backgroundColor: "#1C3024",
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 6,
   },
 
-  summaryGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 14,
+  currencyBadgeText: {
+    color: "#83E5A6",
+    fontSize: 10,
+    fontWeight: "800",
   },
-  summaryCard: {
-    flex: 1,
-    minWidth: 200,
-    backgroundColor: "#101823",
-    borderColor: "#243140",
-    borderWidth: 1,
-    borderRadius: 15,
-    padding: 18,
-    gap: 12,
-  },
-  summaryCardTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    flexWrap: "wrap",
-  },
-  summaryIconGreen: {
-    width: 37,
-    height: 37,
-    borderRadius: 11,
-    backgroundColor: "#153528",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  summaryIconBlue: {
-    width: 37,
-    height: 37,
-    borderRadius: 11,
-    backgroundColor: "#172A40",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  summaryLabel: {
-    color: "#9AA8B9",
+
+  balanceCaption: {
+    color: "#82958A",
     fontSize: 12,
-    fontWeight: "500",
-  },
-  summaryAmount: {
-    color: "#F0F5FA",
-    fontSize: 23,
-    fontWeight: "800",
-  },
-  summaryFootnote: {
-    color: "#738397",
-    fontSize: 11,
+    marginTop: 7,
   },
 
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-    gap: 12,
-    marginTop: 3,
-  },
-  sectionTitle: {
-    color: "#F1F5FA",
-    fontSize: 17,
-    fontWeight: "800",
-    marginBottom: 5,
-  },
-  sectionSubtitle: {
-    color: "#8190A3",
-    fontSize: 11,
-    lineHeight: 17,
-  },
-
-  quickActionsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  quickActionCard: {
-    flexGrow: 1,
-    flexBasis: 220,
-    minWidth: 0,
-    minHeight: 91,
-    backgroundColor: "#101823",
-    borderColor: "#243140",
+  balanceIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 15,
+    backgroundColor: "#1B3023",
     borderWidth: 1,
-    borderRadius: 14,
-    padding: 15,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  quickActionIcon: {
-    width: 43,
-    height: 43,
-    borderRadius: 12,
-    backgroundColor: "#153528",
+    borderColor: "#34563D",
     alignItems: "center",
     justifyContent: "center",
   },
-  quickActionCopy: {
-    flex: 1,
-    gap: 5,
+
+  chartArea: {
+    marginTop: 24,
+    paddingTop: 17,
+    borderTopWidth: 1,
+    borderTopColor: "#26372E",
   },
-  quickActionTitle: {
-    color: "#EAF1F8",
+
+  chartHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 14,
+  },
+
+  chartTitle: {
+    color: "#DCE8E0",
     fontSize: 12,
     fontWeight: "700",
   },
-  quickActionDescription: {
-    color: "#8392A5",
-    fontSize: 10,
-    lineHeight: 15,
+
+  chartLegend: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+  },
+
+  legendDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#76E0A0",
+  },
+
+  chartLegendText: {
+    color: "#8FA198",
+    fontSize: 11,
+  },
+
+  chart: {
+    height: 72,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 7,
+  },
+
+  chartColumn: {
+    flex: 1,
+    height: "100%",
+    justifyContent: "flex-end",
+  },
+
+  chartBar: {
+    width: "100%",
+    minHeight: 5,
+    backgroundColor: "#28523A",
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+  },
+
+  chartBarHighlight: {
+    backgroundColor: "#76E0A0",
+  },
+
+  chartFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 11,
+  },
+
+  chartFooterText: {
+    color: "#83968B",
+    fontSize: 11,
+  },
+
+  // Section headings
+  sectionHeading: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 15,
+    marginTop: 2,
+  },
+
+  sectionTitle: {
+    color: "#F0F5F2",
+    fontSize: 17,
+    fontWeight: "800",
+  },
+
+  sectionSubtitle: {
+    color: "#84958D",
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 5,
+  },
+
+  // Financial summary
+  summaryGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 13,
+    marginBottom: 30,
+  },
+
+  summaryCard: {
+    flexGrow: 1,
+    flexBasis: 200,
+    minWidth: 0,
+    backgroundColor: "#101714",
+    borderWidth: 1,
+    borderColor: "#202E27",
+    borderRadius: 14,
+    padding: 17,
+  },
+
+  summaryCardTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+
+  summaryIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 11,
+    backgroundColor: "#192A20",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  summaryValue: {
+    color: "#F2F7F3",
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 6,
+  },
+
+  summaryTitle: {
+    color: "#DCE7DF",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+
+  summaryCaption: {
+    color: "#819188",
+    fontSize: 11,
+    marginTop: 6,
+    lineHeight: 16,
+  },
+
+  // Quick actions
+  actionsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 30,
+  },
+
+  actionCard: {
+    flexGrow: 1,
+    flexBasis: 210,
+    minWidth: 0,
+    minHeight: 85,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 14,
+    backgroundColor: "#101714",
+    borderWidth: 1,
+    borderColor: "#24332A",
+    borderRadius: 14,
+  },
+
+  actionCardPressed: {
+    backgroundColor: "#19271F",
+    borderColor: "#477454",
+  },
+
+  actionIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: "#1A2D21",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  actionTitle: {
+    flex: 1,
+    flexShrink: 1,
+    color: "#E5EEE8",
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 18,
+  },
+
+  actionArrow: {
+    width: 29,
+    height: 29,
+    borderRadius: 9,
+    backgroundColor: "#18231D",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   viewAllButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
     paddingVertical: 8,
-    paddingHorizontal: 4,
+    paddingLeft: 8,
   },
+
   viewAllText: {
-    color: "#49E39A",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  transactionsCard: {
-    backgroundColor: "#101823",
-    borderWidth: 1,
-    borderColor: "#243140",
-    borderRadius: 15,
-    paddingHorizontal: 16,
-  },
-  transactionRow: {
-    minHeight: 77,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#202B38",
-    paddingVertical: 12,
-  },
-  transactionRowLast: {
-    borderBottomWidth: 0,
-  },
-  transactionIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: "#17232F",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  transactionDetails: {
-    flex: 1,
-    minWidth: 0,
-    gap: 5,
-  },
-  transactionTitle: {
-    color: "#E7EDF5",
+    color: "#76E0A0",
     fontSize: 12,
     fontWeight: "700",
   },
-  transactionDate: {
-    color: "#7F8DA0",
-    fontSize: 10,
-  },
-  transactionAmount: {
-    fontSize: 12,
-    fontWeight: "800",
-    textAlign: "right",
-  },
-  incomingAmount: {
-    color: "#49E39A",
-  },
-  outgoingAmount: {
-    color: "#D4DDE8",
-  },
 
-  groupCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 13,
-    backgroundColor: "#101823",
-    borderWidth: 1,
-    borderColor: "#243140",
-    borderRadius: 15,
-    padding: 17,
-  },
-  groupIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 13,
-    backgroundColor: "#153528",
+  // Recent activity
+  activityCard: {
     alignItems: "center",
     justifyContent: "center",
-  },
-  groupDetails: {
-    flex: 1,
-    gap: 5,
-  },
-  groupTitle: {
-    color: "#EAF1F8",
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  groupSubtitle: {
-    color: "#8492A4",
-    fontSize: 11,
-  },
-  groupMemberRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    marginTop: 3,
-  },
-  groupMemberText: {
-    color: "#A0AAB8",
-    fontSize: 10,
+    paddingHorizontal: 24,
+    paddingVertical: 30,
+    backgroundColor: "#101714",
+    borderWidth: 1,
+    borderColor: "#202E27",
+    borderRadius: 15,
+    marginBottom: 24,
   },
 
-  mobileLogoutSection: {
-    marginTop: 5,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#202B38",
-    gap: 12,
+  activityIcon: {
+    width: 51,
+    height: 51,
+    borderRadius: 16,
+    backgroundColor: "#1A2D21",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 13,
   },
-  mobileLogoutCaption: {
-    color: "#8290A2",
-    fontSize: 11,
+
+  activityTitle: {
+    color: "#E4EEE7",
+    fontSize: 14,
+    fontWeight: "700",
     textAlign: "center",
   },
+
+  activityDescription: {
+    color: "#84958D",
+    fontSize: 12,
+    lineHeight: 19,
+    textAlign: "center",
+    maxWidth: 340,
+    marginTop: 7,
+  },
+
+  footerText: {
+    color: "#596A61",
+    fontSize: 10,
+    textAlign: "center",
+    paddingVertical: 8,
+  },
+
+  // Mobile menu
+  mobileMenu: {
+    position: "absolute",
+    top: 78,
+    left: 12,
+    right: 12,
+    zIndex: 20,
+    elevation: 12,
+    backgroundColor: "#0E1713",
+    borderWidth: 1,
+    borderColor: "#293A30",
+    borderRadius: 15,
+    padding: 15,
+    gap: 6,
+  },
+
+  mobileMenuBrand: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingBottom: 15,
+    marginBottom: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "#26352C",
+  },
+
+  mobileLogo: {
+    width: 39,
+    height: 39,
+  },
+
+  mobileMenuItem: {
+    minHeight: 45,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 12,
+    borderRadius: 9,
+  },
+
+  mobileMenuItemActive: {
+    backgroundColor: "#173026",
+  },
+
+  mobileMenuText: {
+    flex: 1,
+    color: "#A1B0AA",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  mobileLogoutButton: {
+    minHeight: 45,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#26352C",
+    marginTop: 6,
+    paddingTop: 10,
+  },
+
+  // Fixed mobile bottom navigation
   bottomNav: {
-    minHeight: 68,
+    minHeight: 66,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    backgroundColor: "#0D141E",
+    backgroundColor: "#0D1512",
     borderTopWidth: 1,
-    borderTopColor: "#243140",
+    borderTopColor: "#25352C",
     paddingHorizontal: 4,
-    paddingTop: 7,
-    paddingBottom: Platform.OS === "ios" ? 14 : 7,
+    paddingTop: 6,
+    paddingBottom: 7,
   },
+
   mobileNavItem: {
     flex: 1,
-    minWidth: 0,
-    minHeight: 48,
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
-    paddingHorizontal: 2,
-    borderRadius: 9,
+    minHeight: 49,
   },
+
   mobileNavText: {
-    color: "#8391A3",
-    fontSize: 9,
-    fontWeight: "500",
-    textAlign: "center",
-  },
-  mobileNavTextActive: {
-    color: "#49E39A",
-    fontWeight: "800",
-  },
-
-  pageFooter: {
-    color: "#5F6E80",
+    color: "#82938E",
     fontSize: 10,
-    textAlign: "center",
-    paddingTop: 5,
-    paddingBottom: 10,
+    fontWeight: "600",
   },
 
-  pressed: {
-    opacity: 0.72,
-  },
-  disabledButton: {
-    opacity: 0.55,
+  mobileNavTextActive: {
+    color: "#76E0A0",
+    fontWeight: "800",
   },
 });
