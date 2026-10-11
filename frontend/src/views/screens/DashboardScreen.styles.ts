@@ -164,6 +164,12 @@ export const styles = StyleSheet.create({
     gap: 13,
   },
 
+  topBarActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
   topBarTitle: {
     color: "#F3F7F5",
     fontSize: 19,
@@ -183,6 +189,17 @@ export const styles = StyleSheet.create({
     backgroundColor: "#14241C",
     borderWidth: 1,
     borderColor: "#294333",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  signOutIconButton: {
+    width: 39,
+    height: 39,
+    borderRadius: 12,
+    backgroundColor: "#211715",
+    borderWidth: 1,
+    borderColor: "#49302C",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -262,7 +279,7 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Balance and chart
+  // Balance card and chart
   balanceCard: {
     backgroundColor: "#101A16",
     borderWidth: 1,
@@ -430,7 +447,7 @@ export const styles = StyleSheet.create({
     marginTop: 5,
   },
 
-  // Financial summary
+  // Financial summary cards
   summaryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -485,7 +502,7 @@ export const styles = StyleSheet.create({
     lineHeight: 16,
   },
 
-  // Quick actions
+  // Quick action cards
   actionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -601,7 +618,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 8,
   },
 
-  // Mobile menu
+  // Mobile dropdown menu
   mobileMenu: {
     position: "absolute",
     top: 78,

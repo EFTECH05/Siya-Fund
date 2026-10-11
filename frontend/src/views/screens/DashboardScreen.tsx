@@ -34,10 +34,26 @@ const navigationItems: NavigationItem[] = [
 ];
 
 const quickActions: NavigationItem[] = [
-  { label: "Contribute", icon: "add-circle-outline", route: "/contributions" },
-  { label: "Apply for a Loan", icon: "cash-outline", route: "/loans" },
-  { label: "Savings Groups", icon: "people-outline", route: "/groups" },
-  { label: "Transactions", icon: "receipt-outline", route: "/transactions" },
+  {
+    label: "Contribute",
+    icon: "add-circle-outline",
+    route: "/contributions",
+  },
+  {
+    label: "Apply for a Loan",
+    icon: "cash-outline",
+    route: "/loans",
+  },
+  {
+    label: "Savings Groups",
+    icon: "people-outline",
+    route: "/groups",
+  },
+  {
+    label: "Transactions",
+    icon: "receipt-outline",
+    route: "/transactions",
+  },
 ];
 
 const financialSummaries = [
@@ -66,6 +82,7 @@ export default function DashboardScreen() {
   const { width } = useWindowDimensions();
 
   const isDesktop = width >= 900;
+
   const [menuVisible, setMenuVisible] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -98,6 +115,8 @@ export default function DashboardScreen() {
   };
 
   const confirmLogout = () => {
+    if (loggingOut) return;
+
     if (Platform.OS === "web") {
       const confirmed = window.confirm(
         "Are you sure you want to sign out of Siya-Fund?",
@@ -111,7 +130,10 @@ export default function DashboardScreen() {
     }
 
     Alert.alert("Sign out", "Are you sure you want to sign out of Siya-Fund?", [
-      { text: "Cancel", style: "cancel" },
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
       {
         text: "Sign out",
         style: "destructive",
@@ -145,6 +167,7 @@ export default function DashboardScreen() {
               size={20}
               color={active ? "#76E0A0" : "#98A8A4"}
             />
+
             <Text
               style={[
                 mobile ? styles.mobileMenuText : styles.sidebarItemText,
@@ -163,10 +186,12 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.screen}>
+      {/* Desktop sidebar */}
       {isDesktop && (
         <View style={styles.sidebar}>
           <View style={styles.brand}>
             <Image source={siyaLogo} style={styles.logo} resizeMode="contain" />
+
             <View>
               <Text style={styles.brandName}>Siya-Fund</Text>
               <Text style={styles.brandCaption}>Community Finance</Text>
@@ -184,7 +209,9 @@ export default function DashboardScreen() {
                 size={22}
                 color="#76E0A0"
               />
+
               <Text style={styles.helpTitle}>Your money, your future.</Text>
+
               <Text style={styles.helpText}>
                 Build better financial habits with Siya-Fund.
               </Text>
@@ -193,6 +220,8 @@ export default function DashboardScreen() {
             <Pressable
               onPress={confirmLogout}
               disabled={loggingOut}
+              accessibilityRole="button"
+              accessibilityLabel="Sign out"
               style={({ pressed }) => [
                 styles.logoutButton,
                 pressed && styles.pressed,
@@ -200,6 +229,7 @@ export default function DashboardScreen() {
               ]}
             >
               <Ionicons name="log-out-outline" size={20} color="#F28B82" />
+
               <Text style={styles.logoutText}>
                 {loggingOut ? "Signing out..." : "Sign out"}
               </Text>
@@ -208,7 +238,9 @@ export default function DashboardScreen() {
         </View>
       )}
 
+      {/* Main dashboard */}
       <View style={styles.main}>
+        {/* Top bar */}
         <View style={styles.topBar}>
           <View style={styles.topBarLeft}>
             {!isDesktop && (
@@ -234,11 +266,32 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          <View style={styles.profileBadge}>
-            <Ionicons name="person-outline" size={19} color="#76E0A0" />
+          {/* Mobile sign-out and profile icons */}
+          <View style={styles.topBarActions}>
+            {!isDesktop && (
+              <Pressable
+                onPress={confirmLogout}
+                disabled={loggingOut}
+                accessibilityRole="button"
+                accessibilityLabel="Sign out"
+                accessibilityHint="Asks you to confirm before signing out"
+                style={({ pressed }) => [
+                  styles.signOutIconButton,
+                  pressed && styles.pressed,
+                  loggingOut && styles.disabled,
+                ]}
+              >
+                <Ionicons name="log-out-outline" size={21} color="#F28B82" />
+              </Pressable>
+            )}
+
+            <View style={styles.profileBadge}>
+              <Ionicons name="person-outline" size={19} color="#76E0A0" />
+            </View>
           </View>
         </View>
 
+        {/* Mobile dropdown menu */}
         {!isDesktop && menuVisible && (
           <View style={styles.mobileMenu}>
             <View style={styles.mobileMenuBrand}>
@@ -247,6 +300,7 @@ export default function DashboardScreen() {
                 style={styles.mobileLogo}
                 resizeMode="contain"
               />
+
               <View>
                 <Text style={styles.brandName}>Siya-Fund</Text>
                 <Text style={styles.brandCaption}>Community Finance</Text>
@@ -258,6 +312,8 @@ export default function DashboardScreen() {
             <Pressable
               onPress={confirmLogout}
               disabled={loggingOut}
+              accessibilityRole="button"
+              accessibilityLabel="Sign out"
               style={({ pressed }) => [
                 styles.mobileLogoutButton,
                 pressed && styles.pressed,
@@ -265,6 +321,7 @@ export default function DashboardScreen() {
               ]}
             >
               <Ionicons name="log-out-outline" size={20} color="#F28B82" />
+
               <Text style={styles.logoutText}>
                 {loggingOut ? "Signing out..." : "Sign out"}
               </Text>
@@ -272,6 +329,7 @@ export default function DashboardScreen() {
           </View>
         )}
 
+        {/* Scrollable dashboard content */}
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={[
@@ -280,6 +338,7 @@ export default function DashboardScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
+          {/* Welcome */}
           <View style={styles.welcomeSection}>
             <View style={styles.welcomeTextContainer}>
               <Text style={styles.welcomeTitle}>Welcome back!</Text>
@@ -298,16 +357,20 @@ export default function DashboardScreen() {
             </View>
           </View>
 
+          {/* Balance card */}
           <View style={styles.balanceCard}>
             <View style={styles.balanceCardTop}>
               <View>
                 <Text style={styles.balanceLabel}>TOTAL SAVINGS</Text>
+
                 <View style={styles.balanceValueRow}>
                   <Text style={styles.balanceAmount}>R 0.00</Text>
+
                   <View style={styles.currencyBadge}>
                     <Text style={styles.currencyBadgeText}>ZAR</Text>
                   </View>
                 </View>
+
                 <Text style={styles.balanceCaption}>Your savings overview</Text>
               </View>
 
@@ -316,9 +379,11 @@ export default function DashboardScreen() {
               </View>
             </View>
 
+            {/* Decorative chart */}
             <View style={styles.chartArea}>
               <View style={styles.chartHeader}>
                 <Text style={styles.chartTitle}>Savings trend</Text>
+
                 <View style={styles.chartLegend}>
                   <View style={styles.legendDot} />
                   <Text style={styles.chartLegendText}>Savings</Text>
@@ -346,6 +411,7 @@ export default function DashboardScreen() {
 
               <View style={styles.chartFooter}>
                 <Text style={styles.chartFooterText}>Start saving today</Text>
+
                 <Ionicons
                   name="trending-up-outline"
                   size={17}
@@ -355,6 +421,7 @@ export default function DashboardScreen() {
             </View>
           </View>
 
+          {/* Financial overview */}
           <View style={styles.sectionHeading}>
             <View>
               <Text style={styles.sectionTitle}>Financial overview</Text>
@@ -371,6 +438,7 @@ export default function DashboardScreen() {
                   <View style={styles.summaryIcon}>
                     <Ionicons name={item.icon} size={20} color="#76E0A0" />
                   </View>
+
                   <Ionicons
                     name="ellipsis-horizontal"
                     size={19}
@@ -385,6 +453,7 @@ export default function DashboardScreen() {
             ))}
           </View>
 
+          {/* Quick actions */}
           <View style={styles.sectionHeading}>
             <View>
               <Text style={styles.sectionTitle}>Quick actions</Text>
@@ -400,6 +469,7 @@ export default function DashboardScreen() {
                 key={item.label}
                 onPress={() => navigateTo(item.route)}
                 accessibilityRole="button"
+                accessibilityLabel={item.label}
                 style={({ pressed }) => [
                   styles.actionCard,
                   pressed && styles.actionCardPressed,
@@ -422,6 +492,7 @@ export default function DashboardScreen() {
             ))}
           </View>
 
+          {/* Recent activity */}
           <View style={styles.sectionHeading}>
             <View>
               <Text style={styles.sectionTitle}>Recent activity</Text>
@@ -432,9 +503,11 @@ export default function DashboardScreen() {
 
             <Pressable
               onPress={() => navigateTo("/transactions")}
+              accessibilityRole="button"
               style={styles.viewAllButton}
             >
               <Text style={styles.viewAllText}>View all</Text>
+
               <Ionicons
                 name="arrow-forward-outline"
                 size={15}
@@ -447,7 +520,9 @@ export default function DashboardScreen() {
             <View style={styles.activityIcon}>
               <Ionicons name="receipt-outline" size={24} color="#76E0A0" />
             </View>
+
             <Text style={styles.activityTitle}>No recent activity</Text>
+
             <Text style={styles.activityDescription}>
               Your contributions and transactions will appear here when
               available.
@@ -459,6 +534,7 @@ export default function DashboardScreen() {
           </Text>
         </ScrollView>
 
+        {/* Fixed mobile bottom navigation */}
         {!isDesktop && (
           <View style={styles.bottomNav}>
             {[
@@ -503,6 +579,7 @@ export default function DashboardScreen() {
                     size={21}
                     color={active ? "#76E0A0" : "#82938E"}
                   />
+
                   <Text
                     style={[
                       styles.mobileNavText,
