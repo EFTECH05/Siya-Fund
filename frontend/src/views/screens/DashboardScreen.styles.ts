@@ -1,716 +1,615 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
+const COLORS = {
+  background: "#080D17",
+  surface: "#101827",
+  surfaceLight: "#151F30",
+  border: "#243047",
+  text: "#F4F7FC",
+  muted: "#8D9AB0",
+  green: "#39D98A",
+  greenDark: "#153C31",
+  red: "#F28B82",
+};
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   screen: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: "#080D0C",
-  },
-
-  pressed: {
-    opacity: 0.75,
-  },
-
-  disabled: {
-    opacity: 0.5,
+    backgroundColor: COLORS.background,
   },
 
   // Desktop sidebar
   sidebar: {
     width: 250,
-    backgroundColor: "#0D1513",
+    backgroundColor: "#0C1320",
     borderRightWidth: 1,
-    borderRightColor: "#1D2B26",
-    paddingHorizontal: 20,
-    paddingTop: 28,
-    paddingBottom: 20,
+    borderRightColor: COLORS.border,
+    paddingTop: 26,
+    paddingHorizontal: 16,
+    paddingBottom: 18,
   },
-
   brand: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 43,
+    minHeight: 58,
+    marginBottom: 38,
     paddingHorizontal: 4,
   },
-
   logo: {
-    width: 43,
-    height: 43,
+    width: 45,
+    height: 45,
+    marginRight: 10,
   },
-
+  brandTextContainer: {
+    flex: 1,
+  },
   brandName: {
-    color: "#F4F8F5",
-    fontSize: 18,
+    color: COLORS.text,
+    fontSize: 23,
     fontWeight: "800",
-    letterSpacing: 0.1,
+    letterSpacing: -0.8,
   },
-
-  brandCaption: {
-    color: "#7D9189",
-    fontSize: 11,
+  brandNameAccent: {
+    color: COLORS.green,
+  },
+  brandSubtitle: {
+    color: COLORS.muted,
+    fontSize: 8,
+    letterSpacing: 0.7,
     marginTop: 3,
   },
-
-  sidebarSectionTitle: {
-    color: "#657871",
+  menuHeading: {
+    color: "#66758D",
     fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1.7,
-    marginBottom: 14,
+    fontWeight: "700",
+    letterSpacing: 1.6,
+    marginBottom: 12,
     marginLeft: 12,
   },
-
   sidebarNavigation: {
-    gap: 7,
+    gap: 6,
   },
-
   sidebarItem: {
-    minHeight: 47,
+    minHeight: 48,
+    borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
-    gap: 13,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+    paddingHorizontal: 13,
+    marginBottom: 3,
     position: "relative",
   },
-
   sidebarItemActive: {
-    backgroundColor: "#173026",
+    backgroundColor: "#142B29",
   },
-
   sidebarItemText: {
-    color: "#A1B0AA",
-    fontSize: 13,
+    color: "#A9B5C8",
+    fontSize: 14,
     fontWeight: "500",
+    marginLeft: 13,
+    flex: 1,
   },
-
-  navigationTextActive: {
-    color: "#82E8A8",
+  sidebarItemTextActive: {
+    color: COLORS.green,
     fontWeight: "700",
   },
-
   activeIndicator: {
-    width: 3,
+    width: 4,
     height: 23,
-    backgroundColor: "#76E0A0",
+    backgroundColor: COLORS.green,
     borderRadius: 4,
     position: "absolute",
     right: 0,
   },
-
-  sidebarBottom: {
+  sidebarFooter: {
     marginTop: "auto",
-    gap: 17,
   },
-
-  helpCard: {
-    backgroundColor: "#111E19",
-    borderWidth: 1,
-    borderColor: "#23372D",
-    borderRadius: 13,
-    padding: 15,
-    gap: 8,
+  sidebarFooterDivider: {
+    height: 1,
+    backgroundColor: COLORS.border,
+    marginBottom: 14,
   },
-
-  helpTitle: {
-    color: "#E6F0E9",
-    fontSize: 13,
-    fontWeight: "700",
-    marginTop: 2,
-  },
-
-  helpText: {
-    color: "#8FA199",
-    fontSize: 11,
-    lineHeight: 17,
-  },
-
-  logoutButton: {
+  signOutButton: {
+    minHeight: 47,
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 13,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#452C30",
+    backgroundColor: "#20171D",
     gap: 12,
-    minHeight: 45,
-    paddingHorizontal: 12,
-    borderRadius: 10,
   },
-
-  logoutText: {
-    color: "#F28B82",
-    fontSize: 13,
+  signOutText: {
+    color: COLORS.red,
+    fontSize: 14,
     fontWeight: "600",
   },
-
-  // Main layout
-  main: {
-    flex: 1,
-    minWidth: 0,
-    backgroundColor: "#080D0C",
+  versionText: {
+    color: "#65728A",
+    fontSize: 10,
+    textAlign: "center",
+    marginTop: 15,
   },
 
+  // Main content and top bar
+  mainArea: {
+    flex: 1,
+    minWidth: 0,
+    position: "relative",
+    backgroundColor: COLORS.background,
+  },
   topBar: {
-    minHeight: 78,
+    minHeight: 82,
     paddingHorizontal: 30,
-    borderBottomWidth: 1,
-    borderBottomColor: "#1A2722",
+    paddingVertical: 14,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    backgroundColor: "#0B1220",
+    zIndex: 2,
   },
-
   topBarLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: 13,
+    flex: 1,
   },
-
-  topBarActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-
   topBarTitle: {
-    color: "#F3F7F5",
-    fontSize: 19,
-    fontWeight: "800",
+    color: COLORS.text,
+    fontSize: 21,
+    fontWeight: "700",
   },
-
   topBarSubtitle: {
-    color: "#82938C",
+    color: COLORS.muted,
     fontSize: 12,
     marginTop: 4,
   },
-
-  profileBadge: {
-    width: 39,
-    height: 39,
-    borderRadius: 13,
-    backgroundColor: "#14241C",
-    borderWidth: 1,
-    borderColor: "#294333",
+  topBarRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  secureBadge: {
+    minHeight: 36,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  signOutIconButton: {
-    width: 39,
-    height: 39,
-    borderRadius: 12,
-    backgroundColor: "#211715",
+    gap: 7,
+    paddingHorizontal: 11,
+    borderRadius: 20,
+    backgroundColor: "#122720",
     borderWidth: 1,
-    borderColor: "#49302C",
-    alignItems: "center",
-    justifyContent: "center",
+    borderColor: "#204737",
   },
-
-  menuButton: {
+  secureBadgeText: {
+    color: COLORS.green,
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  profileButton: {
     width: 40,
     height: 40,
-    borderRadius: 11,
-    backgroundColor: "#121C18",
+    borderRadius: 13,
+    backgroundColor: COLORS.surfaceLight,
     borderWidth: 1,
-    borderColor: "#24342D",
+    borderColor: COLORS.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  menuButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: COLORS.surfaceLight,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     alignItems: "center",
     justifyContent: "center",
   },
 
-  scrollView: {
-    flex: 1,
+  // Mobile dropdown
+  mobileMenu: {
+    position: "absolute",
+    top: 72,
+    left: 12,
+    right: 12,
+    maxHeight: 520,
+    backgroundColor: "#101827",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 16,
+    padding: 15,
+    zIndex: 20,
+    elevation: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 15,
+  },
+  mobileMenuScroll: {
+    flexGrow: 0,
+    flexShrink: 1,
+  },
+  mobileMenuFooter: {
+    paddingTop: 14,
+    marginTop: 8,
+  },
+  mobileSignOutButton: {
+    minHeight: 48,
+    marginTop: 0,
   },
 
-  content: {
+  // Scrollable dashboard content
+  contentScroll: {
+    flex: 1,
+  },
+  contentContainer: {
     width: "100%",
-    maxWidth: 1240,
+    maxWidth: 1320,
     alignSelf: "center",
     paddingHorizontal: 30,
     paddingTop: 28,
-    paddingBottom: 36,
+    paddingBottom: 35,
   },
-
-  mobileContent: {
-    paddingHorizontal: 17,
-    paddingTop: 23,
+  mobileContentContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 22,
     paddingBottom: 28,
   },
-
   welcomeSection: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    flexWrap: "wrap",
-    gap: 12,
-    marginBottom: 23,
+    gap: 18,
+    marginBottom: 25,
   },
-
   welcomeTextContainer: {
-    flexShrink: 1,
+    flex: 1,
   },
-
+  welcomeEyebrow: {
+    color: COLORS.green,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.6,
+    marginBottom: 8,
+  },
   welcomeTitle: {
-    color: "#F3F7F5",
-    fontSize: 25,
+    color: COLORS.text,
+    fontSize: 28,
     fontWeight: "800",
-    letterSpacing: -0.6,
+    letterSpacing: -0.7,
   },
-
   welcomeSubtitle: {
-    color: "#91A19A",
+    color: COLORS.muted,
     fontSize: 13,
     lineHeight: 20,
     marginTop: 7,
   },
-
-  secureBadge: {
+  growthBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    backgroundColor: "#12241B",
+    gap: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 13,
+    borderRadius: 14,
+    backgroundColor: "#10251F",
     borderWidth: 1,
-    borderColor: "#254332",
-    paddingHorizontal: 11,
-    paddingVertical: 8,
-    borderRadius: 30,
+    borderColor: "#204737",
   },
-
-  secureBadgeText: {
-    color: "#A8D9B8",
+  growthBadgeTitle: {
+    color: COLORS.text,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  growthBadgeSubtitle: {
+    color: COLORS.green,
     fontSize: 11,
-    fontWeight: "600",
+    marginTop: 4,
   },
 
-  // Balance card and chart
+  // Total balance card
   balanceCard: {
-    backgroundColor: "#101A16",
+    backgroundColor: "#111D2A",
     borderWidth: 1,
-    borderColor: "#263B30",
-    borderRadius: 19,
-    padding: 23,
+    borderColor: "#263C3A",
+    borderRadius: 20,
+    padding: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 25,
     marginBottom: 30,
     overflow: "hidden",
   },
-
-  balanceCardTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 12,
+  balanceCardContent: {
+    flex: 1,
+    minWidth: 0,
   },
-
+  balanceLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    maxWidth: 310,
+  },
   balanceLabel: {
-    color: "#93A79C",
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1.5,
-  },
-
-  balanceValueRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 10,
-    marginTop: 11,
-  },
-
-  balanceAmount: {
-    color: "#F4F8F5",
-    fontSize: 33,
-    fontWeight: "800",
-    letterSpacing: -0.8,
-  },
-
-  currencyBadge: {
-    backgroundColor: "#1C3024",
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 6,
-  },
-
-  currencyBadgeText: {
-    color: "#83E5A6",
-    fontSize: 10,
-    fontWeight: "800",
-  },
-
-  balanceCaption: {
-    color: "#82958A",
-    fontSize: 12,
-    marginTop: 7,
-  },
-
-  balanceIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 15,
-    backgroundColor: "#1B3023",
-    borderWidth: 1,
-    borderColor: "#34563D",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  chartArea: {
-    marginTop: 24,
-    paddingTop: 17,
-    borderTopWidth: 1,
-    borderTopColor: "#26372E",
-  },
-
-  chartHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 14,
-  },
-
-  chartTitle: {
-    color: "#DCE8E0",
-    fontSize: 12,
+    color: "#A9B8C9",
+    fontSize: 11,
     fontWeight: "700",
+    letterSpacing: 1.2,
   },
-
-  chartLegend: {
+  balanceAmount: {
+    color: COLORS.text,
+    fontSize: 36,
+    fontWeight: "800",
+    letterSpacing: -1.2,
+    marginTop: 17,
+  },
+  balanceNote: {
+    color: COLORS.muted,
+    fontSize: 12,
+    marginTop: 8,
+  },
+  balanceDivider: {
+    height: 1,
+    backgroundColor: "#283746",
+    marginTop: 23,
+    marginBottom: 14,
+    maxWidth: 330,
+  },
+  balanceFooter: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 7,
+    gap: 8,
   },
-
-  legendDot: {
+  balanceStatusDot: {
     width: 7,
     height: 7,
-    borderRadius: 4,
-    backgroundColor: "#76E0A0",
+    borderRadius: 5,
+    backgroundColor: COLORS.green,
   },
-
-  chartLegendText: {
-    color: "#8FA198",
+  balanceStatusText: {
+    color: "#A9B8C9",
     fontSize: 11,
   },
-
-  chart: {
-    height: 72,
-    flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 7,
+  chartArea: {
+    width: 260,
+    alignSelf: "stretch",
+    justifyContent: "center",
+    padding: 15,
+    borderRadius: 15,
+    backgroundColor: "#0C1722",
+    borderWidth: 1,
+    borderColor: "#20312F",
   },
-
-  chartColumn: {
-    flex: 1,
-    height: "100%",
-    justifyContent: "flex-end",
-  },
-
-  chartBar: {
-    width: "100%",
-    minHeight: 5,
-    backgroundColor: "#28523A",
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
-  },
-
-  chartBarHighlight: {
-    backgroundColor: "#76E0A0",
-  },
-
-  chartFooter: {
+  chartHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 11,
+    gap: 7,
   },
-
-  chartFooterText: {
-    color: "#83968B",
-    fontSize: 11,
+  chartLabel: {
+    color: "#A9B8C9",
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 0.8,
+  },
+  chartBars: {
+    height: 95,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    gap: 7,
+    marginTop: 13,
+  },
+  chartBarTrack: {
+    height: "100%",
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "#152A29",
+    borderRadius: 5,
+    overflow: "hidden",
+  },
+  chartBar: {
+    width: "100%",
+    backgroundColor: "#237B58",
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+  },
+  chartBarHighlighted: {
+    backgroundColor: COLORS.green,
+  },
+  chartCaption: {
+    color: COLORS.muted,
+    fontSize: 10,
+    marginTop: 10,
   },
 
   // Section headings
-  sectionHeading: {
+  sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
     marginBottom: 15,
     marginTop: 2,
   },
-
   sectionTitle: {
-    color: "#F0F5F2",
-    fontSize: 17,
-    fontWeight: "800",
+    color: COLORS.text,
+    fontSize: 18,
+    fontWeight: "700",
   },
-
   sectionSubtitle: {
-    color: "#84958D",
+    color: COLORS.muted,
     fontSize: 12,
-    lineHeight: 18,
     marginTop: 5,
   },
 
-  // Financial summary cards
+  // Summary cards
   summaryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 13,
+    gap: 14,
     marginBottom: 30,
   },
-
   summaryCard: {
     flexGrow: 1,
-    flexBasis: 200,
+    flexBasis: 180,
     minWidth: 0,
-    backgroundColor: "#101714",
-    borderWidth: 1,
-    borderColor: "#202E27",
-    borderRadius: 14,
     padding: 17,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 16,
   },
-
-  summaryCardTop: {
-    flexDirection: "row",
+  summaryIcon: {
+    width: 43,
+    height: 43,
+    borderRadius: 13,
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     marginBottom: 16,
   },
-
-  summaryIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 11,
-    backgroundColor: "#192A20",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  summaryValue: {
-    color: "#F2F7F3",
-    fontSize: 22,
-    fontWeight: "800",
-    marginBottom: 6,
-  },
-
-  summaryTitle: {
-    color: "#DCE7DF",
+  summaryLabel: {
+    color: COLORS.muted,
     fontSize: 12,
-    fontWeight: "700",
   },
-
-  summaryCaption: {
-    color: "#819188",
-    fontSize: 11,
+  summaryValue: {
+    color: COLORS.text,
+    fontSize: 23,
+    fontWeight: "800",
+    marginTop: 8,
+  },
+  summaryFootnote: {
+    color: "#738199",
+    fontSize: 10,
     marginTop: 6,
-    lineHeight: 16,
   },
 
-  // Quick action cards
-  actionsGrid: {
+  // Quick actions
+  quickActionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    gap: 14,
     marginBottom: 30,
   },
-
-  actionCard: {
+  quickActionCard: {
     flexGrow: 1,
-    flexBasis: 210,
+    flexBasis: 190,
     minWidth: 0,
-    minHeight: 85,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 15,
-    paddingVertical: 14,
-    backgroundColor: "#101714",
+    minHeight: 158,
+    padding: 17,
+    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: "#24332A",
-    borderRadius: 14,
+    borderColor: COLORS.border,
+    borderRadius: 16,
   },
-
-  actionCardPressed: {
-    backgroundColor: "#19271F",
-    borderColor: "#477454",
-  },
-
-  actionIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: "#1A2D21",
+  quickActionIcon: {
+    width: 43,
+    height: 43,
+    borderRadius: 13,
+    backgroundColor: "#153C31",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 14,
   },
-
-  actionTitle: {
-    flex: 1,
-    flexShrink: 1,
-    color: "#E5EEE8",
-    fontSize: 12,
+  quickActionTitle: {
+    color: COLORS.text,
+    fontSize: 14,
     fontWeight: "700",
-    lineHeight: 18,
   },
-
-  actionArrow: {
-    width: 29,
-    height: 29,
-    borderRadius: 9,
-    backgroundColor: "#18231D",
-    alignItems: "center",
-    justifyContent: "center",
+  quickActionSubtitle: {
+    color: COLORS.muted,
+    fontSize: 11,
+    marginTop: 6,
+    paddingRight: 10,
   },
-
-  viewAllButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    paddingVertical: 8,
-    paddingLeft: 8,
-  },
-
-  viewAllText: {
-    color: "#76E0A0",
-    fontSize: 12,
-    fontWeight: "700",
+  quickActionArrow: {
+    position: "absolute",
+    right: 15,
+    bottom: 16,
   },
 
   // Recent activity
   activityCard: {
+    minHeight: 190,
+    padding: 25,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 30,
-    backgroundColor: "#101714",
+    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: "#202E27",
-    borderRadius: 15,
-    marginBottom: 24,
-  },
-
-  activityIcon: {
-    width: 51,
-    height: 51,
+    borderColor: COLORS.border,
     borderRadius: 16,
-    backgroundColor: "#1A2D21",
+  },
+  emptyActivityIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: COLORS.surfaceLight,
     marginBottom: 13,
   },
-
-  activityTitle: {
-    color: "#E4EEE7",
+  emptyActivityTitle: {
+    color: COLORS.text,
     fontSize: 14,
     fontWeight: "700",
-    textAlign: "center",
   },
-
-  activityDescription: {
-    color: "#84958D",
+  emptyActivitySubtitle: {
+    maxWidth: 350,
+    color: COLORS.muted,
     fontSize: 12,
-    lineHeight: 19,
     textAlign: "center",
-    maxWidth: 340,
-    marginTop: 7,
+    lineHeight: 19,
+    marginTop: 8,
   },
-
-  footerText: {
-    color: "#596A61",
+  footerNote: {
+    color: "#66758D",
     fontSize: 10,
     textAlign: "center",
-    paddingVertical: 8,
+    marginTop: 25,
   },
 
-  // Mobile dropdown menu
-  mobileMenu: {
-    position: "absolute",
-    top: 78,
-    left: 12,
-    right: 12,
-    zIndex: 20,
-    elevation: 12,
-    backgroundColor: "#0E1713",
-    borderWidth: 1,
-    borderColor: "#293A30",
-    borderRadius: 15,
-    padding: 15,
-    gap: 6,
-  },
-
-  mobileMenuBrand: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingBottom: 15,
-    marginBottom: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: "#26352C",
-  },
-
-  mobileLogo: {
-    width: 39,
-    height: 39,
-  },
-
-  mobileMenuItem: {
-    minHeight: 45,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 12,
-    borderRadius: 9,
-  },
-
-  mobileMenuItemActive: {
-    backgroundColor: "#173026",
-  },
-
-  mobileMenuText: {
-    flex: 1,
-    color: "#A1B0AA",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-
-  mobileLogoutButton: {
-    minHeight: 45,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#26352C",
-    marginTop: 6,
-    paddingTop: 10,
-  },
-
-  // Fixed mobile bottom navigation
-  bottomNav: {
+  // Fixed mobile navigation
+  bottomNavigation: {
     minHeight: 66,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    backgroundColor: "#0D1512",
+    backgroundColor: "#0B1220",
     borderTopWidth: 1,
-    borderTopColor: "#25352C",
-    paddingHorizontal: 4,
-    paddingTop: 6,
-    paddingBottom: 7,
+    borderTopColor: COLORS.border,
+    paddingHorizontal: 8,
+    paddingTop: 7,
+    paddingBottom: Platform.select({
+      ios: 10,
+      android: 7,
+      default: 7,
+    }),
   },
-
-  mobileNavItem: {
+  bottomNavItem: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
-    minHeight: 49,
+    minHeight: 48,
   },
-
-  mobileNavText: {
-    color: "#82938E",
+  bottomNavLabel: {
+    color: "#8290A6",
     fontSize: 10,
-    fontWeight: "600",
+    fontWeight: "500",
+  },
+  bottomNavLabelActive: {
+    color: COLORS.green,
+    fontWeight: "700",
   },
 
-  mobileNavTextActive: {
-    color: "#76E0A0",
-    fontWeight: "800",
+  // Interaction states
+  pressed: {
+    opacity: 0.72,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });
+
+export default styles;

@@ -13,67 +13,57 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 import { logoutUser } from "../../services/AuthService";
-import { styles } from "./DashboardScreen.styles";
+import styles from "./DashboardScreen.styles";
 
-const siyaLogo = require("../../../assets/images/siya-logo.png");
+const logo = require("../../../assets/images/siya-logo.png");
 
-type IconName = React.ComponentProps<typeof Ionicons>["name"];
-
-type NavigationItem = {
+type MenuItem = {
   label: string;
-  icon: IconName;
+  icon: keyof typeof Ionicons.glyphMap;
   route: string;
 };
 
-const navigationItems: NavigationItem[] = [
+const menuItems: MenuItem[] = [
   { label: "Dashboard", icon: "grid-outline", route: "/dashboard" },
-  { label: "Contributions", icon: "wallet-outline", route: "/contributions" },
-  { label: "Loans", icon: "cash-outline", route: "/loans" },
-  { label: "Savings Groups", icon: "people-outline", route: "/groups" },
-  { label: "Transactions", icon: "receipt-outline", route: "/transactions" },
-];
-
-const quickActions: NavigationItem[] = [
   {
-    label: "Contribute",
-    icon: "add-circle-outline",
+    label: "Contributions",
+    icon: "wallet-outline",
     route: "/contributions",
   },
+  { label: "Loans", icon: "cash-outline", route: "/loans" },
+  { label: "Groups", icon: "people-outline", route: "/groups" },
   {
-    label: "Apply for a Loan",
-    icon: "cash-outline",
-    route: "/loans",
+    label: "Transactions",
+    icon: "swap-horizontal-outline",
+    route: "/transactions",
   },
+  { label: "Profile", icon: "person-circle-outline", route: "/profile" },
+];
+
+const quickActions = [
   {
-    label: "Savings Groups",
-    icon: "people-outline",
+    title: "Groups",
+    subtitle: "Manage your groups",
+    icon: "people-outline" as const,
     route: "/groups",
   },
   {
-    label: "Transactions",
-    icon: "receipt-outline",
+    title: "Contributions",
+    subtitle: "View contributions",
+    icon: "wallet-outline" as const,
+    route: "/contributions",
+  },
+  {
+    title: "Transactions",
+    subtitle: "View transactions",
+    icon: "swap-horizontal-outline" as const,
     route: "/transactions",
   },
-];
-
-const financialSummaries = [
   {
-    title: "Total Contributions",
-    value: "R 0.00",
-    caption: "Your contributions",
-    icon: "wallet-outline" as IconName,
-  },
-  {
-    title: "Active Loans",
-    value: "0",
-    caption: "Current loan accounts",
-    icon: "cash-outline" as IconName,
-  },
-  {
-    title: "Savings Groups",
-    value: "0",
-    caption: "Groups you're part of",
-    icon: "people-outline" as IconName,
+    title: "Loans",
+    subtitle: "Manage your loans",
+    icon: "cash-outline" as const,
+    route: "/loans",
   },
 ];
 
@@ -82,12 +72,13 @@ export default function DashboardScreen() {
   const { width } = useWindowDimensions();
 
   const isDesktop = width >= 900;
+  const isMobile = width < 600;
 
-  const [menuVisible, setMenuVisible] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
   const navigateTo = (route: string) => {
-    setMenuVisible(false);
+    setMenuOpen(false);
     router.push(route as never);
   };
 
@@ -95,17 +86,19 @@ export default function DashboardScreen() {
     if (loggingOut) return;
 
     setLoggingOut(true);
+    setMenuOpen(false);
 
     try {
       await logoutUser();
-      setMenuVisible(false);
       router.replace("/login" as never);
     } catch (error) {
+      console.error("Sign out failed:", error);
+
       const message =
         error instanceof Error ? error.message : "Please try again.";
 
       if (Platform.OS === "web") {
-        window.alert(`Unable to sign out: ${message}`);
+        window.alert(`Unable to sign out. ${message}`);
       } else {
         Alert.alert("Sign out failed", message);
       }
@@ -129,279 +122,257 @@ export default function DashboardScreen() {
       return;
     }
 
-    Alert.alert("Sign out", "Are you sure you want to sign out of Siya-Fund?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Sign out",
-        style: "destructive",
-        onPress: () => void performLogout(),
-      },
-    ]);
+    Alert.alert(
+      "Confirm sign out",
+      "Are you sure you want to sign out of Siya-Fund?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Sign out",
+          style: "destructive",
+          onPress: () => {
+            void performLogout();
+          },
+        },
+      ],
+      { cancelable: true },
+    );
   };
 
-  const renderNavigation = (mobile = false) => (
-    <>
-      {navigationItems.map((item) => {
-        const active = item.label === "Dashboard";
+  const renderMenuItem = (item: MenuItem) => (
+    <Pressable
+      key={item.label}
+      onPress={() => navigateTo(item.route)}
+      style={({ pressed }) => [
+        styles.sidebarItem,
+        item.label === "Dashboard" && styles.sidebarItemActive,
+        pressed && styles.pressed,
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={item.label}
+    >
+      <Ionicons
+        name={item.icon}
+        size={20}
+        color={item.label === "Dashboard" ? "#39D98A" : "#A9B5C8"}
+      />
+      <Text
+        style={[
+          styles.sidebarItemText,
+          item.label === "Dashboard" && styles.sidebarItemTextActive,
+        ]}
+      >
+        {item.label}
+      </Text>
+      {item.label === "Dashboard" && <View style={styles.activeIndicator} />}
+    </Pressable>
+  );
 
-        return (
-          <Pressable
-            key={item.label}
-            onPress={() => navigateTo(item.route)}
-            accessibilityRole="button"
-            accessibilityLabel={item.label}
-            style={({ pressed }) => [
-              mobile ? styles.mobileMenuItem : styles.sidebarItem,
-              active &&
-                (mobile
-                  ? styles.mobileMenuItemActive
-                  : styles.sidebarItemActive),
-              pressed && styles.pressed,
-            ]}
-          >
-            <Ionicons
-              name={item.icon}
-              size={20}
-              color={active ? "#76E0A0" : "#98A8A4"}
-            />
+  const renderSignOutButton = (compact = false) => (
+    <Pressable
+      onPress={confirmLogout}
+      disabled={loggingOut}
+      accessibilityRole="button"
+      accessibilityLabel="Sign out"
+      style={({ pressed }) => [
+        styles.signOutButton,
+        compact && styles.mobileSignOutButton,
+        pressed && styles.pressed,
+        loggingOut && styles.disabled,
+      ]}
+    >
+      <Ionicons name="log-out-outline" size={20} color="#F28B82" />
+      <Text style={styles.signOutText}>
+        {loggingOut ? "Signing out..." : "Sign Out"}
+      </Text>
+    </Pressable>
+  );
 
-            <Text
-              style={[
-                mobile ? styles.mobileMenuText : styles.sidebarItemText,
-                active && styles.navigationTextActive,
-              ]}
-            >
-              {item.label}
-            </Text>
+  const renderSidebar = () => (
+    <View style={styles.sidebar}>
+      <Pressable
+        style={styles.brand}
+        onPress={() => navigateTo("/dashboard")}
+        accessibilityRole="button"
+        accessibilityLabel="Siya-Fund dashboard"
+      >
+        <Image source={logo} style={styles.logo} resizeMode="contain" />
+        <View style={styles.brandTextContainer}>
+          <Text style={styles.brandName}>
+            Siya<Text style={styles.brandNameAccent}>Fund</Text>
+          </Text>
+          <Text style={styles.brandSubtitle}>SMART STOKVEL MANAGEMENT</Text>
+        </View>
+      </Pressable>
 
-            {active && <View style={styles.activeIndicator} />}
-          </Pressable>
-        );
-      })}
-    </>
+      <Text style={styles.menuHeading}>MAIN MENU</Text>
+
+      <View style={styles.sidebarNavigation}>
+        {menuItems.map(renderMenuItem)}
+      </View>
+
+      <View style={styles.sidebarFooter}>
+        <View style={styles.sidebarFooterDivider} />
+        {renderSignOutButton()}
+        <Text style={styles.versionText}>Siya-Fund • Secure savings</Text>
+      </View>
+    </View>
   );
 
   return (
     <View style={styles.screen}>
-      {/* Desktop sidebar */}
-      {isDesktop && (
-        <View style={styles.sidebar}>
-          <View style={styles.brand}>
-            <Image source={siyaLogo} style={styles.logo} resizeMode="contain" />
+      {isDesktop && renderSidebar()}
 
-            <View>
-              <Text style={styles.brandName}>Siya-Fund</Text>
-              <Text style={styles.brandCaption}>Community Finance</Text>
-            </View>
-          </View>
-
-          <Text style={styles.sidebarSectionTitle}>WORKSPACE</Text>
-
-          <View style={styles.sidebarNavigation}>{renderNavigation()}</View>
-
-          <View style={styles.sidebarBottom}>
-            <View style={styles.helpCard}>
-              <Ionicons
-                name="shield-checkmark-outline"
-                size={22}
-                color="#76E0A0"
-              />
-
-              <Text style={styles.helpTitle}>Your money, your future.</Text>
-
-              <Text style={styles.helpText}>
-                Build better financial habits with Siya-Fund.
-              </Text>
-            </View>
-
-            <Pressable
-              onPress={confirmLogout}
-              disabled={loggingOut}
-              accessibilityRole="button"
-              accessibilityLabel="Sign out"
-              style={({ pressed }) => [
-                styles.logoutButton,
-                pressed && styles.pressed,
-                loggingOut && styles.disabled,
-              ]}
-            >
-              <Ionicons name="log-out-outline" size={20} color="#F28B82" />
-
-              <Text style={styles.logoutText}>
-                {loggingOut ? "Signing out..." : "Sign out"}
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      )}
-
-      {/* Main dashboard */}
-      <View style={styles.main}>
-        {/* Top bar */}
+      <View style={styles.mainArea}>
+        {/* Top bar: deliberately no Sign Out button here */}
         <View style={styles.topBar}>
           <View style={styles.topBarLeft}>
             {!isDesktop && (
               <Pressable
-                onPress={() => setMenuVisible((visible) => !visible)}
+                onPress={() => setMenuOpen((open) => !open)}
+                style={({ pressed }) => [
+                  styles.menuButton,
+                  pressed && styles.pressed,
+                ]}
                 accessibilityRole="button"
-                accessibilityLabel={
-                  menuVisible ? "Close navigation menu" : "Open navigation menu"
-                }
-                style={styles.menuButton}
+                accessibilityLabel="Open navigation menu"
               >
                 <Ionicons
-                  name={menuVisible ? "close-outline" : "menu-outline"}
+                  name={menuOpen ? "close" : "menu"}
                   size={25}
-                  color="#F3F7F5"
+                  color="#F4F7FC"
                 />
               </Pressable>
             )}
 
             <View>
               <Text style={styles.topBarTitle}>Dashboard</Text>
-              <Text style={styles.topBarSubtitle}>Your financial overview</Text>
-            </View>
-          </View>
-
-          {/* Mobile sign-out and profile icons */}
-          <View style={styles.topBarActions}>
-            {!isDesktop && (
-              <Pressable
-                onPress={confirmLogout}
-                disabled={loggingOut}
-                accessibilityRole="button"
-                accessibilityLabel="Sign out"
-                accessibilityHint="Asks you to confirm before signing out"
-                style={({ pressed }) => [
-                  styles.signOutIconButton,
-                  pressed && styles.pressed,
-                  loggingOut && styles.disabled,
-                ]}
-              >
-                <Ionicons name="log-out-outline" size={21} color="#F28B82" />
-              </Pressable>
-            )}
-
-            <View style={styles.profileBadge}>
-              <Ionicons name="person-outline" size={19} color="#76E0A0" />
-            </View>
-          </View>
-        </View>
-
-        {/* Mobile dropdown menu */}
-        {!isDesktop && menuVisible && (
-          <View style={styles.mobileMenu}>
-            <View style={styles.mobileMenuBrand}>
-              <Image
-                source={siyaLogo}
-                style={styles.mobileLogo}
-                resizeMode="contain"
-              />
-
-              <View>
-                <Text style={styles.brandName}>Siya-Fund</Text>
-                <Text style={styles.brandCaption}>Community Finance</Text>
-              </View>
-            </View>
-
-            {renderNavigation(true)}
-
-            <Pressable
-              onPress={confirmLogout}
-              disabled={loggingOut}
-              accessibilityRole="button"
-              accessibilityLabel="Sign out"
-              style={({ pressed }) => [
-                styles.mobileLogoutButton,
-                pressed && styles.pressed,
-                loggingOut && styles.disabled,
-              ]}
-            >
-              <Ionicons name="log-out-outline" size={20} color="#F28B82" />
-
-              <Text style={styles.logoutText}>
-                {loggingOut ? "Signing out..." : "Sign out"}
-              </Text>
-            </Pressable>
-          </View>
-        )}
-
-        {/* Scrollable dashboard content */}
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.content,
-            !isDesktop && styles.mobileContent,
-          ]}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Welcome */}
-          <View style={styles.welcomeSection}>
-            <View style={styles.welcomeTextContainer}>
-              <Text style={styles.welcomeTitle}>Welcome back!</Text>
-              <Text style={styles.welcomeSubtitle}>
-                Here's what's happening with your finances.
+              <Text style={styles.topBarSubtitle}>
+                Your savings at a glance
               </Text>
             </View>
+          </View>
 
+          <View style={styles.topBarRight}>
             <View style={styles.secureBadge}>
               <Ionicons
                 name="shield-checkmark-outline"
                 size={15}
-                color="#76E0A0"
+                color="#39D98A"
               />
-              <Text style={styles.secureBadgeText}>Secure account</Text>
+              {!isMobile && (
+                <Text style={styles.secureBadgeText}>Secure account</Text>
+              )}
+            </View>
+
+            <Pressable
+              onPress={() => navigateTo("/profile")}
+              style={({ pressed }) => [
+                styles.profileButton,
+                pressed && styles.pressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel="Open profile"
+            >
+              <Ionicons name="person-outline" size={20} color="#E8EDF6" />
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Mobile navigation menu */}
+        {!isDesktop && menuOpen && (
+          <View style={styles.mobileMenu}>
+            <ScrollView
+              style={styles.mobileMenuScroll}
+              showsVerticalScrollIndicator={false}
+            >
+              <Text style={styles.menuHeading}>NAVIGATION</Text>
+
+              {menuItems.map(renderMenuItem)}
+            </ScrollView>
+
+            {/* Sign Out is at the bottom of the menu, not the top bar */}
+            <View style={styles.mobileMenuFooter}>
+              <View style={styles.sidebarFooterDivider} />
+              {renderSignOutButton(true)}
+            </View>
+          </View>
+        )}
+
+        <ScrollView
+          style={styles.contentScroll}
+          contentContainerStyle={[
+            styles.contentContainer,
+            !isDesktop && styles.mobileContentContainer,
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.welcomeSection}>
+            <View style={styles.welcomeTextContainer}>
+              <Text style={styles.welcomeEyebrow}>YOUR FINANCIAL SPACE</Text>
+              <Text style={styles.welcomeTitle}>Welcome back 👋</Text>
+              <Text style={styles.welcomeSubtitle}>
+                Keep building your savings, one step at a time.
+              </Text>
+            </View>
+
+            <View style={styles.growthBadge}>
+              <Ionicons name="trending-up-outline" size={23} color="#39D98A" />
+              <View>
+                <Text style={styles.growthBadgeTitle}>Grow Together</Text>
+                <Text style={styles.growthBadgeSubtitle}>Prosper Together</Text>
+              </View>
             </View>
           </View>
 
           {/* Balance card */}
           <View style={styles.balanceCard}>
-            <View style={styles.balanceCardTop}>
-              <View>
+            <View style={styles.balanceCardContent}>
+              <View style={styles.balanceLabelRow}>
                 <Text style={styles.balanceLabel}>TOTAL SAVINGS</Text>
-
-                <View style={styles.balanceValueRow}>
-                  <Text style={styles.balanceAmount}>R 0.00</Text>
-
-                  <View style={styles.currencyBadge}>
-                    <Text style={styles.currencyBadgeText}>ZAR</Text>
-                  </View>
-                </View>
-
-                <Text style={styles.balanceCaption}>Your savings overview</Text>
+                <Ionicons name="wallet-outline" size={22} color="#39D98A" />
               </View>
 
-              <View style={styles.balanceIcon}>
-                <Ionicons name="wallet-outline" size={25} color="#76E0A0" />
+              <Text style={styles.balanceAmount}>R 0.00</Text>
+              <Text style={styles.balanceNote}>
+                Your combined savings balance
+              </Text>
+
+              <View style={styles.balanceDivider} />
+
+              <View style={styles.balanceFooter}>
+                <View style={styles.balanceStatusDot} />
+                <Text style={styles.balanceStatusText}>
+                  Your savings overview
+                </Text>
               </View>
             </View>
 
-            {/* Decorative chart */}
             <View style={styles.chartArea}>
               <View style={styles.chartHeader}>
-                <Text style={styles.chartTitle}>Savings trend</Text>
-
-                <View style={styles.chartLegend}>
-                  <View style={styles.legendDot} />
-                  <Text style={styles.chartLegendText}>Savings</Text>
-                </View>
+                <Ionicons
+                  name="stats-chart-outline"
+                  size={16}
+                  color="#39D98A"
+                />
+                <Text style={styles.chartLabel}>SAVINGS OVERVIEW</Text>
               </View>
 
-              <View
-                style={styles.chart}
-                accessibilityLabel="Decorative savings trend chart"
-              >
-                {[24, 36, 30, 48, 42, 61, 53, 74, 64, 86, 75, 100].map(
+              <View style={styles.chartBars}>
+                {[25, 39, 31, 48, 43, 62, 53, 75, 65, 88].map(
                   (height, index) => (
-                    <View key={index} style={styles.chartColumn}>
+                    <View
+                      key={`${height}-${index}`}
+                      style={styles.chartBarTrack}
+                    >
                       <View
                         style={[
                           styles.chartBar,
                           { height: `${height}%` },
-                          index === 11 && styles.chartBarHighlight,
+                          index === 9 && styles.chartBarHighlighted,
                         ]}
                       />
                     </View>
@@ -409,22 +380,14 @@ export default function DashboardScreen() {
                 )}
               </View>
 
-              <View style={styles.chartFooter}>
-                <Text style={styles.chartFooterText}>Start saving today</Text>
-
-                <Ionicons
-                  name="trending-up-outline"
-                  size={17}
-                  color="#76E0A0"
-                />
-              </View>
+              <Text style={styles.chartCaption}>Keep saving consistently</Text>
             </View>
           </View>
 
-          {/* Financial overview */}
-          <View style={styles.sectionHeading}>
+          {/* Summary cards */}
+          <View style={styles.sectionHeader}>
             <View>
-              <Text style={styles.sectionTitle}>Financial overview</Text>
+              <Text style={styles.sectionTitle}>Financial Summary</Text>
               <Text style={styles.sectionSubtitle}>
                 A quick look at your account
               </Text>
@@ -432,135 +395,127 @@ export default function DashboardScreen() {
           </View>
 
           <View style={styles.summaryGrid}>
-            {financialSummaries.map((item) => (
-              <View key={item.title} style={styles.summaryCard}>
-                <View style={styles.summaryCardTop}>
-                  <View style={styles.summaryIcon}>
-                    <Ionicons name={item.icon} size={20} color="#76E0A0" />
-                  </View>
-
-                  <Ionicons
-                    name="ellipsis-horizontal"
-                    size={19}
-                    color="#647873"
-                  />
-                </View>
-
-                <Text style={styles.summaryValue}>{item.value}</Text>
-                <Text style={styles.summaryTitle}>{item.title}</Text>
-                <Text style={styles.summaryCaption}>{item.caption}</Text>
+            <View style={styles.summaryCard}>
+              <View
+                style={[styles.summaryIcon, { backgroundColor: "#153C31" }]}
+              >
+                <Ionicons name="wallet-outline" size={21} color="#39D98A" />
               </View>
-            ))}
-          </View>
+              <Text style={styles.summaryLabel}>Contributions</Text>
+              <Text style={styles.summaryValue}>R 0.00</Text>
+              <Text style={styles.summaryFootnote}>Total recorded</Text>
+            </View>
 
-          {/* Quick actions */}
-          <View style={styles.sectionHeading}>
-            <View>
-              <Text style={styles.sectionTitle}>Quick actions</Text>
-              <Text style={styles.sectionSubtitle}>
-                What would you like to do today?
-              </Text>
+            <View style={styles.summaryCard}>
+              <View
+                style={[styles.summaryIcon, { backgroundColor: "#26324F" }]}
+              >
+                <Ionicons name="cash-outline" size={21} color="#8EAEFF" />
+              </View>
+              <Text style={styles.summaryLabel}>Active Loans</Text>
+              <Text style={styles.summaryValue}>0</Text>
+              <Text style={styles.summaryFootnote}>Current loans</Text>
+            </View>
+
+            <View style={styles.summaryCard}>
+              <View
+                style={[styles.summaryIcon, { backgroundColor: "#3B2E4E" }]}
+              >
+                <Ionicons name="people-outline" size={21} color="#C6A2FF" />
+              </View>
+              <Text style={styles.summaryLabel}>Savings Groups</Text>
+              <Text style={styles.summaryValue}>0</Text>
+              <Text style={styles.summaryFootnote}>Groups joined</Text>
             </View>
           </View>
 
-          <View style={styles.actionsGrid}>
-            {quickActions.map((item) => (
+          {/* Quick actions */}
+          <View style={styles.sectionHeader}>
+            <View>
+              <Text style={styles.sectionTitle}>Quick Actions</Text>
+              <Text style={styles.sectionSubtitle}>Get to what you need</Text>
+            </View>
+          </View>
+
+          <View style={styles.quickActionsGrid}>
+            {quickActions.map((action) => (
               <Pressable
-                key={item.label}
-                onPress={() => navigateTo(item.route)}
-                accessibilityRole="button"
-                accessibilityLabel={item.label}
+                key={action.title}
+                onPress={() => navigateTo(action.route)}
                 style={({ pressed }) => [
-                  styles.actionCard,
-                  pressed && styles.actionCardPressed,
+                  styles.quickActionCard,
+                  pressed && styles.pressed,
                 ]}
+                accessibilityRole="button"
+                accessibilityLabel={action.title}
               >
-                <View style={styles.actionIcon}>
-                  <Ionicons name={item.icon} size={22} color="#76E0A0" />
+                <View style={styles.quickActionIcon}>
+                  <Ionicons name={action.icon} size={23} color="#39D98A" />
                 </View>
 
-                <Text style={styles.actionTitle}>{item.label}</Text>
+                <Text style={styles.quickActionTitle}>{action.title}</Text>
+                <Text style={styles.quickActionSubtitle}>
+                  {action.subtitle}
+                </Text>
 
-                <View style={styles.actionArrow}>
-                  <Ionicons
-                    name="arrow-forward-outline"
-                    size={17}
-                    color="#98A8A4"
-                  />
-                </View>
+                <Ionicons
+                  name="arrow-forward-outline"
+                  size={17}
+                  color="#39D98A"
+                  style={styles.quickActionArrow}
+                />
               </Pressable>
             ))}
           </View>
 
           {/* Recent activity */}
-          <View style={styles.sectionHeading}>
+          <View style={styles.sectionHeader}>
             <View>
-              <Text style={styles.sectionTitle}>Recent activity</Text>
+              <Text style={styles.sectionTitle}>Recent Activity</Text>
               <Text style={styles.sectionSubtitle}>
-                Your latest account activity
+                Your latest account updates
               </Text>
             </View>
-
-            <Pressable
-              onPress={() => navigateTo("/transactions")}
-              accessibilityRole="button"
-              style={styles.viewAllButton}
-            >
-              <Text style={styles.viewAllText}>View all</Text>
-
-              <Ionicons
-                name="arrow-forward-outline"
-                size={15}
-                color="#76E0A0"
-              />
-            </Pressable>
           </View>
 
           <View style={styles.activityCard}>
-            <View style={styles.activityIcon}>
-              <Ionicons name="receipt-outline" size={24} color="#76E0A0" />
+            <View style={styles.emptyActivityIcon}>
+              <Ionicons name="receipt-outline" size={26} color="#71819A" />
             </View>
-
-            <Text style={styles.activityTitle}>No recent activity</Text>
-
-            <Text style={styles.activityDescription}>
+            <Text style={styles.emptyActivityTitle}>No recent activity</Text>
+            <Text style={styles.emptyActivitySubtitle}>
               Your contributions and transactions will appear here when
               available.
             </Text>
           </View>
 
-          <Text style={styles.footerText}>
-            Siya-Fund · Your community, your future.
+          <Text style={styles.footerNote}>
+            Siya-Fund • Together, save, grow.
           </Text>
         </ScrollView>
 
         {/* Fixed mobile bottom navigation */}
         {!isDesktop && (
-          <View style={styles.bottomNav}>
+          <View style={styles.bottomNavigation}>
             {[
               {
                 label: "Home",
-                icon: "home-outline" as IconName,
+                icon: "grid-outline" as const,
                 route: "/dashboard",
               },
               {
-                label: "Savings",
-                icon: "wallet-outline" as IconName,
-                route: "/contributions",
-              },
-              {
-                label: "Loans",
-                icon: "cash-outline" as IconName,
-                route: "/loans",
-              },
-              {
                 label: "Groups",
-                icon: "people-outline" as IconName,
+                icon: "people-outline" as const,
                 route: "/groups",
               },
               {
+                label: "Contribute",
+                icon: "wallet-outline" as const,
+                route: "/contributions",
+              },
+              {
                 label: "Profile",
-                icon: "person-outline" as IconName,
+                icon: "person-outline" as const,
                 route: "/profile",
               },
             ].map((item) => {
@@ -570,20 +525,22 @@ export default function DashboardScreen() {
                 <Pressable
                   key={item.label}
                   onPress={() => navigateTo(item.route)}
+                  style={({ pressed }) => [
+                    styles.bottomNavItem,
+                    pressed && styles.pressed,
+                  ]}
                   accessibilityRole="button"
                   accessibilityLabel={item.label}
-                  style={styles.mobileNavItem}
                 >
                   <Ionicons
                     name={item.icon}
                     size={21}
-                    color={active ? "#76E0A0" : "#82938E"}
+                    color={active ? "#39D98A" : "#8290A6"}
                   />
-
                   <Text
                     style={[
-                      styles.mobileNavText,
-                      active && styles.mobileNavTextActive,
+                      styles.bottomNavLabel,
+                      active && styles.bottomNavLabelActive,
                     ]}
                   >
                     {item.label}
