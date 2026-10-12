@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 
 import {
@@ -314,38 +313,16 @@ export default function LoginRoute() {
 
       // ========================================
       // STEP 4
-      // NORMAL USER LOGIN
+      // NORMAL USER LOGIN (BYPASSED OTP)
       // ========================================
 
-      //
-      // Normal users still require OTP.
-      //
+      console.log("BYPASSING Login OTP: Going straight to dashboard.");
 
-      await sendOTP(
-        cleanEmail,
-      );
+      // await sendOTP(cleanEmail);
+      // setLoginEmail(cleanEmail);
+      // router.push("/login-otp" as any);
 
-      console.log(
-        "Login OTP sent successfully.",
-      );
-
-      // ========================================
-      // STEP 5
-      // SAVE EMAIL TEMPORARILY
-      // ========================================
-
-      setLoginEmail(
-        cleanEmail,
-      );
-
-      // ========================================
-      // STEP 6
-      // GO TO LOGIN OTP SCREEN
-      // ========================================
-
-      router.push(
-        "/login-otp" as any,
-      );
+      router.replace("/dashboard");
 
     } catch (error: any) {
 
@@ -443,52 +420,6 @@ export default function LoginRoute() {
 
         message =
           "Please check your internet connection and try again.";
-      }
-
-      // ========================================
-      // OTP FAILED
-      // ========================================
-
-      else if (
-        error?.message?.includes(
-          "Failed to send OTP",
-        )
-      ) {
-
-        // ======================================
-        // FIREBASE LOGIN SUCCEEDED
-        // BUT OTP FAILED
-        // ======================================
-
-        console.error(
-          "Login succeeded, but OTP sending failed.",
-          error,
-        );
-
-        // ======================================
-        // LOG USER OUT
-        // ======================================
-
-        try {
-
-          await logoutUser();
-
-          console.log(
-            "User logged out after OTP failure.",
-          );
-
-        } catch (
-          logoutError
-        ) {
-
-          console.error(
-            "Logout after OTP failure failed:",
-            logoutError,
-          );
-        }
-
-        message =
-          "We could not send your verification code. Please try again.";
       }
 
       // ========================================
