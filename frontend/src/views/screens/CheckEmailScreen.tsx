@@ -1,4 +1,3 @@
-
 // ==========================================
 // IMPORTS
 // ==========================================
@@ -121,26 +120,10 @@ export default function CheckEmailScreen() {
   };
 
   // ==========================================
-  // VERIFY OTP
+  // VERIFY OTP (BYPASSED)
   // ==========================================
 
   const handleVerifyOTP = async () => {
-    // ==========================================
-    // VALIDATE OTP
-    // ==========================================
-
-    if (otp.length !== 6) {
-      setErrorMessage(
-        "Please enter the complete 6-digit verification code.",
-      );
-
-      return;
-    }
-
-    // ==========================================
-    // GET REGISTRATION DATA
-    // ==========================================
-
     const registrationData =
       getRegistrationData();
 
@@ -148,7 +131,6 @@ export default function CheckEmailScreen() {
       setErrorMessage(
         "Your registration information could not be found. Please register again.",
       );
-
       return;
     }
 
@@ -159,30 +141,12 @@ export default function CheckEmailScreen() {
       setSuccessMessage("");
 
       console.log(
-        "Verifying OTP for:",
-        registrationData.email,
-      );
-
-      // ========================================
-      // VERIFY OTP WITH BACKEND
-      // ========================================
-
-      await verifyOTP(
-        registrationData.email,
-        otp,
-      );
-
-      console.log(
-        "OTP verified successfully.",
+        "BYPASSING OTP: Creating Firebase account directly...",
       );
 
       // ========================================
       // CREATE FIREBASE ACCOUNT
       // ========================================
-
-      console.log(
-        "Creating Firebase account...",
-      );
 
       await registerUser(
         registrationData.firstName,
@@ -201,16 +165,12 @@ export default function CheckEmailScreen() {
 
       clearRegistrationData();
 
-      console.log(
-        "Temporary registration data cleared.",
-      );
-
       // ========================================
       // SHOW SUCCESS
       // ========================================
 
       setSuccessMessage(
-        "Your email has been verified and your account has been created successfully.",
+        "Your account has been created successfully.",
       );
 
       // ========================================
@@ -223,13 +183,9 @@ export default function CheckEmailScreen() {
 
     } catch (error: any) {
       console.error(
-        "OTP verification / registration error:",
+        "Registration error:",
         error,
       );
-
-      // ========================================
-      // FIREBASE EMAIL ALREADY EXISTS
-      // ========================================
 
       if (
         error?.code ===
@@ -238,17 +194,12 @@ export default function CheckEmailScreen() {
         setErrorMessage(
           "This email address is already registered. Please log in instead.",
         );
-
         return;
       }
 
-      // ========================================
-      // INVALID OTP
-      // ========================================
-
       setErrorMessage(
         error?.message ||
-          "The verification code is invalid or expired. Please try again.",
+          "We could not create your account right now. Please try again.",
       );
 
     } finally {
@@ -265,7 +216,6 @@ export default function CheckEmailScreen() {
       setErrorMessage(
         "Your email address could not be found. Please register again.",
       );
-
       return;
     }
 
@@ -525,4 +475,3 @@ export default function CheckEmailScreen() {
     </KeyboardAvoidingView>
   );
 }
-

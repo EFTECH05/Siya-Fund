@@ -166,25 +166,17 @@ export default function RegisterScreen() {
       console.log(
         "Registration information saved temporarily.",
       );
-
-      // ========================================
-      // SEND OTP TO EMAIL
-      // ========================================
-
       console.log(
-        "Sending OTP to:",
-        cleanEmail,
+        "BYPASSING OTP: Skipping backend OTP request.",
       );
 
-      await sendOTP(cleanEmail);
-
-      console.log(
-        "OTP sent successfully.",
-      );
+      // await sendOTP(cleanEmail);
 
       // ========================================
-      // GO TO OTP VERIFICATION SCREEN
+      // GO TO LOGIN SCREEN (Bypass OTP)
       // ========================================
+
+      router.replace("/login");
 
       router.replace("/verify-email");
 
