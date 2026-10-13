@@ -16,18 +16,24 @@ import {
 } from "firebase/firestore";
 
 import {
-  GoogleSignin,
-} from "@react-native-google-signin/google-signin";
-
-import {
   auth,
   db,
 } from "./firebase";
 
-GoogleSignin.configure({
-  webClientId:
-    "636115954194-kinn7fjmes08ka559auuk2l1mkj618mb.apps.googleusercontent.com",
-});
+// Google Sign-In requires a custom dev client (native module).
+// It is not available in Expo Go — guard the import so the app
+// doesn't crash when running in Expo Go during development.
+let GoogleSignin: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  GoogleSignin = require("@react-native-google-signin/google-signin").GoogleSignin;
+  GoogleSignin.configure({
+    webClientId:
+      "636115954194-kinn7fjmes08ka559auuk2l1mkj618mb.apps.googleusercontent.com",
+  });
+} catch {
+  console.warn("Google Sign-In native module not available (Expo Go). Google login will be disabled.");
+}
 
 
 // ============================================================
