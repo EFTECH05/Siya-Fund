@@ -1,28 +1,52 @@
+export const LOAN_STATUS = {
+  PENDING: 'Pending',
+  APPROVED: 'Approved',
+  REJECTED: 'Rejected',
+  PAID: 'Paid',
+};
 
-import type { Timestamp } from "firebase/firestore";
-
-export type LoanStatus =
-  | "pending"
-  | "approved"
-  | "rejected"
-  | "disbursed"
-  | "repaid"
-  | "cancelled";
-
-export interface Loan {
-  id: string;
-  userId: string;
-  amount: number;
-  currency: "ZAR";
-  purpose: string;
-  termMonths: number;
-  status: LoanStatus;
-  createdAt: Timestamp | Date | null;
-  updatedAt: Timestamp | Date | null;
+export function createLoanModel({
+  userId,
+  groupId,
+  amount,
+  reason,
+}) {
+  return {
+    userId,
+    groupId,
+    amount: Number(amount),
+    reason: reason.trim(),
+    status: LOAN_STATUS.PENDING,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
 }
 
-export interface CreateLoanInput {
-  amount: number;
-  purpose: string;
-  termMonths: number;
+export function validateLoanApplication({
+  amount,
+  reason,
+  groupId,
+}) {
+  const errors = {};
+
+  const parsedAmount = Number(amount);
+
+  if (
+    amount === '' ||
+    !Number.isFinite(parsedAmount) ||
+    parsedAmount <= 0
+  ) {
+    errors.amount = 'Enter a valid loan amount greater than zero.';
+  }
+
+  if (reason.trim().length < 10) {
+    errors.reason =
+      'Please explain your reason in at least 10 characters.';
+  }
+
+  if (!groupId || !groupId.trim()) {
+    errors.groupId = 'A savings group is required.';
+  }
+
+  return errors;
 }
