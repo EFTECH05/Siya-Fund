@@ -1,100 +1,290 @@
-# Welcome to your Expo app 👋
+# Siya-Fund 💰
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile savings group management application built with React Native (Expo) and Firebase. Siya-Fund digitalises the traditional South African stokvel system, allowing users to create and manage savings groups, make contributions, request loans, and track transactions — all from their phone.
 
-## Get started
+---
 
-1. Install dependencies
+## Table of Contents
 
-   ```bash
-   npm install
-   ```
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Firebase Database Structure](#firebase-database-structure)
+- [Installation and Setup](#installation-and-setup)
+- [Running the App](#running-the-app)
+- [User Roles](#user-roles)
+- [Group Membership](#group-membership)
+- [Testing](#testing)
+- [Project Structure](#project-structure)
 
-2. Start the app
+---
 
-3. Start the backend:
+## Project Overview
 
-cd ~/Documents/GitHub/Siya-Fund/backend
-npm run dev
+Siya-Fund replaces manual, cash-based stokvel management with a secure digital platform. Members can join savings groups using a unique join code, track their contributions and loans, and group administrators can manage membership — all in real time via Firebase Firestore.
 
-2. In another terminal, start the frontend:
+---
 
-cd ~/Documents/GitHub/Siya-Fund/frontend
-npx expo start
+## Features
 
-3. Start the Android emulator and check the connection:
+- ✅ User registration and login (email/password)
+- ✅ Google Sign-In support (requires custom dev build)
+- ✅ Create savings groups with auto-generated join codes
+- ✅ Join groups using a 6-character join code
+- ✅ Admin can add and remove group members
+- ✅ Duplicate membership prevention
+- ✅ Make and track contributions
+- ✅ Request and manage loans
+- ✅ Transaction history
+- ✅ Super admin dashboard with platform-wide stats
+- ✅ Role-based access control (user vs super_admin)
+- ✅ OTP verification via backend email service
 
-adb devices
+---
 
-You should see:
+## System Architecture
 
-### How to run the project
+| Layer | Technology |
+|---|---|
+| Frontend | React Native (Expo SDK 57) |
+| Navigation | Expo Router (file-based) |
+| Language | TypeScript |
+| Authentication | Firebase Authentication |
+| Database | Firebase Firestore |
+| Backend | Node.js + Express (OTP service) |
+| Admin Scripts | Firebase Admin SDK |
 
-_1. Start the backend:_
+### Architecture Pattern
 
-⁠ bash
-cd ~/Documents/GitHub/Siya-Fund/backend
-npm run dev
- ⁠
+The frontend follows a layered architecture:
 
-_2. In another terminal, start the frontend:_
-
-⁠ bash
-cd ~/Documents/GitHub/Siya-Fund/frontend
-npx expo start
- ⁠Super admin :
-gmail: dikiiffrana@gmail.com
-passowrd : franklin
-
-```bash
-npx expo start
-android
-npx expo run:android
+```
+Screen (app/)
+  → Controller (controllers/)
+    → Service (services/)
+      → Firebase (Firestore / Auth)
 ```
 
-web
+- **Screens** handle UI and user interaction only
+- **Controllers** contain business logic and authorization checks
+- **Services** handle all Firebase read/write operations
+- **Models** define TypeScript interfaces for all data structures
+
+---
+
+## Firebase Database Structure
+
+### `users` collection
+```
+{
+  uid:         string      // Firebase Auth UID
+  email:       string
+  displayName: string
+  firstName:   string
+  lastName:    string
+  role:        "user" | "super_admin"
+  createdAt:   timestamp
+  updatedAt:   timestamp
+}
+```
+
+### `groups` collection
+```
+{
+  name:        string
+  description: string
+  creatorId:   string      // UID of the group admin
+  members:     string[]    // array of member UIDs
+  joinCode:    string      // 6-character alphanumeric code
+  createdAt:   timestamp
+  updatedAt:   timestamp
+}
+```
+
+### `contributions` collection
+```
+{
+  userId:      string
+  amount:      number
+  currency:    "ZAR"
+  title:       string
+  description: string
+  status:      "pending"
+  createdAt:   timestamp
+}
+```
+
+### `loans` collection
+```
+{
+  userId:      string
+  amount:      number
+  currency:    "ZAR"
+  purpose:     string
+  termMonths:  number
+  status:      "pending"
+  createdAt:   timestamp
+  updatedAt:   timestamp
+}
+```
+
+### `transactions` collection
+```
+{
+  userId:        string
+  amount:        number
+  currency:      "ZAR"
+  type:          "contribution"
+  status:        "pending"
+  referenceId:   string
+  referenceType: "contribution"
+  createdAt:     timestamp
+}
+```
+
+---
+
+## Installation and Setup
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [Expo Go](https://expo.dev/go) app installed on your phone
+- A Firebase project (already configured in `src/services/firebase.ts`)
+
+### Frontend Setup
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/EFTECH05/Siya-Fund.git
+
+# 2. Navigate to the frontend
+cd Siya-Fund/frontend
+
+# 3. Install dependencies
+npm install
+
+# 4. Start the development server
+npx expo start
+```
+
+### Backend Setup (OTP Service)
+
+```bash
+# In a separate terminal
+cd Siya-Fund/backend
+npm install
+npm run dev
+```
+
+---
+
+## Running the App
+
+After running `npx expo start`:
+
+| Platform | Command |
+|---|---|
+| Android (Expo Go) | Scan QR code with Expo Go app |
+| Android emulator | Press `a` in terminal |
+| iOS simulator | Press `i` in terminal (Mac only) |
+| Web | Press `w` in terminal |
+
+> **Note:** Google Sign-In requires a custom dev build (`npx expo run:android`) and does not work in Expo Go.
+
+---
+
+## User Roles
+
+| Role | Permissions |
+|---|---|
+| `user` | Register, login, create groups, join groups, make contributions, request loans |
+| `super_admin` | All user permissions + view all groups, contributions, loans, and transactions across the platform |
+
+---
+
+## Group Membership
+
+Group membership is managed through the following flow:
+
+1. **Create a group** — the creator becomes the group admin and a unique 6-character join code is auto-generated
+2. **Share the code** — visible on the group details screen, share it with anyone you want to invite
+3. **Join a group** — tap "Join with Code" on the Groups screen and enter the code
+4. **Add a member** — admins can add a member directly by their UID
+5. **Remove a member** — admins can remove any non-creator member
+6. **Duplicate prevention** — the system prevents a user from joining a group they are already in
+
+---
+
+## Testing
+
+### Running Unit Tests
+
+```bash
 cd frontend
-npx expo start --web
-You should see something similar to:
-
-Web Bundled
-Web: http://localhost:8081
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+npm install --save-dev jest jest-expo @types/jest
+npm test
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Test Coverage
 
-### Other setup steps
+| Test File | What is Tested |
+|---|---|
+| `GroupService.test.ts` | `generateJoinCode` — length, format, uniqueness |
+| `GroupController.test.ts` | `handleCreateGroup`, `handleAddMember`, `handleRemoveMember`, `handleJoinGroup` — success cases, error cases, auth guards, duplicate prevention |
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### Manual Test Results
 
-## Learn more
+| Test Case | Expected Result | Pass/Fail |
+|---|---|---|
+| Register new user | Account created in Firebase | ✅ Pass |
+| Login with valid credentials | Dashboard loads | ✅ Pass |
+| Create a savings group | Group appears in list with join code | ✅ Pass |
+| Join group with valid code | User added to group members | ✅ Pass |
+| Join group with invalid code | Error: "No group found with that join code" | ✅ Pass |
+| Join group already a member | Error: "You are already a member" | ✅ Pass |
+| Add member as admin | Member appears in list | ✅ Pass |
+| Add duplicate member | Error: "This user is already a member" | ✅ Pass |
+| Remove member as admin | Member removed from list | ✅ Pass |
+| Non-admin tries admin action | Action blocked, error shown | ✅ Pass |
+| View member list with profiles | Names and emails displayed | ✅ Pass |
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Project Structure
 
-## Join the community
+```
+Siya-Fund/
+├── frontend/
+│   ├── src/
+│   │   ├── app/               # Screens (Expo Router file-based routes)
+│   │   │   ├── groups/        # Group screens ([id].tsx, index.tsx, create.tsx)
+│   │   │   ├── contributions/ # Contribution screens
+│   │   │   ├── loans/         # Loan screens
+│   │   │   ├── transactions/  # Transaction screens
+│   │   │   └── super-admin/   # Super admin screens
+│   │   ├── controllers/       # Business logic layer
+│   │   ├── services/          # Firebase service layer
+│   │   ├── models/            # TypeScript interfaces
+│   │   ├── components/        # Reusable UI components
+│   │   └── views/             # Screen layout components
+│   ├── assets/                # Images and icons
+│   └── package.json
+├── backend/
+│   └── src/
+│       ├── controllers/       # OTP controller
+│       ├── routes/            # API routes
+│       └── services/          # Email and Firebase Admin services
+└── admin/
+    └── create-super-admin.ts  # Script to create super admin account
+```
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Built With
+
+- [Expo](https://expo.dev) — React Native framework
+- [Firebase](https://firebase.google.com) — Authentication and Firestore database
+- [Expo Router](https://expo.github.io/router) — File-based navigation
+- [TypeScript](https://www.typescriptlang.org) — Type safety
+- [React Native](https://reactnative.dev) — Mobile UI framework
