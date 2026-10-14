@@ -2,172 +2,91 @@
 import {
   addDoc,
   collection,
-  doc,
-  getDoc,
   getDocs,
   query,
-  serverTimestamp,
   where,
-  type Timestamp,
-} from "firebase/firestore";
+  orderBy,
+  serverTimestamp,
+} from 'firebase/firestore';
 
-import { auth, db } from "./firebase";
+import { db, auth } from './firebase';
 
-import type {
-  CreateLoanInput,
-  Loan,
-} from "../models/Loan";
+const LOANS_COLLECTION = 'loans';
 
-const LOANS_COLLECTION = "loans";
+export async function submitLoanRequest(loan) {
+  const loanData = {
+    userId: loan.userId,
+    groupId: loan.groupId,
+    amount: Number(loan.amount),
+    reason: loan.reason.trim(),
+    status: 'Pending',
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
 
-function getUserId(): string {
-  const user = auth.currentUser;
-
-  if (!user) {
-    throw new Error("Please sign in to submit a loan request.");
-  }
-
-  return user.uid;
-}
-
-function toLoan(
-  id: string,
-  data: Record<string, unknown>,
-): Loan {
-  function readDate(
-    value: unknown,
-  ): Timestamp | Date | null {
-    if (value instanceof Date) {
-      return value;
-    }
-
-    if (
-      value &&
-      typeof value === "object" &&
-      "toDate" in value &&
-      typeof value.toDate === "function"
-    ) {
-      return value as Timestamp;
-    }
-
-    return null;
-  }
-
-  const allowedStatuses = [
-    "approved",
-    "rejected",
-    "disbursed",
-    "repaid",
-    "cancelled",
-  ] as const;
-
-  const status =
-    typeof data.status === "string" &&
-    allowedStatuses.includes(
-      data.status as (typeof allowedStatuses)[number],
-    )
-      ? (data.status as Loan["status"])
-      : "pending";
+  const docRef = await addDoc(
+    collection(db, LOANS_COLLECTION),
+    loanData
+  );
 
   return {
-    id,
-    userId: String(data.userId ?? ""),
-    amount: Number(data.amount ?? 0),
-    currency: "ZAR",
-    purpose: String(data.purpose ?? ""),
-    termMonths: Number(data.termMonths ?? 0),
-    status,
-    createdAt: readDate(data.createdAt),
-    updatedAt: readDate(data.updatedAt),
+    id: docRef.id,
+    ...loanData,
   };
 }
 
-function validateLoanInput(input: CreateLoanInput): void {
-  if (!Number.isFinite(input.amount) || input.amount <= 0) {
-    throw new Error("Enter a loan amount greater than zero.");
+export async function getLoansByUser(userId) {
+  if (!userId) {
+    throw new Error('A valid user ID is required.');
   }
-
-  if (!input.purpose.trim()) {
-    throw new Error("Explain why you need the loan.");
-  }
-
-  if (
-    !Number.isInteger(input.termMonths) ||
-    input.termMonths < 1 ||
-    input.termMonths > 120
-  ) {
-    throw new Error("Choose a loan term between 1 and 120 months.");
-  }
-}
-
-export async function createLoanRequest(
-  input: CreateLoanInput,
-): Promise<string> {
-  const userId = getUserId();
-
-  validateLoanInput(input);
-
-  const loanRef = await addDoc(
-    collection(db, LOANS_COLLECTION),
-    {
-      userId,
-      amount: input.amount,
-      currency: "ZAR",
-      purpose: input.purpose.trim(),
-      termMonths: input.termMonths,
-      status: "pending",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    },
-  );
-
-  return loanRef.id;
-}
-
-export async function getLoanRequests(): Promise<Loan[]> {
-  const userId = getUserId();
 
   const loansQuery = query(
     collection(db, LOANS_COLLECTION),
-    where("userId", "==", userId),
+    where('userId', '==', userId),
+    orderBy('createdAt', 'desc')
   );
 
   const snapshot = await getDocs(loansQuery);
 
-  const loans = snapshot.docs.map((item) =>
-    toLoan(item.id, item.data()),
-  );
-
-  return loans.sort((a, b) => {
-    const getTime = (value: Loan["createdAt"]) => {
-      if (!value) return 0;
-      return value instanceof Date
-        ? value.getTime()
-        : value.toMillis();
-    };
-
-    return getTime(b.createdAt) - getTime(a.createdAt);
-  });
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
 }
 
-export async function getLoanById(
-  loanId: string,
-): Promise<Loan | null> {
-  const userId = getUserId();
-
-  if (!loanId.trim()) {
-    return null;
+export async function getLoansByGroup(groupId) {
+  if (!groupId) {
+    throw new Error('A valid group ID is required.');
   }
 
-  const snapshot = await getDoc(
-    doc(db, LOANS_COLLECTION, loanId),
+  const loansQuery = query(
+    collection(db, LOANS_COLLECTION),
+    where('groupId', '==', groupId),
+    orderBy('createdAt', 'desc')
   );
 
-  if (!snapshot.exists()) {
-    return null;
+  const snapshot = await getDocs(loansQuery);
+
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+}
+
+
+export async function getLoanRequests() {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error('Please log in to view your loan requests.');
   }
 
-  const loan = toLoan(snapshot.id, snapshot.data());
+  const loans = await getLoansByUser(user.uid);
 
-  return loan.userId === userId ? loan : null;
+  return loans.map((loan) => ({
+    ...loan,
+    purpose: loan.purpose ?? loan.reason ?? 'Loan request',
+    termMonths: Number(loan.termMonths ?? 1),
+    status: String(loan.status ?? 'pending').toLowerCase(),
+  }));
 }
