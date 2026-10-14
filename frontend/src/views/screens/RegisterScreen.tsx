@@ -20,7 +20,7 @@ import {
 
 import { router } from "expo-router";
 
-import { sendOTP } from "../../services/OtpService";
+import { OtpRequestError, sendOTP } from "../../services/OtpService";
 import { setRegistrationData } from "../../services/RegistrationStore";
 
 import { styles } from "./RegisterScreen.styles";
@@ -166,17 +166,25 @@ export default function RegisterScreen() {
       console.log(
         "Registration information saved temporarily.",
       );
+
+      // ========================================
+      // SEND OTP TO EMAIL
+      // ========================================
+
       console.log(
-        "BYPASSING OTP: Skipping backend OTP request.",
+        "Sending OTP to:",
+        cleanEmail,
       );
 
-      // await sendOTP(cleanEmail);
+      await sendOTP(cleanEmail);
+
+      console.log(
+        "OTP sent successfully.",
+      );
 
       // ========================================
-      // GO TO LOGIN SCREEN (Bypass OTP)
+      // GO TO OTP VERIFICATION SCREEN
       // ========================================
-
-      router.replace("/login");
 
       router.replace("/verify-email");
 
@@ -245,6 +253,7 @@ export default function RegisterScreen() {
       // SHOW ONLY FRIENDLY ERROR
       // ========================================
 
+      if (error instanceof OtpRequestError) message = error.message;
       showError(
         "Unable to Send OTP",
         message,

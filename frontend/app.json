@@ -34,14 +34,6 @@
           "imageWidth": 180
         }
       ],
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "ndkVersion": "26.1.10909125"
-          }
-        }
-      ],
       "expo-image",
       "expo-web-browser",
       "@react-native-google-signin/google-signin"
@@ -49,12 +41,6 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    },
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "f18e57cd-908a-4d16-9542-e1977bc9263d"
-      }
     }
   }
 }

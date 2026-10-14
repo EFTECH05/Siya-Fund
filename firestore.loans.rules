@@ -1,0 +1,171 @@
+rules_version = '2';
+
+service cloud.firestore {
+
+  match /databases/{database}/documents {
+
+    // AUTHENTICATION HELPERS
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn()
+        && exists(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        )
+        && get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.role == "super_admin";
+    }
+
+    function ownsRecord() {
+      return isSignedIn()
+        && resource.data.userId == request.auth.uid;
+    }
+
+    function validPositiveAmount(amount) {
+      return amount is number
+        && amount > 0;
+    }
+
+    // USERS
+
+    match /users/{userId} {
+      allow create: if isSuperAdmin()
+        || (
+          isSignedIn()
+          && request.auth.uid == userId
+          && request.resource.data.role == "user"
+          && request.resource.data.uid == userId
+        );
+      allow read: if isSignedIn();
+      allow update: if isSuperAdmin()
+        || (
+          isSignedIn()
+          && request.auth.uid == userId
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data
+            .diff(resource.data)
+            .affectedKeys()
+            .hasOnly([
+              "firstName",
+              "lastName",
+              "displayName",
+              "photoURL",
+              "phoneNumber",
+              "updatedAt"
+            ])
+        );
+      allow delete: if isSuperAdmin();
+    }
+
+    // GROUPS
+
+    match /groups/{groupId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn()
+        && (resource.data.creatorId == request.auth.uid || isSuperAdmin());
+      allow delete: if isSuperAdmin()
+        || resource.data.creatorId == request.auth.uid;
+    }
+
+    // CONTRIBUTIONS
+
+    match /contributions/{contributionId} {
+      allow read: if isSuperAdmin() || ownsRecord();
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly([
+          "userId",
+          "amount",
+          "currency",
+          "title",
+          "description",
+          "status",
+          "createdAt"
+        ])
+        && request.resource.data.userId == request.auth.uid
+        && validPositiveAmount(request.resource.data.amount)
+        && request.resource.data.currency == "ZAR"
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.description is string
+        && request.resource.data.status == "pending"
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // LOANS
+
+    match /loans/{loanId} {
+      allow read: if isSuperAdmin() || ownsRecord();
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly([
+          "userId",
+          "amount",
+          "currency",
+          "purpose",
+          "termMonths",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.userId == request.auth.uid
+        && validPositiveAmount(request.resource.data.amount)
+        && request.resource.data.currency == "ZAR"
+        && request.resource.data.purpose is string
+        && request.resource.data.purpose.size() > 0
+        && request.resource.data.termMonths is int
+        && request.resource.data.termMonths >= 1
+        && request.resource.data.termMonths <= 120
+        && request.resource.data.status == "pending"
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // TRANSACTIONS
+
+    match /transactions/{transactionId} {
+      allow read: if isSuperAdmin() || ownsRecord();
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly([
+          "userId",
+          "amount",
+          "currency",
+          "type",
+          "status",
+          "description",
+          "referenceId",
+          "referenceType",
+          "createdAt"
+        ])
+        && request.resource.data.userId == request.auth.uid
+        && validPositiveAmount(request.resource.data.amount)
+        && request.resource.data.currency == "ZAR"
+        && request.resource.data.type == "contribution"
+        && request.resource.data.status == "pending"
+        && request.resource.data.referenceType == "contribution"
+        && request.resource.data.referenceId is string
+        && request.resource.data.createdAt == request.time
+        && existsAfter(
+          /databases/$(database)/documents/contributions/$(request.resource.data.referenceId)
+        )
+        && getAfter(
+          /databases/$(database)/documents/contributions/$(request.resource.data.referenceId)
+        ).data.userId == request.auth.uid
+        && getAfter(
+          /databases/$(database)/documents/contributions/$(request.resource.data.referenceId)
+        ).data.amount == request.resource.data.amount
+        && getAfter(
+          /databases/$(database)/documents/contributions/$(request.resource.data.referenceId)
+        ).data.status == "pending";
+      allow update, delete: if isSuperAdmin();
+    }
+
+  }
+
+}
