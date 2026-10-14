@@ -48,6 +48,10 @@ export interface LoanSubmission {
 export function prepareLoanApplication(input: LoanApplicationInput): LoanSubmission {
   const uid = currentUid();
   const fields = validateLoanApplication(input);
+  const groupId = input.groupId?.trim();
+  if (groupId && (groupId.includes("/") || groupId === "." || groupId === "..")) {
+    throw new Error("Select a valid savings group.");
+  }
   const ref = doc(collection(db, "loans"));
   const data = {
     userId: uid,
@@ -58,11 +62,20 @@ export function prepareLoanApplication(input: LoanApplicationInput): LoanSubmiss
     status: "pending",
     purpose: fields.purpose,
     termMonths: fields.repaymentMonths,
+    ...(groupId ? { groupId } : {}),
   };
   return {
     id: ref.id,
     async submit() {
       ensureSameUser(uid);
+      if (groupId) {
+        const group = await getDoc(doc(db, "groups", groupId));
+        ensureSameUser(uid);
+        const members = group.exists() ? group.data() : null;
+        if (!members || (members.creatorId !== uid && !members.members?.includes(uid))) {
+          throw new Error("You must belong to the selected savings group to request a loan.");
+        }
+      }
       // A confirmed existing own application means an earlier retry succeeded.
       const existing = await getMyLoan(ref.id);
       if (existing) return ref.id;
@@ -72,4 +85,40 @@ export function prepareLoanApplication(input: LoanApplicationInput): LoanSubmiss
       return ref.id;
     },
   };
+}
+
+// Preserve the shared branch's API while using the authenticated, retry-safe flow.
+export async function getLoansByUser(userId: string): Promise<Loan[]> {
+  if (userId !== currentUid()) throw new Error("You can only load your own loan applications.");
+  return getMyLoans();
+}
+
+export async function getLoansByGroup(groupId: string): Promise<Loan[]> {
+  const uid = currentUid();
+  if (!groupId || groupId.includes("/")) throw new Error("A valid savings group is required.");
+  const group = await getDoc(doc(db, "groups", groupId));
+  ensureSameUser(uid);
+  if (!group.exists() || (group.data().creatorId !== uid && !group.data().members?.includes(uid))) {
+    throw new Error("You must belong to this savings group to view its loans.");
+  }
+  // Firestore rules still determine which group records the caller may read.
+  const snapshot = await getDocs(query(collection(db, "loans"), where("groupId", "==", groupId), where("userId", "==", uid)));
+  ensureSameUser(uid);
+  return snapshot.docs.map(record => loanFromDocument(record.id, record.data()))
+    .filter(loan => loan.groupId === groupId && loan.userId === uid)
+    .sort((a, b) => (b.applicationDate?.getTime() ?? 0) - (a.applicationDate?.getTime() ?? 0));
+}
+
+export async function submitLoanRequest(input: { userId: string; groupId: string; amount: number | string; reason: string; repaymentMonths?: number }): Promise<Loan | null> {
+  if (input.userId !== currentUid()) throw new Error("Please sign in before requesting a loan.");
+  if (!input.groupId?.trim()) throw new Error("A savings group is required.");
+  const submission = prepareLoanApplication({
+    amount: String(input.amount), purpose: input.reason,
+    repaymentMonths: String(input.repaymentMonths ?? 12), groupId: input.groupId,
+  });
+  return getMyLoan(await submission.submit());
+}
+
+export async function getLoanRequests() {
+  return (await getMyLoans()).map(loan => ({ ...loan, termMonths: loan.repaymentMonths, status: loan.status.toLowerCase() }));
 }

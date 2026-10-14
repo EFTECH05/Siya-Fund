@@ -17,6 +17,7 @@ export interface LoanApplicationInput {
   amount: string;
   purpose: string;
   repaymentMonths: string;
+  groupId?: string;
 }
 
 export function validateLoanApplication(input: LoanApplicationInput) {
@@ -59,7 +60,7 @@ export function loanFromDocument(id: string, data: Record<string, unknown>): Loa
     status: text(data.status) || "unknown",
     groupId: text(data.groupId),
     groupName: text(data.groupName),
-    purpose: text(data.purpose),
+    purpose: text(data.purpose) || text(data.reason),
     repaymentMonths: number(data.termMonths) ?? number(data.repaymentMonths),
     interestRate: number(data.interestRate),
     decisionDate: parseLoanDate(data.decisionDate),

@@ -21,7 +21,7 @@ function load(file, dependencies = {}) {
   return module.exports;
 }
 const models = load('frontend/src/models/Loan.ts');
-function fixture({ user = { uid: 'owner' }, docs = [], detail = null, fail = null, changeSession = false, failWrite = false, loseAcknowledgement = false } = {}) {
+function fixture({ user = { uid: 'owner' }, docs = [], detail = null, group = null, fail = null, changeSession = false, failWrite = false, loseAcknowledgement = false } = {}) {
   const calls = [];
   const auth = { currentUser: user };
   const writes = [];
@@ -48,6 +48,7 @@ function fixture({ user = { uid: 'owner' }, docs = [], detail = null, fail = nul
         return { docs: docs.map(({ id, ...data }) => ({ id, data: () => data })) };
       },
       getDoc: async ref => {
+        if (ref.collection === 'groups') return { exists: () => group !== null, data: () => group };
         calls.push(ref);
         if (fail) throw fail;
         if (changeSession) auth.currentUser = null;
@@ -178,4 +179,25 @@ test('repayment term enforces the existing Firebase range of 1 to 120 months', (
     assert.throws(() => models.validateLoanApplication({ amount: '100', purpose: 'Repairs', repaymentMonths }), /1 and 120/);
   }
   assert.equal(models.validateLoanApplication({ amount: '100', purpose: 'Repairs', repaymentMonths: '120' }).repaymentMonths, 120);
+});
+
+test('merged loan parser reads the shared branch reason field', () => {
+  assert.equal(models.loanFromDocument('shared', { reason: 'School fees', status: 'Pending' }).purpose, 'School fees');
+});
+
+test('group-linked loan preserves membership and authenticated ownership', async () => {
+  const member = fixture({ group: { creatorId: 'admin', members: ['owner'] } });
+  const prepared = member.service.prepareLoanApplication({ amount: '100', purpose: 'School fees', repaymentMonths: '12', groupId: 'group-1' });
+  await prepared.submit();
+  assert.equal(member.writes[0].data.groupId, 'group-1');
+  assert.equal(member.writes[0].data.userId, 'owner');
+  const outsider = fixture({ group: { creatorId: 'admin', members: ['other'] } });
+  await assert.rejects(outsider.service.prepareLoanApplication({ amount: '100', purpose: 'School fees', repaymentMonths: '12', groupId: 'group-1' }).submit(), /belong/);
+  assert.equal(outsider.writes.length, 0);
+});
+
+test('compatibility API cannot query another user loans', async () => {
+  const { service, calls } = fixture();
+  await assert.rejects(service.getLoansByUser('other'), /own loan/);
+  assert.equal(calls.length, 0);
 });

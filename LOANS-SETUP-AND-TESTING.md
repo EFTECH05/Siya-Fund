@@ -4,11 +4,12 @@ The original Siya-Fund project folder is updated directly. No ZIP extraction is 
 
 ## Firebase rules
 
-The app now matches the rules supplied from your Firebase Console. If those rules
-are already published, leave them unchanged. No permission change is required.
-`firestore.loans.rules` is a local snapshot of those complete existing rules for
-regression testing; this work has not published or modified your live rules.
-The older loan-only rule proposal in earlier downloads is superseded.
+The standalone loan flow matches the existing canonical fields. The local
+`firestore.loans.rules` file also permits an optional groupId for a verified
+group member, to integrate the shared branch's group-linked loan requests.
+This merge has not published or modified your live rules. Review the optional
+groupId rule in a test project before enabling group-linked requests against
+Firebase; standalone requests do not require that additional field.
 
 ## Use Request Loan
 
@@ -35,9 +36,11 @@ Collection: `loans`. Required fields:
 | status | string | pending |
 | createdAt | timestamp | Firebase server timestamp |
 | updatedAt | timestamp | Firebase server timestamp |
+| groupId | optional string | Selected group, with membership checked before submission |
 
 The UI maps createdAt to application date and termMonths to repayment term. It
-also reads legacy applicationDate/repaymentMonths records if present. Profile
+also reads legacy applicationDate/repaymentMonths records and the shared branch's
+reason field if present. Profile
 registration and edits now write phoneNumber, matching the user profile rule;
 old phone values remain readable.
 
@@ -80,5 +83,7 @@ to the installed tools' node_modules folder if they are installed separately:
 firebase emulators:exec --only firestore --project demo-siya-loans --config firebase.loans-test.json "node --test tests/loans.rules.test.cjs"
 ```
 
-Rule emulator tests were prepared but not run in this environment. Live submission
-still needs confirmation after restarting the frontend.
+Rule emulator tests were prepared but not run in this environment: the available
+Java runtime is version 8, and Firebase Emulator Suite tooling is not installed.
+Use a compatible Java runtime and the emulator before publishing any rule change.
+Live submission still needs confirmation after restarting the frontend.

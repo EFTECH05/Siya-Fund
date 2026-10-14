@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { onAuthStateChanged } from "firebase/auth";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { auth } from "../../services/firebase";
 import { LoanSubmission } from "../../services/LoanService";
 import { prepareLoanRequest } from "../../controllers/LoanController";
 
 export default function LoanRequestScreen() {
+  const params = useLocalSearchParams<{ groupId?: string | string[] }>();
+  const groupId = Array.isArray(params.groupId) ? params.groupId[0] : params.groupId;
   const [ready, setReady] = useState(false);
   const [amount, setAmount] = useState("");
   const [purpose, setPurpose] = useState("");
@@ -39,7 +41,7 @@ export default function LoanRequestScreen() {
     if (!uid) { router.replace("/login"); return; }
     setError("");
     try {
-      if (!submission.current) submission.current = prepareLoanRequest({ amount, purpose, repaymentMonths });
+      if (!submission.current) submission.current = prepareLoanRequest({ amount, purpose, repaymentMonths, groupId });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Please check your loan details.");
       return;
@@ -55,7 +57,7 @@ export default function LoanRequestScreen() {
         const code = (err as { code?: string }).code;
         setError(code === "permission-denied"
           ? "You do not have permission to submit a loan application. Please contact support."
-          : "We could not confirm your application. Please check your connection and retry without changing the form.");
+          : err instanceof Error ? err.message : "We could not confirm your application. Please check your connection and retry without changing the form.");
       }
     } finally {
       submitting.current = false;
@@ -70,6 +72,7 @@ export default function LoanRequestScreen() {
         <Pressable disabled={busy} onPress={() => router.replace("/loans")}><Text style={styles.link}>‹ My Loan Applications</Text></Pressable>
         <Text style={styles.title}>Request a Loan</Text>
         <Text style={styles.subtitle}>Submit your application and track its progress. New requests start as pending.</Text>
+        {!!groupId && <Text style={styles.hint}>This application will be associated with your selected savings group.</Text>}
         <View style={styles.card}>
           <Text style={styles.label}>Requested amount (R)</Text>
           <TextInput accessibilityLabel="Requested amount in rand" style={styles.input} value={amount} onChangeText={value => change(setAmount, value)} keyboardType="decimal-pad" placeholder="2500.00" editable={!busy} />
