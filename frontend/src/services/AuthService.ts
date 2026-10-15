@@ -13,27 +13,35 @@ import {
   getDoc,
   serverTimestamp,
   setDoc,
+  updateDoc,
 } from "firebase/firestore";
+import { Platform } from "react-native";
+import { ProfileChanges, UserProfile, validateProfile } from "../models/User";
+import { clearRegistrationData } from "./RegistrationStore";
+import { clearLoginEmail } from "./LoginOtpStore";
+
+import { isRunningInExpoGo } from "expo";
+
+let nativeGoogle: typeof import("@react-native-google-signin/google-signin").GoogleSignin | null = null;
+
+function getNativeGoogleSignin() {
+  if (Platform.OS === "web" || isRunningInExpoGo()) {
+    throw new Error("Please use email and password to sign in on this device.");
+  }
+  if (!nativeGoogle) {
+    nativeGoogle = require("@react-native-google-signin/google-signin").GoogleSignin;
+    nativeGoogle!.configure({
+      webClientId: "636115954194-kinn7fjmes08ka559auuk2l1mkj618mb.apps.googleusercontent.com",
+    });
+  }
+  return nativeGoogle!;
+}
 
 import {
   auth,
   db,
 } from "./firebase";
 
-// Google Sign-In requires a custom dev client (native module).
-// It is not available in Expo Go — guard the import so the app
-// doesn't crash when running in Expo Go during development.
-let GoogleSignin: any = null;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  GoogleSignin = require("@react-native-google-signin/google-signin").GoogleSignin;
-  GoogleSignin.configure({
-    webClientId:
-      "636115954194-kinn7fjmes08ka559auuk2l1mkj618mb.apps.googleusercontent.com",
-  });
-} catch {
-  console.warn("Google Sign-In native module not available (Expo Go). Google login will be disabled.");
-}
 
 
 // ============================================================
@@ -45,6 +53,7 @@ export const registerUser = async (
   lastName: string,
   email: string,
   password: string,
+  phone: string = "",
 ) => {
   const cleanFirstName =
     firstName.trim();
@@ -82,6 +91,7 @@ export const registerUser = async (
         `${cleanFirstName} ${cleanLastName}`,
       email:
         cleanEmail,
+      phoneNumber: phone.trim(),
       role:
         "user",
       emailVerified:
@@ -150,6 +160,7 @@ export const loginUser = async (
 export const loginWithGoogle =
   async () => {
     try {
+      const GoogleSignin = getNativeGoogleSignin();
       console.log(
         "Starting Google login...",
       );
@@ -390,7 +401,7 @@ export const logoutUser =
 
       try {
 
-        await GoogleSignin.signOut();
+        if (nativeGoogle) await nativeGoogle.signOut();
 
       } catch (googleError) {
 
@@ -403,6 +414,8 @@ export const logoutUser =
       console.log(
         "User logged out successfully.",
       );
+      clearRegistrationData();
+      clearLoginEmail();
 
     } catch (error) {
 
@@ -424,3 +437,32 @@ export const getCurrentUser =
   () => {
     return auth.currentUser;
   };
+
+export const getUserProfile = async (): Promise<UserProfile> => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Please log in to view your profile.");
+  const snapshot = await getDoc(doc(db, "users", user.uid));
+  if (!snapshot.exists()) throw new Error("Your profile could not be found. Please contact support.");
+  const data = snapshot.data();
+  return {
+    uid: user.uid,
+    firstName: typeof data.firstName === "string" ? data.firstName : "",
+    lastName: typeof data.lastName === "string" ? data.lastName : "",
+    displayName: typeof data.displayName === "string" ? data.displayName : user.displayName || "",
+    email: user.email || "",
+    phone: typeof data.phoneNumber === "string" ? data.phoneNumber : typeof data.phone === "string" ? data.phone : "",
+  };
+};
+
+export const updateUserProfile = async (changes: ProfileChanges): Promise<UserProfile> => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Please log in to update your profile.");
+  const fields = validateProfile(changes);
+  const displayName = `${fields.firstName} ${fields.lastName}`;
+  // Only supported personal fields are written; role and email are never accepted.
+  await updateDoc(doc(db, "users", user.uid), {
+    firstName: fields.firstName, lastName: fields.lastName,
+    phoneNumber: fields.phone, displayName, updatedAt: serverTimestamp(),
+  });
+  return { uid: user.uid, ...fields, displayName, email: user.email || "" };
+};

@@ -1,72 +1,23 @@
-import {
-  createLoanModel,
-  validateLoanApplication,
-} from '../models/Loan';
+import { getMyLoan, getMyLoans, prepareLoanApplication, submitLoanRequest, getLoansByUser, getLoansByGroup } from "../services/LoanService";
 
-import {
-  submitLoanRequest,
-  getLoansByUser,
-  getLoansByGroup,
-} from '../services/LoanService';
+export const loadLoanApplications = getMyLoans;
+export const loadLoanDetails = getMyLoan;
+export const prepareLoanRequest = prepareLoanApplication;
 
-export async function requestLoan({
-  userId,
-  groupId,
-  amount,
-  reason,
-}) {
-  const errors = validateLoanApplication({
-    amount,
-    reason,
-    groupId,
-  });
+export const fetchUserLoans = getLoansByUser;
+export const fetchGroupLoans = getLoansByGroup;
 
-  if (Object.keys(errors).length > 0) {
-    return {
-      success: false,
-      errors,
-    };
-  }
-
-  if (!userId) {
-    return {
-      success: false,
-      errors: {
-        userId: 'Please sign in before requesting a loan.',
-      },
-    };
-  }
-
+export async function requestLoan(input: { userId: string; groupId: string; amount: string; reason: string }) {
+  const errors: Record<string, string> = {};
+  if (!input.userId) errors.userId = "Please sign in before requesting a loan.";
+  if (!input.groupId?.trim()) errors.groupId = "A savings group is required.";
+  if (input.reason.trim().length < 10) errors.reason = "Please explain your reason in at least 10 characters.";
+  if (Object.keys(errors).length) return { success: false, errors, loan: null };
   try {
-    const loan = createLoanModel({
-      userId,
-      groupId,
-      amount,
-      reason,
-    });
-
-    const savedLoan = await submitLoanRequest(loan);
-
-    return {
-      success: true,
-      loan: savedLoan,
-    };
+    const loan = await submitLoanRequest(input);
+    return { success: true, errors, loan };
   } catch (error) {
-    console.error('Loan request failed:', error);
-
-    return {
-      success: false,
-      errors: {
-        general: 'Unable to submit your loan request. Please try again.',
-      },
-    };
+    errors.general = error instanceof Error ? error.message : "Unable to submit your loan request. Please try again.";
+    return { success: false, errors, loan: null };
   }
-}
-
-export async function fetchUserLoans(userId) {
-  return getLoansByUser(userId);
-}
-
-export async function fetchGroupLoans(groupId) {
-  return getLoansByGroup(groupId);
 }
