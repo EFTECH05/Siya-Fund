@@ -163,7 +163,7 @@ cd Siya-Fund/frontend
 
 # 3. Install dependencies
 npm install
-
+npx expo run:android
 # 4. Start the development server
 npx expo start
 ```
