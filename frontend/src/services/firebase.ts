@@ -1,21 +1,16 @@
- // ==========================================
- // FIREBASE APP INITIALIZATION
- // ==========================================
+import {
+  getApp,
+  getApps,
+  initializeApp,
+} from "firebase/app";
 
- // Import Firebase app initialization functions
- import {
-   getApp,
-   getApps,
-   initializeApp,
- } from "firebase/app";
+import {
+  getFirestore,
+} from "firebase/firestore";
 
- // Import Firebase Firestore
- import { getFirestore } from "firebase/firestore";
- import { getAuth } from 'firebase/auth';
-
- // ==========================================
- // FIREBASE CONFIGURATION
- // ==========================================
+import {
+  getAuth,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAcucO9djMD4NES9yxaIAvOf9jwwKmklto",
@@ -31,16 +26,8 @@ const app =
     ? initializeApp(firebaseConfig)
     : getApp();
 
-// Initialize Firebase Authentication
+export const db = getFirestore(app);
+
 export const auth = getAuth(app);
- // ==========================================
- // INITIALIZE FIRESTORE
- // ==========================================
-
- export const db = getFirestore(app);
-
- // ==========================================
- // EXPORT FIREBASE APP
- // ==========================================
 
 export default app;

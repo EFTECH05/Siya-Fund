@@ -1,115 +1,56 @@
-// ==========================================
-// SUPER ADMIN CONTROLLER
-// ==========================================
 
-// Firestore functions
 import {
   collection,
   getCountFromServer,
 } from "firebase/firestore";
 
-// Firebase Firestore database
+import { router } from "expo-router";
 import { db } from "../services/firebase";
 
-// ==========================================
-// SUPER ADMIN CONTROLLER
-// ==========================================
-
 export const SuperAdminController = {
+  async getDashboardStats() {
+    const usersSnapshot = await getCountFromServer(
+      collection(db, "users"),
+    );
 
-  // ========================================
-  // GET DASHBOARD STATISTICS
-  // ========================================
-
-  getDashboardStats: async () => {
-
-    // ======================================
-    // COUNT USERS
-    // ======================================
-
-    const usersCollection =
-      collection(db, "users");
-
-    const usersSnapshot =
-      await getCountFromServer(
-        usersCollection,
-      );
-
-    const totalUsers =
-      usersSnapshot.data().count;
-
-    // ======================================
-    // RETURN DASHBOARD STATISTICS
-    // ======================================
+    const [
+      groupsSnapshot,
+      contributionsSnapshot,
+      loansSnapshot,
+      transactionsSnapshot,
+    ] = await Promise.all([
+      getCountFromServer(collection(db, "groups")),
+      getCountFromServer(collection(db, "contributions")),
+      getCountFromServer(collection(db, "loans")),
+      getCountFromServer(collection(db, "transactions")),
+    ]);
 
     return {
-
-      // Real Firebase/Firestore user count
-      totalUsers,
-
-      // These will be connected later
-      totalGroups: 0,
-
-      totalContributions: 0,
-
-      totalLoans: 0,
-
-      totalTransactions: 0,
+      totalUsers: usersSnapshot.data().count,
+      totalGroups: groupsSnapshot.data().count,
+      totalContributions: contributionsSnapshot.data().count,
+      totalLoans: loansSnapshot.data().count,
+      totalTransactions: transactionsSnapshot.data().count,
     };
   },
 
-  // ==========================================
-  // USERS
-  // ==========================================
-
-  manageUsers: () => {
-
-    console.log(
-      "Opening user management...",
-    );
+  manageUsers() {
+    console.log("User management is not connected yet.");
   },
 
-  // ==========================================
-  // GROUPS
-  // ==========================================
-
-  manageGroups: () => {
-
-    console.log(
-      "Opening group management...",
-    );
+  manageGroups() {
+    console.log("Group management is not connected yet.");
   },
 
-  // ==========================================
-  // CONTRIBUTIONS
-  // ==========================================
-
-  manageContributions: () => {
-
-    console.log(
-      "Opening contribution management...",
-    );
+  manageContributions() {
+    router.push("/super-admin/contributions");
   },
 
-  // ==========================================
-  // LOANS
-  // ==========================================
-
-  manageLoans: () => {
-
-    console.log(
-      "Opening loan management...",
-    );
+  manageLoans() {
+    console.log("Loan management is not connected yet.");
   },
 
-  // ==========================================
-  // TRANSACTIONS
-  // ==========================================
-
-  manageTransactions: () => {
-
-    console.log(
-      "Opening transaction management...",
-    );
+  manageTransactions() {
+    console.log("Transaction management is not connected yet.");
   },
 };

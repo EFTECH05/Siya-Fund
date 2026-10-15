@@ -9,18 +9,17 @@ export const sendOTP = async (
   try {
     const { email } = req.body;
 
-    if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    if (!email) {
       res.status(400).json({
         success: false,
-        message: "A valid email address is required"
+        message: "Email is required"
       });
       return;
     }
 
-    const cleanEmail = email.trim().toLowerCase();
-    const otp = generateOTP(cleanEmail);
+    const otp = generateOTP(email);
 
-    await sendOTPEmail(cleanEmail, otp);
+    await sendOTPEmail(email, otp);
 
     res.status(200).json({
       success: true,
@@ -29,14 +28,9 @@ export const sendOTP = async (
   } catch (error) {
     console.error("Error sending OTP:", error);
 
-    const code = (error as { code?: string }).code;
-    const unavailable = code === "OTP_EMAIL_NOT_CONFIGURED" || code === "EAUTH";
-    res.status(unavailable ? 503 : 500).json({
+    res.status(500).json({
       success: false,
-      code: unavailable ? "OTP_EMAIL_UNAVAILABLE" : "OTP_SEND_FAILED",
-      message: unavailable
-        ? "Email verification is temporarily unavailable. Please try again later."
-        : "We could not send the verification code. Please try again."
+      message: "Failed to send OTP"
     });
   }
 };
@@ -48,7 +42,7 @@ export const verifyOTPCode = (
   try {
     const { email, otp } = req.body;
 
-    if (typeof email !== "string" || typeof otp !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) || !/^\d{6}$/.test(otp.trim())) {
+    if (!email || !otp) {
       res.status(400).json({
         success: false,
         message: "Email and OTP are required"
@@ -56,7 +50,7 @@ export const verifyOTPCode = (
       return;
     }
 
-    const isValid = verifyOTP(email.trim().toLowerCase(), otp.trim());
+    const isValid = verifyOTP(email, otp);
 
     if (!isValid) {
       res.status(400).json({

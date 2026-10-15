@@ -9,7 +9,7 @@ import path from "path";
 const smtpHost =
   process.env.SMTP_HOST || "smtp.gmail.com";
 
-const smtpPort = Number(process.env.SMTP_PORT || 465);
+const smtpPort = 465;
 
 const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASS;
@@ -37,10 +37,7 @@ if (!smtpPass) {
 const transporter = nodemailer.createTransport({
   host: smtpHost,
   port: smtpPort,
-  secure: process.env.SMTP_SECURE ? process.env.SMTP_SECURE === "true" : smtpPort === 465,
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
+  secure: true,
   auth: {
     user: smtpUser,
     pass: smtpPass,
@@ -85,16 +82,18 @@ export const sendOTPEmail = async (
     }
 
     if (!smtpUser || !smtpPass) {
-      throw Object.assign(new Error(
+      throw new Error(
         "Gmail SMTP credentials are not configured. Please check your .env file."
-      ), { code: "OTP_EMAIL_NOT_CONFIGURED" });
+      );
     }
 
     // ========================================
     // READ SIYA-FUND LOGO
     // ========================================
 
-    const logo = fs.existsSync(logoPath) ? fs.readFileSync(logoPath) : undefined;
+    const logo = fs.readFileSync(
+      logoPath
+    );
 
     // ========================================
     // EMAIL SUBJECT
@@ -493,18 +492,18 @@ Save • Borrow • Grow
     // ========================================
 
     const info = await transporter.sendMail({
-      from: process.env.SMTP_FROM || `"Siya-Fund" <${smtpUser}>`,
+      from: `"Siya-Fund" <${smtpUser}>`,
       to: email,
       subject,
       text,
       html,
-      attachments: logo ? [
+      attachments: [
         {
           filename: "siya-logo.png",
           content: logo,
           cid: "siya-logo",
         },
-      ] : [],
+      ],
     });
 
     // ========================================

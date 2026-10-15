@@ -13,7 +13,6 @@ import {
 import { router } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import { styles } from "./ActualLoginScreen.styles";
-import { isRunningInExpoGo } from "expo";
 
 type ActualLoginScreenProps = {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -120,7 +119,6 @@ export default function ActualLoginScreen({
             </Text>
           </Pressable>
 
-          {!isRunningInExpoGo() && <>
           <View style={styles.googleDividerContainer}>
             <View style={styles.googleDividerLine} />
 
@@ -153,7 +151,6 @@ export default function ActualLoginScreen({
             </View>
           </Pressable>
 
-          </>}
           <View style={styles.signUpContainer}>
             <Text style={styles.signUpText}>
               Don't have an account?
