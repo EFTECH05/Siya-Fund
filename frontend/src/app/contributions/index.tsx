@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import {
   View,
   Text,
@@ -7,29 +7,36 @@ import {
 } from "react-native";
 
 export default function ContributionsScreen() {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Contributions</Text>
+      <View style={styles.card}>
+        <Text style={styles.title}>My Contributions</Text>
 
-      <Text style={styles.description}>
-        Record a new contribution or view your previous contributions.
-      </Text>
+        <Text style={styles.description}>
+          Record a new contribution or view your previous contributions.
+        </Text>
 
-      <Link href="/contributions/create" asChild>
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>
-            Record a Contribution
-          </Text>
+        <Pressable
+          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          onPress={() => router.push("/contributions/create" as any)}
+          hitSlop={8}
+        >
+          <Text style={styles.buttonText}>Record a Contribution</Text>
         </Pressable>
-      </Link>
 
-      <Link href={"/contributions/history" as any} asChild>
-        <Pressable style={styles.historyButton}>
-          <Text style={styles.buttonText}>
-            View Contribution History
-          </Text>
+        <Pressable
+          style={({ pressed }) => [
+            styles.historyButton,
+            pressed && styles.pressed,
+          ]}
+          onPress={() => router.push("/contributions/history" as any)}
+          hitSlop={8}
+        >
+          <Text style={styles.buttonText}>View Contribution History</Text>
         </Pressable>
-      </Link>
+      </View>
     </View>
   );
 }
@@ -39,7 +46,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 24,
+    backgroundColor: "#F4F8F5",
+  },
+  card: {
     backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: "#D5DED8",
+    elevation: 3,
+    shadowColor: "#000000",
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
   title: {
     fontSize: 26,
@@ -55,16 +74,21 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "#2D6A4F",
-    padding: 16,
-    borderRadius: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    borderRadius: 12,
     alignItems: "center",
     marginBottom: 14,
   },
   historyButton: {
     backgroundColor: "#40916C",
-    padding: 16,
-    borderRadius: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    borderRadius: 12,
     alignItems: "center",
+  },
+  pressed: {
+    opacity: 0.85,
   },
   buttonText: {
     color: "#FFFFFF",

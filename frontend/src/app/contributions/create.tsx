@@ -1,7 +1,5 @@
-
 import React, { useState } from "react";
 import {
-  View,
   Text,
   TextInput,
   Pressable,
@@ -9,6 +7,8 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 
 import { ContributionController } from "../../controllers/ContributionController";
@@ -60,90 +60,121 @@ export default function CreateContributionScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Record Contribution</Text>
-      <Text style={styles.subtitle}>
-        Enter your contribution details below.
-      </Text>
-
-      <Text style={styles.label}>Member ID</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter member ID"
-        value={memberId}
-        onChangeText={setMemberId}
-        autoCapitalize="none"
-      />
-
-      <Text style={styles.label}>Group ID</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter group ID"
-        value={groupId}
-        onChangeText={setGroupId}
-        autoCapitalize="none"
-      />
-
-      <Text style={styles.label}>Amount (R)</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="e.g. 100"
-        value={amount}
-        onChangeText={setAmount}
-        keyboardType="decimal-pad"
-      />
-
-      <Pressable
-        style={[styles.button, loading && styles.disabledButton]}
-        onPress={handleSubmit}
-        disabled={loading}
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
       >
-        {loading ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={styles.buttonText}>Save Contribution</Text>
-        )}
-      </Pressable>
-    </ScrollView>
+        <Text style={styles.title}>Record Contribution</Text>
+        <Text style={styles.subtitle}>
+          Enter your contribution details below.
+        </Text>
+
+        <Text style={styles.label}>Member ID</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter member ID"
+          placeholderTextColor="#8A968E"
+          value={memberId}
+          onChangeText={setMemberId}
+          autoCapitalize="none"
+        />
+
+        <Text style={styles.label}>Group ID</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter group ID"
+          placeholderTextColor="#8A968E"
+          value={groupId}
+          onChangeText={setGroupId}
+          autoCapitalize="none"
+        />
+
+        <Text style={styles.label}>Amount (R)</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. 100"
+          placeholderTextColor="#8A968E"
+          value={amount}
+          onChangeText={setAmount}
+          keyboardType="decimal-pad"
+        />
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            loading && styles.disabledButton,
+            pressed && { opacity: 0.85 },
+          ]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.buttonText}>Save Contribution</Text>
+          )}
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#F4F8F5",
+  },
   container: {
     flexGrow: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 120,
+    backgroundColor: "#F4F8F5",
   },
   title: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#183B32",
     marginBottom: 8,
   },
   subtitle: {
-    color: "#666666",
+    fontSize: 15,
+    color: "#647067",
     marginBottom: 28,
+    lineHeight: 22,
   },
   label: {
     fontSize: 15,
     fontWeight: "600",
-    marginBottom: 7,
+    color: "#24372D",
+    marginBottom: 8,
   },
   input: {
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#CCCCCC",
-    borderRadius: 8,
-    padding: 13,
-    marginBottom: 18,
+    borderColor: "#D5DED8",
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 14,
+    marginBottom: 20,
     fontSize: 16,
+    color: "#183B32",
   },
   button: {
     backgroundColor: "#247A55",
-    padding: 15,
-    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    borderRadius: 12,
     alignItems: "center",
-    marginTop: 5,
+    justifyContent: "center",
+    minHeight: 54,
+    marginTop: 8,
+    elevation: 2,
   },
   disabledButton: {
     opacity: 0.6,
