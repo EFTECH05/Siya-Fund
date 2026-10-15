@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "Siya-Fund",
+    "slug": "siya-fund",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/siya-logo.png",
+    "scheme": "siya-fund",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "icon": "./assets/images/siya-logo.png",
+      "bundleIdentifier": "com.anonymous.siyafund"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/images/siya-logo.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.siyafund"
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/siya-logo.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFFFFF",
+          "image": "./assets/images/siya-logo.png",
+          "imageWidth": 180
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "ndkVersion": "26.1.10909125"
+          }
+        }
+      ],
+      "expo-image",
+      "expo-web-browser",
+      "@react-native-google-signin/google-signin"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f18e57cd-908a-4d16-9542-e1977bc9263d"
+      }
+    }
+  }
+}
