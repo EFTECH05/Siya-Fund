@@ -168,6 +168,7 @@ npm install
 npx expo start
 ```
 
+npx expo run:android
 ### Backend Setup (OTP Service)
 
 ```bash
@@ -176,9 +177,11 @@ cd Siya-Fund/backend
 npm install
 npm run dev
 ```
+npx expo run:android
+
 
 ---
-
+npx expo start --web
 ## Running the App
 
 After running `npx expo start`:
