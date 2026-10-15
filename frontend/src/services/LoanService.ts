@@ -1,173 +1,124 @@
-
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  serverTimestamp,
-  where,
-  type Timestamp,
-} from "firebase/firestore";
-
+import { collection, doc, getDoc, getDocs, query, where, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
+import { Loan, LoanApplicationInput, loanFromDocument, validateLoanApplication } from "../models/Loan";
 
-import type {
-  CreateLoanInput,
-  Loan,
-} from "../models/Loan";
-
-const LOANS_COLLECTION = "loans";
-
-function getUserId(): string {
-  const user = auth.currentUser;
-
-  if (!user) {
-    throw new Error("Please sign in to submit a loan request.");
-  }
-
-  return user.uid;
+function currentUid(): string {
+  const uid = auth.currentUser?.uid;
+  if (!uid) throw new Error("Please log in to view your loans.");
+  return uid;
 }
 
-function toLoan(
-  id: string,
-  data: Record<string, unknown>,
-): Loan {
-  function readDate(
-    value: unknown,
-  ): Timestamp | Date | null {
-    if (value instanceof Date) {
-      return value;
-    }
+function ensureSameUser(uid: string): void {
+  if (auth.currentUser?.uid !== uid) throw new Error("Your session changed. Please log in again.");
+}
 
-    if (
-      value &&
-      typeof value === "object" &&
-      "toDate" in value &&
-      typeof value.toDate === "function"
-    ) {
-      return value as Timestamp;
-    }
+export async function getMyLoans(): Promise<Loan[]> {
+  const uid = currentUid();
+  // Filter on the server. Do not download other members' loans.
+  const snapshot = await getDocs(query(collection(db, "loans"), where("userId", "==", uid)));
+  ensureSameUser(uid);
+  return snapshot.docs
+    .map(record => loanFromDocument(record.id, record.data()))
+    .filter(loan => loan.userId === uid)
+    .sort((a, b) => (b.applicationDate?.getTime() ?? 0) - (a.applicationDate?.getTime() ?? 0) || a.id.localeCompare(b.id));
+}
 
-    return null;
+export async function getMyLoan(id: string): Promise<Loan | null> {
+  const uid = currentUid();
+  if (!id || id.includes("/") || id === "." || id === "..") return null;
+  try {
+    const snapshot = await getDoc(doc(db, "loans", id));
+    ensureSameUser(uid);
+    if (!snapshot.exists()) return null;
+    const loan = loanFromDocument(snapshot.id, snapshot.data());
+    return loan.userId === uid ? loan : null;
+  } catch (error) {
+    if ((error as { code?: string }).code === "permission-denied") return null;
+    throw error;
   }
+}
 
-  const allowedStatuses = [
-    "approved",
-    "rejected",
-    "disbursed",
-    "repaid",
-    "cancelled",
-  ] as const;
+// Keeping one reference across retries avoids creating duplicate applications
+// when the first save succeeds but its acknowledgement is interrupted.
+export interface LoanSubmission {
+  id: string;
+  submit: () => Promise<string>;
+}
 
-  const status =
-    typeof data.status === "string" &&
-    allowedStatuses.includes(
-      data.status as (typeof allowedStatuses)[number],
-    )
-      ? (data.status as Loan["status"])
-      : "pending";
-
-  return {
-    id,
-    userId: String(data.userId ?? ""),
-    amount: Number(data.amount ?? 0),
+export function prepareLoanApplication(input: LoanApplicationInput): LoanSubmission {
+  const uid = currentUid();
+  const fields = validateLoanApplication(input);
+  const groupId = input.groupId?.trim();
+  if (groupId && (groupId.includes("/") || groupId === "." || groupId === "..")) {
+    throw new Error("Select a valid savings group.");
+  }
+  const ref = doc(collection(db, "loans"));
+  const data = {
+    userId: uid,
+    amount: fields.amount,
     currency: "ZAR",
-    purpose: String(data.purpose ?? ""),
-    termMonths: Number(data.termMonths ?? 0),
-    status,
-    createdAt: readDate(data.createdAt),
-    updatedAt: readDate(data.updatedAt),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    status: "pending",
+    purpose: fields.purpose,
+    termMonths: fields.repaymentMonths,
+    ...(groupId ? { groupId } : {}),
+  };
+  return {
+    id: ref.id,
+    async submit() {
+      ensureSameUser(uid);
+      if (groupId) {
+        const group = await getDoc(doc(db, "groups", groupId));
+        ensureSameUser(uid);
+        const members = group.exists() ? group.data() : null;
+        if (!members || (members.creatorId !== uid && !members.members?.includes(uid))) {
+          throw new Error("You must belong to the selected savings group to request a loan.");
+        }
+      }
+      // A confirmed existing own application means an earlier retry succeeded.
+      const existing = await getMyLoan(ref.id);
+      if (existing) return ref.id;
+      ensureSameUser(uid);
+      await setDoc(ref, data);
+      ensureSameUser(uid);
+      return ref.id;
+    },
   };
 }
 
-function validateLoanInput(input: CreateLoanInput): void {
-  if (!Number.isFinite(input.amount) || input.amount <= 0) {
-    throw new Error("Enter a loan amount greater than zero.");
-  }
-
-  if (!input.purpose.trim()) {
-    throw new Error("Explain why you need the loan.");
-  }
-
-  if (
-    !Number.isInteger(input.termMonths) ||
-    input.termMonths < 1 ||
-    input.termMonths > 120
-  ) {
-    throw new Error("Choose a loan term between 1 and 120 months.");
-  }
+// Preserve the shared branch's API while using the authenticated, retry-safe flow.
+export async function getLoansByUser(userId: string): Promise<Loan[]> {
+  if (userId !== currentUid()) throw new Error("You can only load your own loan applications.");
+  return getMyLoans();
 }
 
-export async function createLoanRequest(
-  input: CreateLoanInput,
-): Promise<string> {
-  const userId = getUserId();
-
-  validateLoanInput(input);
-
-  const loanRef = await addDoc(
-    collection(db, LOANS_COLLECTION),
-    {
-      userId,
-      amount: input.amount,
-      currency: "ZAR",
-      purpose: input.purpose.trim(),
-      termMonths: input.termMonths,
-      status: "pending",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    },
-  );
-
-  return loanRef.id;
+export async function getLoansByGroup(groupId: string): Promise<Loan[]> {
+  const uid = currentUid();
+  if (!groupId || groupId.includes("/")) throw new Error("A valid savings group is required.");
+  const group = await getDoc(doc(db, "groups", groupId));
+  ensureSameUser(uid);
+  if (!group.exists() || (group.data().creatorId !== uid && !group.data().members?.includes(uid))) {
+    throw new Error("You must belong to this savings group to view its loans.");
+  }
+  // Firestore rules still determine which group records the caller may read.
+  const snapshot = await getDocs(query(collection(db, "loans"), where("groupId", "==", groupId), where("userId", "==", uid)));
+  ensureSameUser(uid);
+  return snapshot.docs.map(record => loanFromDocument(record.id, record.data()))
+    .filter(loan => loan.groupId === groupId && loan.userId === uid)
+    .sort((a, b) => (b.applicationDate?.getTime() ?? 0) - (a.applicationDate?.getTime() ?? 0));
 }
 
-export async function getLoanRequests(): Promise<Loan[]> {
-  const userId = getUserId();
-
-  const loansQuery = query(
-    collection(db, LOANS_COLLECTION),
-    where("userId", "==", userId),
-  );
-
-  const snapshot = await getDocs(loansQuery);
-
-  const loans = snapshot.docs.map((item) =>
-    toLoan(item.id, item.data()),
-  );
-
-  return loans.sort((a, b) => {
-    const getTime = (value: Loan["createdAt"]) => {
-      if (!value) return 0;
-      return value instanceof Date
-        ? value.getTime()
-        : value.toMillis();
-    };
-
-    return getTime(b.createdAt) - getTime(a.createdAt);
+export async function submitLoanRequest(input: { userId: string; groupId: string; amount: number | string; reason: string; repaymentMonths?: number }): Promise<Loan | null> {
+  if (input.userId !== currentUid()) throw new Error("Please sign in before requesting a loan.");
+  if (!input.groupId?.trim()) throw new Error("A savings group is required.");
+  const submission = prepareLoanApplication({
+    amount: String(input.amount), purpose: input.reason,
+    repaymentMonths: String(input.repaymentMonths ?? 12), groupId: input.groupId,
   });
+  return getMyLoan(await submission.submit());
 }
 
-export async function getLoanById(
-  loanId: string,
-): Promise<Loan | null> {
-  const userId = getUserId();
-
-  if (!loanId.trim()) {
-    return null;
-  }
-
-  const snapshot = await getDoc(
-    doc(db, LOANS_COLLECTION, loanId),
-  );
-
-  if (!snapshot.exists()) {
-    return null;
-  }
-
-  const loan = toLoan(snapshot.id, snapshot.data());
-
-  return loan.userId === userId ? loan : null;
+export async function getLoanRequests() {
+  return (await getMyLoans()).map(loan => ({ ...loan, termMonths: loan.repaymentMonths, status: loan.status.toLowerCase() }));
 }

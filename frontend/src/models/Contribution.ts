@@ -1,24 +1,25 @@
 
-import type { Timestamp } from "firebase/firestore";
-
-export type ContributionStatus =
-  | "pending"
-  | "completed"
-  | "cancelled";
-
 export interface Contribution {
-  id: string;
-  userId: string;
+  id?: string;
+  memberId: string;
+  groupId: string;
   amount: number;
-  currency: "ZAR";
-  title: string;
-  description: string;
-  status: ContributionStatus;
-  createdAt: Timestamp | Date | null;
+  date: Date;
+  status: string;
 }
 
-export interface CreateContributionInput {
+export const createContribution = ({
+  memberId,
+  groupId,
+  amount,
+}: {
+  memberId: string;
+  groupId: string;
   amount: number;
-  title: string;
-  description?: string;
-}
+}): Contribution => ({
+  memberId: memberId.trim(),
+  groupId: groupId.trim(),
+  amount: Number(amount),
+  date: new Date(),
+  status: "Pending",
+});

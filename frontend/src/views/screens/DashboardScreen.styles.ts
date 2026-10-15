@@ -1,659 +1,685 @@
-import { Platform, StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
-  screen: {
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  // ==========================================
+  // MAIN CONTAINER
+  // ==========================================
+  container: {
     flex: 1,
-    flexDirection: "row",
-    backgroundColor: "#080D17",
+    backgroundColor: "#F4F8F5",
   },
 
-  mainArea: {
-    flex: 1,
-    minWidth: 0,
-    backgroundColor: "#080D17",
-    position: "relative",
-  },
-
-  sidebar: {
-    width: 255,
-    backgroundColor: "#0D1422",
-    borderRightWidth: 1,
-    borderRightColor: "#202B3D",
-    paddingHorizontal: 18,
-    paddingTop: 28,
-    paddingBottom: 18,
-  },
-
-  brand: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 38,
-    gap: 10,
-  },
-
-  logo: {
-    width: 46,
-    height: 46,
-  },
-
-  brandTextContainer: {
-    flex: 1,
-  },
-
-  brandName: {
-    color: "#F4F7FC",
-    fontSize: 23,
-    fontWeight: "800",
-    letterSpacing: -0.8,
-  },
-
-  brandNameAccent: {
-    color: "#39D98A",
-  },
-
-  brandSubtitle: {
-    color: "#8290A6",
-    fontSize: 8,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-    marginTop: 3,
-  },
-
-  menuHeading: {
-    color: "#71819A",
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1.5,
-    marginBottom: 14,
-    marginTop: 4,
-  },
-
-  sidebarNavigation: {
-    gap: 7,
-  },
-
-  sidebarItem: {
-    minHeight: 47,
-    borderRadius: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 13,
-    gap: 12,
-    position: "relative",
-  },
-
-  sidebarItemActive: {
-    backgroundColor: "#142B27",
-  },
-
-  sidebarItemText: {
-    color: "#A9B5C8",
-    fontSize: 13,
-    fontWeight: "600",
-    flex: 1,
-  },
-
-  sidebarItemTextActive: {
-    color: "#39D98A",
-    fontWeight: "700",
-  },
-
-  activeIndicator: {
-    width: 3,
-    height: 23,
-    borderRadius: 3,
-    backgroundColor: "#39D98A",
-    position: "absolute",
-    right: 0,
-  },
-
-  sidebarFooter: {
-    marginTop: "auto",
-    gap: 13,
-  },
-
-  sidebarFooterDivider: {
-    height: 1,
-    backgroundColor: "#263246",
-    marginBottom: 5,
-  },
-
-  signOutButton: {
-    minHeight: 45,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 13,
-    gap: 12,
-    borderRadius: 10,
-    backgroundColor: "#241B25",
-  },
-
-  mobileSignOutButton: {
-    marginTop: 10,
-    marginBottom: 12,
-  },
-
-  signOutText: {
-    color: "#F28B82",
-    fontSize: 13,
-    fontWeight: "700",
-  },
-
-  disabled: {
-    opacity: 0.5,
-  },
-
-  versionText: {
-    color: "#71819A",
-    fontSize: 10,
-    textAlign: "center",
-  },
-
-  pressed: {
-    opacity: 0.72,
-  },
-
-  topBar: {
-    minHeight: 82,
-    paddingHorizontal: 26,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#202B3D",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-    zIndex: 20,
-    backgroundColor: "#0B111D",
-  },
-
-  topBarLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    flex: 1,
-    minWidth: 0,
-  },
-
-  menuButton: {
-    width: 43,
-    height: 43,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 12,
-    backgroundColor: "#172234",
-    borderWidth: 1,
-    borderColor: "#29364B",
-  },
-
-  topBarTitle: {
-    color: "#F4F7FC",
-    fontSize: 20,
-    fontWeight: "800",
-  },
-
-  topBarSubtitle: {
-    color: "#8290A6",
-    fontSize: 11,
-    marginTop: 4,
-  },
-
-  topBarRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-
-  secureBadge: {
-    minHeight: 34,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    backgroundColor: "#142B27",
-  },
-
-  secureBadgeText: {
-    color: "#39D98A",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-
-  profileButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: "#172234",
-    borderWidth: 1,
-    borderColor: "#29364B",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  mobileMenu: {
-    position: "absolute",
-    top: 72,
-    left: 12,
-    right: 12,
-    zIndex: 1000,
-    elevation: 12,
-    backgroundColor: "#101827",
-    borderWidth: 1,
-    borderColor: "#29364B",
-    borderRadius: 14,
-    maxHeight: 420,
-    overflow: "hidden",
-    ...(Platform.OS === "web"
-      ? {
-          boxShadow: "0px 10px 28px rgba(0,0,0,0.4)",
-        }
-      : {}),
-  },
-
-  mobileMenuScroll: {
-    flexShrink: 1,
-    paddingHorizontal: 14,
-    paddingTop: 14,
-  },
-
-  mobileMenuFooter: {
-    paddingHorizontal: 14,
-    paddingTop: 8,
-    backgroundColor: "#101827",
-    borderTopWidth: 1,
-    borderTopColor: "#202B3D",
-  },
-
-  contentScroll: {
-    flex: 1,
-  },
-
-  contentContainer: {
-    paddingHorizontal: 28,
-    paddingTop: 28,
+  // ==========================================
+  // SCROLL CONTENT
+  // ==========================================
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 25,
     paddingBottom: 35,
-    gap: 24,
-    maxWidth: 1450,
     width: "100%",
+    maxWidth: 900,
     alignSelf: "center",
   },
 
-  mobileContentContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 22,
-    paddingBottom: 110,
-    gap: 22,
-  },
-
-  welcomeSection: {
+  // ==========================================
+  // HEADER
+  // ==========================================
+  header: {
+    width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 18,
-    flexWrap: "wrap",
+    marginBottom: 25,
   },
 
-  welcomeTextContainer: {
-    flex: 1,
-    minWidth: 200,
-    gap: 7,
+  smallGreeting: {
+    color: "#7A837D",
+    fontSize: 14,
+    marginBottom: 3,
   },
 
-  welcomeEyebrow: {
-    color: "#39D98A",
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1.5,
-  },
-
-  welcomeTitle: {
-    color: "#F4F7FC",
+  userName: {
+    color: "#17231B",
     fontSize: 27,
-    fontWeight: "800",
-    letterSpacing: -0.7,
+    fontWeight: "700",
   },
 
-  welcomeSubtitle: {
-    color: "#9AA8BD",
-    fontSize: 13,
-    lineHeight: 20,
+  // ==========================================
+  // NOTIFICATION
+  // ==========================================
+  notificationButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+
+  notificationIcon: {
+    fontSize: 20,
+  },
+
+  notificationDot: {
+    position: "absolute",
+    top: 10,
+    right: 11,
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#E45B5B",
+    borderWidth: 1,
+    borderColor: "#FFFFFF",
+  },
+
+  // ==========================================
+  // SAVINGS CARD
+  // ==========================================
+  savingsCard: {
+    width: "100%",
+    backgroundColor: "#2E8B57",
+    borderRadius: 22,
+    paddingHorizontal: 24,
+    paddingVertical: 24,
+    marginBottom: 28,
+    shadowColor: "#2E8B57",
+    shadowOffset: {
+      width: 0,
+      height: 7,
+    },
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    elevation: 5,
+  },
+
+  savingsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  savingsLabel: {
+    color: "#DDF3E5",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  savingsIcon: {
+    fontSize: 22,
+  },
+
+  savingsAmount: {
+    color: "#FFFFFF",
+    fontSize: 34,
+    fontWeight: "800",
+    marginTop: 7,
+  },
+
+  savingsFooter: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    marginTop: 18,
+  },
+
+  savingsFooterLabel: {
+    color: "#DDF3E5",
+    fontSize: 12,
+    marginBottom: 3,
+  },
+
+  savingsFooterValue: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
   },
 
   growthBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 13,
-    borderWidth: 1,
-    borderColor: "#244638",
-    backgroundColor: "#10231F",
-  },
-
-  growthBadgeTitle: {
-    color: "#EAFBF2",
-    fontSize: 12,
-    fontWeight: "800",
-  },
-
-  growthBadgeSubtitle: {
-    color: "#8EA99A",
-    fontSize: 10,
-    marginTop: 4,
-  },
-
-  balanceCard: {
-    backgroundColor: "#101D2B",
+    backgroundColor: "rgba(255,255,255,0.16)",
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#26394A",
-    padding: 23,
-    flexDirection: "row",
-    gap: 25,
-    overflow: "hidden",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
   },
 
-  balanceCardContent: {
-    flex: 1,
-    minWidth: 0,
-    justifyContent: "center",
+  growthText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "700",
   },
 
-  balanceLabelRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
+  // ==========================================
+  // SECTION TITLE
+  // ==========================================
+  sectionTitle: {
+    color: "#17231B",
+    fontSize: 19,
+    fontWeight: "700",
+    marginBottom: 14,
   },
 
-  balanceLabel: {
-    color: "#A5B4C8",
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1.4,
-  },
-
-  balanceAmount: {
-    color: "#F4F7FC",
-    fontSize: 36,
-    fontWeight: "800",
-    letterSpacing: -1,
-    marginTop: 13,
-  },
-
-  balanceNote: {
-    color: "#8290A6",
-    fontSize: 11,
-    marginTop: 6,
-  },
-
-  balanceDivider: {
-    height: 1,
-    backgroundColor: "#29394A",
-    marginVertical: 19,
-  },
-
-  balanceFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-
-  balanceStatusDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 5,
-    backgroundColor: "#39D98A",
-  },
-
-  balanceStatusText: {
-    color: "#A9B5C8",
-    fontSize: 11,
-  },
-
-  chartArea: {
-    flex: 0.9,
-    minWidth: 150,
-    justifyContent: "center",
-    gap: 15,
-  },
-
-  chartHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-
-  chartLabel: {
-    color: "#A9B5C8",
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1,
-  },
-
-  chartBars: {
-    height: 100,
-    flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 7,
-  },
-
-  chartBarTrack: {
-    flex: 1,
-    height: "100%",
-    justifyContent: "flex-end",
-  },
-
-  chartBar: {
+  // ==========================================
+  // FINANCIAL SUMMARY
+  // ==========================================
+  summaryRow: {
     width: "100%",
-    minHeight: 5,
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
-    backgroundColor: "#24634C",
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 18,
   },
 
-  chartBarHighlighted: {
-    backgroundColor: "#39D98A",
+  summaryCard: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 17,
+    minHeight: 155,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
 
-  chartCaption: {
-    color: "#8290A6",
-    fontSize: 10,
+  summaryIconGreen: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "#EAF6EE",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 13,
   },
 
+  summaryIconOrange: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "#FFF3E8",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 13,
+  },
+
+  summaryIconText: {
+    color: "#2E8B57",
+    fontSize: 19,
+    fontWeight: "800",
+  },
+
+  orangeIconText: {
+    color: "#D66A43",
+  },
+
+  summaryLabel: {
+    color: "#6B756F",
+    fontSize: 12,
+    lineHeight: 17,
+    marginBottom: 5,
+  },
+
+  summaryAmount: {
+    color: "#17231B",
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 5,
+  },
+
+  summaryStatus: {
+    color: "#9AA39D",
+    fontSize: 11,
+  },
+
+  // ==========================================
+  // AVAILABLE LOAN
+  // ==========================================
+  loanCard: {
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 18,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 28,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+
+  loanIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 15,
+    backgroundColor: "#EAF6EE",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 13,
+  },
+
+  loanIcon: {
+    fontSize: 22,
+  },
+
+  loanContent: {
+    flex: 1,
+  },
+
+  loanTitle: {
+    color: "#6B756F",
+    fontSize: 12,
+    marginBottom: 3,
+  },
+
+  loanAmount: {
+    color: "#17231B",
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 2,
+  },
+
+  loanDescription: {
+    color: "#9AA39D",
+    fontSize: 11,
+  },
+
+  loanButton: {
+    backgroundColor: "#EAF6EE",
+    borderRadius: 10,
+    paddingHorizontal: 13,
+    paddingVertical: 9,
+  },
+
+  loanButtonText: {
+    color: "#2E8B57",
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
+
+  // ==========================================
+  // QUICK ACTIONS
+  // ==========================================
+  actionsGrid: {
+    width: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 28,
+  },
+
+  actionCard: {
+    width: "48%",
+    minWidth: 145,
+    flexGrow: 1,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 17,
+    padding: 16,
+    minHeight: 135,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+
+  actionIconGreen: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "#EAF6EE",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+
+  actionIconBlue: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "#EAF2FA",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+
+  actionIconPurple: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "#F1ECFA",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+
+  actionIconOrange: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "#FFF3E8",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+
+  actionIconText: {
+    color: "#2E8B57",
+    fontSize: 18,
+    fontWeight: "800",
+  },
+
+  blueIconText: {
+    color: "#3C7DB5",
+  },
+
+  purpleIconText: {
+    color: "#7654B5",
+  },
+
+  actionTitle: {
+    color: "#17231B",
+    fontSize: 14,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+
+  actionDescription: {
+    color: "#8A938D",
+    fontSize: 11,
+    lineHeight: 16,
+  },
+
+  // ==========================================
+  // SECTION HEADER
+  // ==========================================
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
+    marginBottom: 14,
   },
 
-  sectionTitle: {
-    color: "#F4F7FC",
-    fontSize: 17,
+  viewAllText: {
+    color: "#2E8B57",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+
+  // ==========================================
+  // TRANSACTIONS
+  // ==========================================
+  transactionCard: {
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+
+  transactionIconGreen: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    backgroundColor: "#EAF6EE",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+
+  transactionIconOrange: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    backgroundColor: "#FFF3E8",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+
+  transactionIconText: {
+    color: "#2E8B57",
+    fontSize: 19,
     fontWeight: "800",
   },
 
-  sectionSubtitle: {
-    color: "#8290A6",
-    fontSize: 11,
-    marginTop: 5,
+  transactionContent: {
+    flex: 1,
   },
 
-  summaryGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 14,
-  },
-
-  summaryCard: {
-    flexGrow: 1,
-    flexBasis: 175,
-    minWidth: 0,
-    padding: 18,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: "#253246",
-    backgroundColor: "#101827",
-    gap: 9,
-  },
-
-  summaryIcon: {
-    width: 43,
-    height: 43,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
+  transactionTitle: {
+    color: "#27332C",
+    fontSize: 13,
+    fontWeight: "600",
     marginBottom: 4,
   },
 
-  summaryLabel: {
-    color: "#A9B5C8",
+  transactionDate: {
+    color: "#9AA39D",
     fontSize: 11,
-    fontWeight: "600",
   },
 
-  summaryValue: {
-    color: "#F4F7FC",
-    fontSize: 23,
-    fontWeight: "800",
+  transactionAmountContainer: {
+    alignItems: "flex-end",
   },
 
-  summaryFootnote: {
-    color: "#71819A",
+  transactionPositive: {
+    color: "#2E8B57",
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: 3,
+  },
+
+  transactionNegative: {
+    color: "#D66A43",
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: 3,
+  },
+
+  completedText: {
+    color: "#9AA39D",
     fontSize: 10,
   },
 
-  quickActionsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 14,
-  },
-
-  quickActionCard: {
-    flexGrow: 1,
-    flexBasis: 200,
-    minWidth: 0,
-    minHeight: 160,
+  // ==========================================
+  // GROUP
+  // ==========================================
+  groupCard: {
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
     padding: 17,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: "#253246",
-    backgroundColor: "#101827",
-    position: "relative",
-    gap: 9,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 25,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
 
-  quickActionIcon: {
-    width: 43,
-    height: 43,
-    borderRadius: 12,
-    backgroundColor: "#153C31",
+  groupAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: "#2E8B57",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 3,
+    marginRight: 13,
   },
 
-  quickActionTitle: {
-    color: "#F4F7FC",
-    fontSize: 13,
-    fontWeight: "800",
-  },
-
-  quickActionSubtitle: {
-    color: "#8290A6",
-    fontSize: 11,
-    lineHeight: 17,
-  },
-
-  quickActionArrow: {
-    position: "absolute",
-    right: 16,
-    top: 18,
-  },
-
-  activityCard: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 22,
-    paddingVertical: 30,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: "#253246",
-    backgroundColor: "#101827",
-    gap: 10,
-  },
-
-  emptyActivityIcon: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#192437",
-    marginBottom: 3,
-  },
-
-  emptyActivityTitle: {
-    color: "#E8EDF6",
+  groupAvatarText: {
+    color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "800",
   },
 
-  emptyActivitySubtitle: {
-    color: "#8290A6",
+  groupContent: {
+    flex: 1,
+  },
+
+  groupName: {
+    color: "#17231B",
+    fontSize: 14,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+
+  groupMembers: {
+    color: "#8A938D",
     fontSize: 11,
-    lineHeight: 18,
-    textAlign: "center",
-    maxWidth: 360,
   },
 
-  footerNote: {
-    color: "#65748B",
-    fontSize: 10,
-    textAlign: "center",
-    marginTop: 4,
+  groupButton: {
+    backgroundColor: "#EAF6EE",
+    borderRadius: 10,
+    paddingHorizontal: 13,
+    paddingVertical: 9,
   },
 
+  groupButtonText: {
+    color: "#2E8B57",
+    fontSize: 11,
+    fontWeight: "800",
+  },
+
+  // ==========================================
+  // LOG OUT BUTTON
+  // ==========================================
+  logoutButton: {
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#F0D8D5",
+    borderRadius: 16,
+    minHeight: 52,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 2,
+    marginBottom: 20,
+    gap: 10,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+
+  logoutIcon: {
+    color: "#D9534F",
+    fontSize: 22,
+    fontWeight: "700",
+  },
+
+  logoutButtonText: {
+    color: "#D9534F",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+
+  // ==========================================
+  // BOTTOM NAVIGATION
+  // ==========================================
   bottomNavigation: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    minHeight: 70,
-    paddingTop: 9,
-    paddingBottom: Platform.OS === "web" ? 9 : 15,
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    backgroundColor: "#0D1422",
-    borderTopWidth: 1,
-    borderTopColor: "#263246",
-    zIndex: 10,
-    elevation: 8,
+    marginTop: 5,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
   },
 
-  bottomNavItem: {
+  navItem: {
     flex: 1,
-    minHeight: 48,
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
+    paddingVertical: 4,
   },
 
-  bottomNavLabel: {
-    color: "#8290A6",
+  navIcon: {
+    color: "#9AA39D",
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+
+  navIconActive: {
+    color: "#2E8B57",
+    fontSize: 18,
+    fontWeight: "800",
+    marginBottom: 4,
+  },
+
+  navText: {
+    color: "#9AA39D",
     fontSize: 9,
     fontWeight: "600",
   },
 
-  bottomNavLabelActive: {
-    color: "#39D98A",
-    fontWeight: "800",
+  navTextActive: {
+    color: "#2E8B57",
+    fontSize: 9,
+    fontWeight: "700",
+  },
+
+  // ==========================================
+  // PRESSED STATE
+  // ==========================================
+  buttonPressed: {
+    opacity: 0.75,
+    transform: [
+      {
+        scale: 0.98,
+      },
+    ],
   },
 });
 
-export default styles;

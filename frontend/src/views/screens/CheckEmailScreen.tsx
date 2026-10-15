@@ -189,6 +189,7 @@ export default function CheckEmailScreen() {
         registrationData.lastName,
         registrationData.email,
         registrationData.password,
+        registrationData.phone,
       );
 
       console.log(
