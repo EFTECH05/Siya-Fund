@@ -1,20 +1,6 @@
-import { Platform } from "react-native";
-
-/*
-  Siya-Fund Backend URLs
-
-  Android Emulator:
-  10.0.2.2 points to the computer running the emulator.
-
-  Web:
-  localhost points to the same computer running the browser.
-
-  iOS Simulator:
-  localhost also points to the computer running the simulator.
-*/
 
 const API_URL =
-  Platform.OS === "android" ? "http://10.0.2.2:5000" : "http://localhost:5000";
+  "https://viscosity-resident-strategy.ngrok-free.dev";
 
 // ==========================================
 // SEND OTP
@@ -24,15 +10,14 @@ export const sendOTP = async (email: string): Promise<void> => {
   try {
     console.log("Sending OTP to:", email);
 
-    console.log("OTP API URL:", `${API_URL}/api/otp/send`);
+    const url = `${API_URL}/api/otp/send`;
+    console.log("OTP API URL:", url);
 
-    const response = await fetch(`${API_URL}/api/otp/send`, {
+    const response = await fetch(url, {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify({
         email: email.trim().toLowerCase(),
       }),
@@ -47,7 +32,6 @@ export const sendOTP = async (email: string): Promise<void> => {
     }
   } catch (error) {
     console.error("Send OTP error:", error);
-
     throw error;
   }
 };
@@ -56,19 +40,21 @@ export const sendOTP = async (email: string): Promise<void> => {
 // VERIFY OTP
 // ==========================================
 
-export const verifyOTP = async (email: string, otp: string): Promise<void> => {
+export const verifyOTP = async (
+  email: string,
+  otp: string
+): Promise<void> => {
   try {
     console.log("Verifying OTP for:", email);
 
-    console.log("OTP API URL:", `${API_URL}/api/otp/verify`);
+    const url = `${API_URL}/api/otp/verify`;
+    console.log("OTP API URL:", url);
 
-    const response = await fetch(`${API_URL}/api/otp/verify`, {
+    const response = await fetch(url, {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify({
         email: email.trim().toLowerCase(),
         otp: otp.trim(),
@@ -84,7 +70,6 @@ export const verifyOTP = async (email: string, otp: string): Promise<void> => {
     }
   } catch (error) {
     console.error("Verify OTP error:", error);
-
     throw error;
   }
 };
