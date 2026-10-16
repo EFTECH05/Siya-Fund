@@ -1,457 +1,202 @@
 import React, { useState } from "react";
 
-import {
-  Alert,
-} from "react-native";
-
-import {
-  router,
-} from "expo-router";
+import { Alert } from "react-native";
+import { router } from "expo-router";
 
 import ActualLoginScreen from "../views/screens/ActualLoginScreen";
 
 import {
   loginUser,
-  logoutUser,
   getUserRole,
   loginWithGoogle,
 } from "../services/AuthService";
 
-import {
-  sendOTP,
-} from "../services/OtpService";
-
-import {
-  setLoginEmail,
-} from "../services/LoginOtpStore";
+import { sendOTP } from "../services/OtpService";
+import { setLoginEmail } from "../services/LoginOtpStore";
 
 // ==========================================
 // LOGIN ROUTE
 // ==========================================
 
 export default function LoginRoute() {
-
   // ==========================================
   // LOADING STATE
   // ==========================================
 
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // ==========================================
   // GOOGLE LOGIN
   // ==========================================
 
   const handleGoogleLogin = async () => {
-
     try {
-
-      // ====================================
-      // START LOADING
-      // ====================================
-
       setIsLoading(true);
 
-      console.log(
-        "Starting Google login...",
-      );
+      console.log("Starting Google login...");
 
-      // ====================================
-      // STEP 1
-      // GOOGLE AUTHENTICATION
-      // ====================================
+      // STEP 1: GOOGLE AUTHENTICATION
+      const user = await loginWithGoogle();
 
-      const user =
-        await loginWithGoogle();
+      console.log("Google login successful:", user.email);
 
-      console.log(
-        "Google login successful:",
-        user.email,
-      );
+      // STEP 2: CHECK USER ROLE
+      const role = await getUserRole();
 
-      // ====================================
-      // STEP 2
-      // CHECK USER ROLE
-      // ====================================
+      console.log("Google user role:", role);
 
-      const role =
-        await getUserRole();
+      // STEP 3: SUPER ADMIN
+      if (role === "super_admin") {
+        console.log("Google Super Admin detected.");
 
-      console.log(
-        "Google user role:",
-        role,
-      );
-
-      // ====================================
-      // STEP 3
-      // SUPER ADMIN
-      // ====================================
-
-      if (
-        role === "super_admin"
-      ) {
-
-        console.log(
-          "Google Super Admin detected.",
-        );
-
-        router.replace(
-          "/super-admin",
-        );
-
+        router.replace("/super-admin");
         return;
       }
 
-      // ====================================
-      // STEP 4
-      // NORMAL GOOGLE USER
-      // ====================================
+      // STEP 4: NORMAL GOOGLE USER
+      // Google has already authenticated the user.
+      // Keep the existing behaviour of going to the dashboard.
 
-      //
-      // Google already authenticated
-      // the user.
-      //
-      // Therefore we DO NOT send the
-      // existing email OTP.
-      //
+      console.log("Google normal user detected.");
 
-      console.log(
-        "Google normal user detected.",
-      );
-
-      // ====================================
-      // GO DIRECTLY TO DASHBOARD
-      // ====================================
-
-      router.replace(
-        "/dashboard",
-      );
-
+      router.replace("/dashboard");
     } catch (error: any) {
+      console.error("Google login error:", error);
 
-      console.error(
-        "Google login error:",
-        error,
-      );
-
-      // ====================================
       // GOOGLE LOGIN CANCELLED
-      // ====================================
-
-      if (
-        error?.message?.includes(
-          "cancelled",
-        )
-      ) {
-
-        console.log(
-          "Google login was cancelled.",
-        );
-
+      if (error?.message?.toLowerCase().includes("cancelled")) {
+        console.log("Google login was cancelled.");
         return;
       }
 
-      // ====================================
-      // DEFAULT ERROR
-      // ====================================
+      let message = "We could not complete Google login. Please try again.";
 
-      let message =
-        "We could not complete Google login. Please try again.";
-
-      // ====================================
       // NETWORK ERROR
-      // ====================================
-
-      if (
-        error?.code ===
-        "auth/network-request-failed"
-      ) {
-
-        message =
-          "Please check your internet connection and try again.";
-
+      if (error?.code === "auth/network-request-failed") {
+        message = "Please check your internet connection and try again.";
       }
 
-      // ====================================
-      // ACCOUNT EXISTS
-      // ====================================
-
+      // ACCOUNT EXISTS WITH ANOTHER LOGIN METHOD
       else if (
-        error?.code ===
-        "auth/account-exists-with-different-credential"
+        error?.code === "auth/account-exists-with-different-credential"
       ) {
-
         message =
           "An account already exists with this email using another login method.";
-
       }
 
-      // ====================================
-      // SHOW ERROR
-      // ====================================
-
-      Alert.alert(
-        "Google Login Failed",
-        message,
-      );
-
+      Alert.alert("Google Login Failed", message);
     } finally {
-
-      // ====================================
-      // STOP LOADING
-      // ====================================
-
       setIsLoading(false);
     }
   };
 
   // ==========================================
-  // NORMAL LOGIN
+  // NORMAL EMAIL AND PASSWORD LOGIN
   // ==========================================
 
-  const handleLogin = async (
-    email: string,
-    password: string,
-  ) => {
-
-    // ========================================
+  const handleLogin = async (email: string, password: string) => {
     // CLEAN EMAIL
-    // ========================================
+    const cleanEmail = email.trim().toLowerCase();
 
-    const cleanEmail =
-      email.trim().toLowerCase();
-
-    // ========================================
     // CHECK EMAIL
-    // ========================================
-
     if (!cleanEmail) {
-
-      Alert.alert(
-        "Email Required",
-        "Please enter your email address.",
-      );
-
+      Alert.alert("Email Required", "Please enter your email address.");
       return;
     }
 
-    // ========================================
     // CHECK PASSWORD
-    // ========================================
-
     if (!password) {
-
-      Alert.alert(
-        "Password Required",
-        "Please enter your password.",
-      );
-
+      Alert.alert("Password Required", "Please enter your password.");
       return;
     }
 
     try {
-
-      // ========================================
-      // START LOADING
-      // ========================================
-
       setIsLoading(true);
 
-      // ========================================
-      // STEP 1
-      // CHECK EMAIL AND PASSWORD
-      // ========================================
+      // STEP 1: CHECK EMAIL AND PASSWORD
+      await loginUser(cleanEmail, password);
 
-      await loginUser(
-        cleanEmail,
-        password,
-      );
+      console.log("Login successful for:", cleanEmail);
 
-      console.log(
-        "Login successful for:",
-        cleanEmail,
-      );
+      // STEP 2: CHECK USER ROLE
+      const role = await getUserRole();
 
-      // ========================================
-      // STEP 2
-      // CHECK USER ROLE
-      // ========================================
+      console.log("Logged-in user role:", role);
 
-      const role =
-        await getUserRole();
+      // STEP 3: SUPER ADMIN DOES NOT REQUIRE OTP
+      if (role === "super_admin") {
+        console.log("Super Admin detected. Skipping OTP.");
 
-      console.log(
-        "Logged-in user role:",
-        role,
-      );
-
-      // ========================================
-      // STEP 3
-      // SUPER ADMIN LOGIN
-      // ========================================
-
-      //
-      // Super Admin does NOT require OTP.
-      //
-
-      if (
-        role === "super_admin"
-      ) {
-
-        console.log(
-          "Super Admin detected. Skipping OTP.",
-        );
-
-        router.replace(
-          "/super-admin",
-        );
-
+        router.replace("/super-admin");
         return;
       }
 
-      // ========================================
-      // STEP 4
-      // NORMAL USER LOGIN (BYPASSED OTP)
-      // ========================================
+      // STEP 4: SAVE EMAIL FOR OTP VERIFICATION
+      console.log("Preparing login OTP for:", cleanEmail);
 
-      console.log("BYPASSING Login OTP: Going straight to dashboard.");
+      setLoginEmail(cleanEmail);
 
-      // await sendOTP(cleanEmail);
-      // setLoginEmail(cleanEmail);
-      // router.push("/login-otp" as any);
+      // STEP 5: SEND OTP THROUGH THE BACKEND
+      await sendOTP(cleanEmail);
 
-      router.replace("/dashboard");
+      console.log("Login OTP sent successfully.");
 
+      // STEP 6: NAVIGATE TO OTP VERIFICATION
+      router.push("/login-otp" as any);
     } catch (error: any) {
+      console.error("Login error:", error);
 
-      // ========================================
-      // TECHNICAL ERROR
-      // ========================================
+      let message = "We could not complete your login. Please try again.";
 
-      console.error(
-        "Login error:",
-        error,
-      );
-
-      // ========================================
-      // DEFAULT MESSAGE
-      // ========================================
-
-      let message =
-        "Something went wrong. Please try again.";
-
-      // ========================================
       // INVALID LOGIN DETAILS
-      // ========================================
-
       if (
-        error?.code ===
-          "auth/invalid-credential" ||
-        error?.code ===
-          "auth/invalid-login-credentials"
+        error?.code === "auth/invalid-credential" ||
+        error?.code === "auth/invalid-login-credentials"
       ) {
-
         message =
           "The email or password is incorrect. Please check your details and try again.";
       }
 
-      // ========================================
       // USER NOT FOUND
-      // ========================================
-
-      else if (
-        error?.code ===
-        "auth/user-not-found"
-      ) {
-
-        message =
-          "No account was found with this email address.";
+      else if (error?.code === "auth/user-not-found") {
+        message = "No account was found with this email address.";
       }
 
-      // ========================================
       // WRONG PASSWORD
-      // ========================================
-
-      else if (
-        error?.code ===
-        "auth/wrong-password"
-      ) {
-
-        message =
-          "The password you entered is incorrect.";
+      else if (error?.code === "auth/wrong-password") {
+        message = "The password you entered is incorrect.";
       }
 
-      // ========================================
       // INVALID EMAIL
-      // ========================================
-
-      else if (
-        error?.code ===
-        "auth/invalid-email"
-      ) {
-
-        message =
-          "Please enter a valid email address.";
+      else if (error?.code === "auth/invalid-email") {
+        message = "Please enter a valid email address.";
       }
 
-      // ========================================
       // TOO MANY REQUESTS
-      // ========================================
-
-      else if (
-        error?.code ===
-        "auth/too-many-requests"
-      ) {
-
+      else if (error?.code === "auth/too-many-requests") {
         message =
           "Too many login attempts. Please wait a moment and try again.";
       }
 
-      // ========================================
       // NETWORK ERROR
-      // ========================================
+      else if (error?.code === "auth/network-request-failed") {
+        message = "Please check your internet connection and try again.";
+      }
 
+      // OTP / BACKEND ERROR
       else if (
-        error?.code ===
-        "auth/network-request-failed"
+        error?.code === "OTP_EMAIL_NOT_CONFIGURED" ||
+        error?.code === "EAUTH" ||
+        error?.message?.toLowerCase().includes("otp") ||
+        error?.message?.toLowerCase().includes("email verification") ||
+        error?.message?.toLowerCase().includes("network")
       ) {
-
         message =
-          "Please check your internet connection and try again.";
+          "We could not send your verification code. Please try again shortly.";
       }
 
-      // ========================================
-      // UNKNOWN ERROR
-      // ========================================
-
-      else {
-
-        console.error(
-          "Unhandled login error:",
-          error,
-        );
-
-        message =
-          "We could not complete your login. Please try again.";
-      }
-
-      // ========================================
-      // SHOW FRIENDLY MESSAGE
-      // ========================================
-
-      Alert.alert(
-        "Login Failed",
-        message,
-      );
-
+      Alert.alert("Login Failed", message);
     } finally {
-
-      // ========================================
-      // STOP LOADING
-      // ========================================
-
       setIsLoading(false);
     }
   };
@@ -460,30 +205,20 @@ export default function LoginRoute() {
   // FORGOT PASSWORD
   // ==========================================
 
-  const handleForgotPassword =
-    () => {
-
-      router.push(
-        "/forgot-password",
-      );
-    };
+  const handleForgotPassword = () => {
+    router.push("/forgot-password");
+  };
 
   // ==========================================
   // LOGIN SCREEN
   // ==========================================
 
   return (
-
     <ActualLoginScreen
       onLogin={handleLogin}
-      onGoogleLogin={
-        handleGoogleLogin
-      }
-      onForgotPassword={
-        handleForgotPassword
-      }
+      onGoogleLogin={handleGoogleLogin}
+      onForgotPassword={handleForgotPassword}
       isLoading={isLoading}
     />
-
   );
 }
