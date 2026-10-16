@@ -1,5 +1,5 @@
-
 import React, { useState } from "react";
+
 import {
   Image,
   KeyboardAvoidingView,
@@ -10,14 +10,19 @@ import {
   TextInput,
   View,
 } from "react-native";
+
 import { router } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
+
 import { styles } from "./ActualLoginScreen.styles";
 
 type ActualLoginScreenProps = {
   onLogin: (email: string, password: string) => Promise<void>;
+
   onGoogleLogin: () => Promise<void>;
+
   onForgotPassword: () => void;
+
   isLoading: boolean;
 };
 
@@ -29,14 +34,38 @@ export default function ActualLoginScreen({
 }: ActualLoginScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const isBusy = isLoading || isGoogleLoading;
+
+  // ==========================================================
+  // EMAIL + PASSWORD LOGIN
+  // ==========================================================
 
   const handleLogin = async () => {
+    if (isBusy) return;
+
     await onLogin(email.trim(), password);
   };
 
+  // ==========================================================
+  // GOOGLE LOGIN
+  // ==========================================================
+
   const handleGoogleLogin = async () => {
-    await onGoogleLogin();
+    if (isBusy) return;
+
+    try {
+      setIsGoogleLoading(true);
+      await onGoogleLogin();
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
+
+  // ==========================================================
+  // LOGIN SCREEN
+  // ==========================================================
 
   return (
     <KeyboardAvoidingView
@@ -63,6 +92,7 @@ export default function ActualLoginScreen({
             Sign in to continue to your Siya-Fund account.
           </Text>
 
+          {/* EMAIL ADDRESS */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email Address</Text>
 
@@ -75,11 +105,14 @@ export default function ActualLoginScreen({
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
-              editable={!isLoading}
+              autoComplete="email"
+              editable={!isBusy}
               returnKeyType="next"
+              accessibilityLabel="Email address"
             />
           </View>
 
+          {/* PASSWORD */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Password</Text>
 
@@ -91,34 +124,41 @@ export default function ActualLoginScreen({
               onChangeText={setPassword}
               secureTextEntry
               autoCapitalize="none"
-              editable={!isLoading}
+              autoComplete="current-password"
+              editable={!isBusy}
               returnKeyType="done"
               onSubmitEditing={handleLogin}
+              accessibilityLabel="Password"
             />
           </View>
 
+          {/* FORGOT PASSWORD */}
           <Pressable
             style={styles.forgotButton}
             onPress={onForgotPassword}
-            disabled={isLoading}
+            disabled={isBusy}
+            accessibilityRole="button"
           >
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </Pressable>
 
+          {/* EMAIL LOGIN */}
           <Pressable
             style={({ pressed }) => [
               styles.loginButton,
               pressed && styles.buttonPressed,
-              isLoading && styles.buttonLoading,
+              isBusy && styles.buttonLoading,
             ]}
             onPress={handleLogin}
-            disabled={isLoading}
+            disabled={isBusy}
+            accessibilityRole="button"
           >
             <Text style={styles.loginButtonText}>
               {isLoading ? "PLEASE WAIT..." : "Sign In"}
             </Text>
           </Pressable>
 
+          {/* GOOGLE DIVIDER */}
           <View style={styles.googleDividerContainer}>
             <View style={styles.googleDividerLine} />
 
@@ -127,38 +167,37 @@ export default function ActualLoginScreen({
             <View style={styles.googleDividerLine} />
           </View>
 
+          {/* GOOGLE LOGIN */}
           <Pressable
             style={({ pressed }) => [
               styles.googleButton,
               pressed && styles.buttonPressed,
-              isLoading && styles.googleButtonLoading,
+              isBusy && styles.googleButtonLoading,
             ]}
             onPress={handleGoogleLogin}
-            disabled={isLoading}
+            disabled={isBusy}
+            accessibilityRole="button"
+            accessibilityLabel="Continue with Google"
           >
             <View style={styles.googleButtonContent}>
-              <AntDesign
-                name="google"
-                size={21}
-                color="#4285F4"
-              />
+              <AntDesign name="google" size={21} color="#4285F4" />
 
               <Text style={styles.googleButtonText}>
-                {isLoading
+                {isGoogleLoading
                   ? "Connecting to Google..."
                   : "Continue with Google"}
               </Text>
             </View>
           </Pressable>
 
+          {/* SIGN-UP LINK */}
           <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>
-              Don't have an account?
-            </Text>
+            <Text style={styles.signUpText}>Don't have an account?</Text>
 
             <Pressable
               onPress={() => router.push("/register")}
-              disabled={isLoading}
+              disabled={isBusy}
+              accessibilityRole="button"
             >
               <Text style={styles.signUpLink}> Sign Up</Text>
             </Pressable>
@@ -168,4 +207,3 @@ export default function ActualLoginScreen({
     </KeyboardAvoidingView>
   );
 }
-
