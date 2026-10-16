@@ -176,3 +176,6 @@ Siya-Fund/
    cd ~/OneDrive/Documents/GitHub/Siya-Fund/Siya-Fund-feature-group-membership/frontend
    npm install
    npx expo start --web
+
+cd frontend
+npx expo run:android
