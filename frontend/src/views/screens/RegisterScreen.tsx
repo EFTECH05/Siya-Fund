@@ -1,10 +1,5 @@
 
-// ==========================================
-// IMPORTS
-// ==========================================
-
 import React, { useState } from "react";
-
 import {
   ActivityIndicator,
   Image,
@@ -17,23 +12,13 @@ import {
   TextInput,
   View,
 } from "react-native";
-
 import { router } from "expo-router";
 
 import { sendOTP } from "../../services/OtpService";
 import { setRegistrationData } from "../../services/RegistrationStore";
-
 import { styles } from "./RegisterScreen.styles";
 
-// ==========================================
-// REGISTER SCREEN
-// ==========================================
-
 export default function RegisterScreen() {
-  // ==========================================
-  // FORM STATE
-  // ==========================================
-
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -41,50 +26,23 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // ==========================================
-  // LOADING STATE
-  // ==========================================
-
   const [isLoading, setIsLoading] = useState(false);
-
-  // ==========================================
-  // ERROR MODAL STATE
-  // ==========================================
 
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorTitle, setErrorTitle] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // ==========================================
-  // SHOW ERROR MODAL
-  // ==========================================
-
-  const showError = (
-    title: string,
-    message: string,
-  ) => {
+  const showError = (title: string, message: string) => {
     setErrorTitle(title);
     setErrorMessage(message);
     setShowErrorModal(true);
   };
 
-  // ==========================================
-  // REGISTER USER
-  // ==========================================
-
   const handleRegister = async () => {
-    // ========================================
-    // CLEAN USER INFORMATION
-    // ========================================
-
     const cleanFirstName = firstName.trim();
     const cleanLastName = lastName.trim();
     const cleanEmail = email.trim().toLowerCase();
     const cleanPhone = phone.trim();
-
-    // ========================================
-    // VALIDATION
-    // ========================================
 
     if (
       !cleanFirstName ||
@@ -96,65 +54,43 @@ export default function RegisterScreen() {
     ) {
       showError(
         "Missing Information",
-        "Please complete all the required fields before creating your account.",
+        "Please complete all the required fields before creating your account."
       );
       return;
     }
-
-    // ========================================
-    // EMAIL VALIDATION
-    // ========================================
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(cleanEmail)) {
-      showError(
-        "Invalid Email",
-        "Please enter a valid email address.",
-      );
+      showError("Invalid Email", "Please enter a valid email address.");
       return;
     }
-
-    // ========================================
-    // PASSWORD VALIDATION
-    // ========================================
 
     if (password.length < 6) {
       showError(
         "Password Too Short",
-        "Your password must contain at least 6 characters.",
+        "Your password must contain at least 6 characters."
       );
       return;
     }
-
-    // ========================================
-    // CONFIRM PASSWORD
-    // ========================================
 
     if (password !== confirmPassword) {
       showError(
         "Passwords Do Not Match",
-        "Please make sure both password fields contain the same password.",
+        "Please make sure both password fields contain the same password."
       );
       return;
     }
 
-    // ========================================
-    // SEND OTP
-    // ========================================
-
     try {
       setIsLoading(true);
 
-      console.log(
-        "Starting email verification for:",
-        cleanEmail,
-      );
+      setErrorTitle("");
+      setErrorMessage("");
 
-      // ========================================
-      // SAVE REGISTRATION INFORMATION
-      // ========================================
+      console.log("Starting registration for:", cleanEmail);
 
+      // Save registration details temporarily for the verification screen.
       setRegistrationData({
         firstName: cleanFirstName,
         lastName: cleanLastName,
@@ -163,135 +99,54 @@ export default function RegisterScreen() {
         password,
       });
 
-      console.log(
-        "Registration information saved temporarily.",
-      );
-      console.log(
-        "BYPASSING OTP: Skipping backend OTP request.",
-      );
+      // Actually request an OTP from the existing backend.
+      console.log("Sending registration OTP to:", cleanEmail);
 
-      // await sendOTP(cleanEmail);
+      await sendOTP(cleanEmail);
 
-      // ========================================
-      // GO TO LOGIN SCREEN (Bypass OTP)
-      // ========================================
+      console.log("Registration OTP sent successfully.");
 
-      router.replace("/login");
-
+      // Navigate only if the backend confirms the OTP request succeeded.
       router.replace("/verify-email");
-
     } catch (error: any) {
-      // ========================================
-      // IMPORTANT:
-      // TECHNICAL ERROR ONLY GOES TO CONSOLE
-      // ========================================
+      console.error("Registration OTP error:", error);
 
-      console.error(
-        "OTP sending error:",
-        error,
-      );
-
-      // ========================================
-      // DEFAULT FRIENDLY ERROR
-      // ========================================
-
-      let message =
-        "We could not send the verification code. Please try again.";
-
-      // ========================================
-      // NETWORK ERROR
-      // ========================================
+      const errorText = String(error?.message ?? "").toLowerCase();
 
       if (
-        error?.message?.includes(
-          "Network request failed",
-        ) ||
-        error?.message?.includes(
-          "network",
-        )
+        errorText.includes("network") ||
+        errorText.includes("fetch")
       ) {
-        message =
-          "Please check your internet connection and try again.";
-      }
-
-      // ========================================
-      // OTP FAILED
-      // ========================================
-
-      else if (
-        error?.message?.includes(
-          "Failed to send OTP",
-        )
-      ) {
-        message =
-          "We could not send the verification code. Please try again.";
-      }
-
-      // ========================================
-      // UNKNOWN ERROR
-      // ========================================
-
-      else {
-        console.error(
-          "Unhandled registration error:",
-          error,
+        showError(
+          "Connection Error",
+          "Please check your internet connection and try again."
         );
-
-        message =
-          "We could not create your account right now. Please try again.";
+      } else {
+        showError(
+          "Unable to Send OTP",
+          error?.message ||
+            "We could not send the verification code. Please try again."
+        );
       }
-
-      // ========================================
-      // SHOW ONLY FRIENDLY ERROR
-      // ========================================
-
-      showError(
-        "Unable to Send OTP",
-        message,
-      );
-
     } finally {
-      // ========================================
-      // STOP LOADING
-      // ========================================
-
       setIsLoading(false);
     }
   };
-
-  // ==========================================
-  // LOGIN BUTTON FROM ERROR MODAL
-  // ==========================================
 
   const handleLoginFromModal = () => {
     setShowErrorModal(false);
     router.push("/login");
   };
 
-  // ==========================================
-  // BACK TO LOGIN
-  // ==========================================
-
   const handleBackToLogin = () => {
-    if (isLoading) {
-      return;
-    }
-
+    if (isLoading) return;
     router.push("/login");
   };
-
-  // ==========================================
-  // SCREEN
-  // ==========================================
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={
-        Platform.OS === "ios"
-          ? "padding"
-          : undefined
-      }
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -299,47 +154,23 @@ export default function RegisterScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.card}>
-
-          {/* ======================================
-              LOGO
-          ======================================= */}
-
           <View style={styles.logoContainer}>
             <Image
-              source={require(
-                "../../../assets/images/siya-logo.png"
-              )}
+              source={require("../../../assets/images/siya-logo.png")}
               style={styles.logo}
               resizeMode="contain"
             />
           </View>
 
-          {/* ======================================
-              TITLE
-          ======================================= */}
-
-          <Text style={styles.title}>
-            Create Account
-          </Text>
-
-          {/* ======================================
-              DESCRIPTION
-          ======================================= */}
+          <Text style={styles.title}>Create Account</Text>
 
           <Text style={styles.description}>
-            Join Siya-Fund and start saving together,
-            borrowing smarter, and growing together.
+            Join Siya-Fund and start saving together, borrowing smarter, and
+            growing together.
           </Text>
 
-          {/* ======================================
-              FIRST NAME
-          ======================================= */}
-
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>
-              First Name
-            </Text>
-
+            <Text style={styles.label}>First Name</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter your first name"
@@ -352,15 +183,8 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* ======================================
-              LAST NAME
-          ======================================= */}
-
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>
-              Last Name
-            </Text>
-
+            <Text style={styles.label}>Last Name</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter your last name"
@@ -373,15 +197,8 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* ======================================
-              EMAIL
-          ======================================= */}
-
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>
-              Email Address
-            </Text>
-
+            <Text style={styles.label}>Email Address</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter your email"
@@ -395,15 +212,8 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* ======================================
-              PHONE
-          ======================================= */}
-
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>
-              Phone Number
-            </Text>
-
+            <Text style={styles.label}>Phone Number</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter your phone number"
@@ -415,15 +225,8 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* ======================================
-              PASSWORD
-          ======================================= */}
-
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>
-              Password
-            </Text>
-
+            <Text style={styles.label}>Password</Text>
             <TextInput
               style={styles.input}
               placeholder="Create a password"
@@ -437,15 +240,8 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* ======================================
-              CONFIRM PASSWORD
-          ======================================= */}
-
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>
-              Confirm Password
-            </Text>
-
+            <Text style={styles.label}>Confirm Password</Text>
             <TextInput
               style={styles.input}
               placeholder="Confirm your password"
@@ -459,10 +255,6 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* ======================================
-              REGISTER BUTTON
-          ======================================= */}
-
           <Pressable
             style={({ pressed }) => [
               styles.registerButton,
@@ -473,150 +265,64 @@ export default function RegisterScreen() {
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator
-                size="small"
-                color="#FFFFFF"
-              />
+              <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <Text style={styles.registerButtonText}>
-                CREATE ACCOUNT
-              </Text>
+              <Text style={styles.registerButtonText}>CREATE ACCOUNT</Text>
             )}
           </Pressable>
 
-          {/* ======================================
-              LOGIN LINK
-          ======================================= */}
-
           <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>
-              Already have an account?
-            </Text>
-
-            <Pressable
-              onPress={handleBackToLogin}
-              disabled={isLoading}
-            >
-              <Text style={styles.loginLink}>
-                Login
-              </Text>
+            <Text style={styles.loginText}>Already have an account?</Text>
+            <Pressable onPress={handleBackToLogin} disabled={isLoading}>
+              <Text style={styles.loginLink}>Login</Text>
             </Pressable>
           </View>
-
-          {/* ======================================
-              FOOTER
-          ======================================= */}
 
           <Text style={styles.footerText}>
             Save Together • Borrow Smarter • Grow Together
           </Text>
-
         </View>
       </ScrollView>
-
-      {/* ==========================================
-          ERROR MODAL
-      ========================================== */}
 
       <Modal
         visible={showErrorModal}
         transparent
         animationType="fade"
-        onRequestClose={() =>
-          setShowErrorModal(false)
-        }
+        onRequestClose={() => setShowErrorModal(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.errorModal}>
-
-            {/* ======================================
-                ERROR ICON
-            ======================================= */}
-
-            <View
-              style={styles.errorIconContainer}
-            >
-              <Text style={styles.errorIcon}>
-                !
-              </Text>
+            <View style={styles.errorIconContainer}>
+              <Text style={styles.errorIcon}>!</Text>
             </View>
 
-            {/* ======================================
-                TITLE
-            ======================================= */}
+            <Text style={styles.errorModalTitle}>{errorTitle}</Text>
+            <Text style={styles.errorModalMessage}>{errorMessage}</Text>
 
-            <Text
-              style={styles.errorModalTitle}
-            >
-              {errorTitle}
-            </Text>
-
-            {/* ======================================
-                MESSAGE
-            ======================================= */}
-
-            <Text
-              style={styles.errorModalMessage}
-            >
-              {errorMessage}
-            </Text>
-
-            {/* ======================================
-                BUTTONS
-            ======================================= */}
-
-            <View
-              style={styles.modalButtonContainer}
-            >
-
-              {/* LOGIN NOW BUTTON */}
-
-              {errorTitle ===
-                "Email Already Registered" && (
+            <View style={styles.modalButtonContainer}>
+              {errorTitle === "Email Already Registered" && (
                 <Pressable
                   style={({ pressed }) => [
                     styles.modalPrimaryButton,
-                    pressed &&
-                      styles.modalButtonPressed,
+                    pressed && styles.modalButtonPressed,
                   ]}
-                  onPress={
-                    handleLoginFromModal
-                  }
+                  onPress={handleLoginFromModal}
                 >
-                  <Text
-                    style={
-                      styles.modalPrimaryButtonText
-                    }
-                  >
-                    LOGIN NOW
-                  </Text>
+                  <Text style={styles.modalPrimaryButtonText}>LOGIN NOW</Text>
                 </Pressable>
               )}
-
-              {/* CANCEL / OK BUTTON */}
 
               <Pressable
                 style={({ pressed }) => [
                   styles.modalSecondaryButton,
-                  pressed &&
-                    styles.modalButtonPressed,
+                  pressed && styles.modalButtonPressed,
                 ]}
-                onPress={() =>
-                  setShowErrorModal(false)
-                }
+                onPress={() => setShowErrorModal(false)}
               >
-                <Text
-                  style={
-                    styles.modalSecondaryButtonText
-                  }
-                >
-                  {errorTitle ===
-                  "Email Already Registered"
-                    ? "CANCEL"
-                    : "OK"}
+                <Text style={styles.modalSecondaryButtonText}>
+                  {errorTitle === "Email Already Registered" ? "CANCEL" : "OK"}
                 </Text>
               </Pressable>
-
             </View>
           </View>
         </View>
@@ -624,4 +330,3 @@ export default function RegisterScreen() {
     </KeyboardAvoidingView>
   );
 }
-
