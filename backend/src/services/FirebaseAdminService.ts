@@ -1,3 +1,4 @@
+
 // ==========================================
 // FIREBASE ADMIN SERVICE
 // ==========================================
@@ -20,6 +21,10 @@ import {
   getAuth,
 } from "firebase-admin/auth";
 
+import {
+  getFirestore,
+} from "firebase-admin/firestore";
+
 // ==========================================
 // INITIALIZE FIREBASE ADMIN
 // ==========================================
@@ -38,6 +43,13 @@ const firebaseAdminApp =
 
 export const adminAuth =
   getAuth(firebaseAdminApp);
+
+// ==========================================
+// FIRESTORE DATABASE
+// ==========================================
+
+export const adminDb =
+  getFirestore(firebaseAdminApp);
 
 // ==========================================
 // EXPORT APP
