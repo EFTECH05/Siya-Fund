@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 
 import {
@@ -58,12 +59,10 @@ export default function SuperAdminScreen() {
   // ==========================================
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadDashboard = async () => {
       try {
-        // --------------------------------------
-        // Check current Firebase user
-        // --------------------------------------
-
         const user = getCurrentUser();
 
         if (!user) {
@@ -71,47 +70,44 @@ export default function SuperAdminScreen() {
           return;
         }
 
-        // --------------------------------------
-        // Check Firebase custom role
-        // --------------------------------------
-
         const role = await getUserRole();
+
+        if (!isMounted) return;
 
         if (role !== "super_admin") {
           router.replace("/dashboard");
           return;
         }
 
-        // --------------------------------------
-        // User is authorized
-        // --------------------------------------
-
         setIsAuthorized(true);
-
-        // --------------------------------------
-        // Load dashboard statistics
-        // --------------------------------------
 
         const dashboardStats =
           await SuperAdminController.getDashboardStats();
 
+        if (!isMounted) return;
+
         setStats(dashboardStats);
       } catch (error) {
-        // Keep technical error in developer console.
-        // Never display the technical error to the user.
-
         console.error(
           "Failed to load Super Admin dashboard:",
-          error,
+          error
         );
 
-        router.replace("/dashboard");
+        if (isMounted) {
+          router.replace("/dashboard");
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadDashboard();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // ==========================================
@@ -126,27 +122,22 @@ export default function SuperAdminScreen() {
 
       router.replace("/login");
     } catch (error) {
-      // Keep technical error in developer console.
-
-      console.error(
-        "Logout failed:",
-        error,
-      );
+      console.error("Logout failed:", error);
 
       setIsLoggingOut(false);
     }
   };
 
   // ==========================================
-  // MANAGEMENT ACTIONS
+  // MANAGEMENT NAVIGATION
   // ==========================================
 
   const handleUsers = () => {
-    SuperAdminController.manageUsers();
+    router.push("/super-admin/users");
   };
 
   const handleGroups = () => {
-    SuperAdminController.manageGroups();
+    router.push("/super-admin/groups");
   };
 
   const handleContributions = () => {
@@ -207,9 +198,7 @@ export default function SuperAdminScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ======================================
-            HEADER
-        ======================================= */}
+        {/* HEADER */}
 
         <View style={styles.header}>
           <View style={styles.headerTextContainer}>
@@ -225,8 +214,6 @@ export default function SuperAdminScreen() {
               Welcome back, {displayName}.
             </Text>
           </View>
-
-          {/* Logout */}
 
           <Pressable
             style={({ pressed }) => [
@@ -249,9 +236,7 @@ export default function SuperAdminScreen() {
           </Pressable>
         </View>
 
-        {/* ======================================
-            OVERVIEW
-        ======================================= */}
+        {/* PLATFORM OVERVIEW */}
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
@@ -263,18 +248,14 @@ export default function SuperAdminScreen() {
           </Text>
         </View>
 
-        {/* ======================================
-            STATISTICS
-        ======================================= */}
+        {/* STATISTICS */}
 
         <View style={styles.statsGrid}>
           {/* USERS */}
 
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
-              <Text style={styles.statIcon}>
-                👤
-              </Text>
+              <Text style={styles.statIcon}>👤</Text>
             </View>
 
             <Text style={styles.statValue}>
@@ -290,9 +271,7 @@ export default function SuperAdminScreen() {
 
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
-              <Text style={styles.statIcon}>
-                👥
-              </Text>
+              <Text style={styles.statIcon}>👥</Text>
             </View>
 
             <Text style={styles.statValue}>
@@ -308,9 +287,7 @@ export default function SuperAdminScreen() {
 
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
-              <Text style={styles.statIcon}>
-                💰
-              </Text>
+              <Text style={styles.statIcon}>💰</Text>
             </View>
 
             <Text style={styles.statValue}>
@@ -326,9 +303,7 @@ export default function SuperAdminScreen() {
 
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
-              <Text style={styles.statIcon}>
-                💳
-              </Text>
+              <Text style={styles.statIcon}>💳</Text>
             </View>
 
             <Text style={styles.statValue}>
@@ -344,9 +319,7 @@ export default function SuperAdminScreen() {
 
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
-              <Text style={styles.statIcon}>
-                🔄
-              </Text>
+              <Text style={styles.statIcon}>🔄</Text>
             </View>
 
             <Text style={styles.statValue}>
@@ -359,9 +332,7 @@ export default function SuperAdminScreen() {
           </View>
         </View>
 
-        {/* ======================================
-            MANAGEMENT
-        ======================================= */}
+        {/* MANAGEMENT */}
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
@@ -373,12 +344,10 @@ export default function SuperAdminScreen() {
           </Text>
         </View>
 
-        {/* ======================================
-            MANAGEMENT CARDS
-        ======================================= */}
+        {/* MANAGEMENT CARDS */}
 
         <View style={styles.managementContainer}>
-          {/* USERS */}
+          {/* USER MANAGEMENT */}
 
           <Pressable
             style={({ pressed }) => [
@@ -403,12 +372,10 @@ export default function SuperAdminScreen() {
               </Text>
             </View>
 
-            <Text style={styles.arrow}>
-              ›
-            </Text>
+            <Text style={styles.arrow}>›</Text>
           </Pressable>
 
-          {/* GROUPS */}
+          {/* GROUP MANAGEMENT */}
 
           <Pressable
             style={({ pressed }) => [
@@ -433,12 +400,10 @@ export default function SuperAdminScreen() {
               </Text>
             </View>
 
-            <Text style={styles.arrow}>
-              ›
-            </Text>
+            <Text style={styles.arrow}>›</Text>
           </Pressable>
 
-          {/* CONTRIBUTIONS */}
+          {/* CONTRIBUTION MANAGEMENT */}
 
           <Pressable
             style={({ pressed }) => [
@@ -463,12 +428,10 @@ export default function SuperAdminScreen() {
               </Text>
             </View>
 
-            <Text style={styles.arrow}>
-              ›
-            </Text>
+            <Text style={styles.arrow}>›</Text>
           </Pressable>
 
-          {/* LOANS */}
+          {/* LOAN MANAGEMENT */}
 
           <Pressable
             style={({ pressed }) => [
@@ -493,12 +456,10 @@ export default function SuperAdminScreen() {
               </Text>
             </View>
 
-            <Text style={styles.arrow}>
-              ›
-            </Text>
+            <Text style={styles.arrow}>›</Text>
           </Pressable>
 
-          {/* TRANSACTIONS */}
+          {/* TRANSACTION MANAGEMENT */}
 
           <Pressable
             style={({ pressed }) => [
@@ -523,15 +484,11 @@ export default function SuperAdminScreen() {
               </Text>
             </View>
 
-            <Text style={styles.arrow}>
-              ›
-            </Text>
+            <Text style={styles.arrow}>›</Text>
           </Pressable>
         </View>
 
-        {/* ======================================
-            ADMIN FOOTER
-        ======================================= */}
+        {/* FOOTER */}
 
         <View style={styles.footer}>
           <Text style={styles.footerTitle}>
