@@ -12,7 +12,10 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-import { getContributions } from "../../services/ContributionService";
+import {
+  getContributions,
+  subscribeToContributions,
+} from "../../services/ContributionService";
 import type { Contribution } from "../../models/Contribution";
 
 const C = {
@@ -87,9 +90,36 @@ export default function ContributionsRoute() {
     }
   }, []);
 
+  // Subscribe to Firestore for real-time contribution updates.
   useEffect(() => {
-    void loadContributions();
-  }, [loadContributions]);
+    let unsubscribe: (() => void) | undefined;
+
+    try {
+      unsubscribe = subscribeToContributions(
+        (contributions) => {
+          setItems(contributions);
+          setLoading(false);
+          setError("");
+        },
+        (err) => {
+          setError(err.message);
+          setLoading(false);
+        },
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to monitor your contributions.",
+      );
+      setLoading(false);
+    }
+
+    // Stop listening when the screen unmounts.
+    return () => {
+      unsubscribe?.();
+    };
+  }, []);
 
   const total = items.reduce(
     (sum, item) =>

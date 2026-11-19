@@ -3,6 +3,7 @@ import {
   collection,
   doc,
   getDocs,
+  onSnapshot,
   query,
   serverTimestamp,
   where,
@@ -137,6 +138,7 @@ export async function getContributions(): Promise<Contribution[]> {
   return contributions.sort((a, b) => {
     const getTime = (value: Contribution["createdAt"]) => {
       if (!value) return 0;
+
       return value instanceof Date
         ? value.getTime()
         : value.toMillis();
@@ -144,4 +146,43 @@ export async function getContributions(): Promise<Contribution[]> {
 
     return getTime(b.createdAt) - getTime(a.createdAt);
   });
+}
+
+// Real-time listener for the signed-in user's contributions.
+export function subscribeToContributions(
+  onUpdate: (contributions: Contribution[]) => void,
+  onError?: (error: Error) => void,
+): () => void {
+  const userId = getUserId();
+
+  const contributionsQuery = query(
+    collection(db, CONTRIBUTIONS_COLLECTION),
+    where("userId", "==", userId),
+  );
+
+  return onSnapshot(
+    contributionsQuery,
+    (snapshot) => {
+      const contributions = snapshot.docs.map((item) =>
+        toContribution(item.id, item.data()),
+      );
+
+      contributions.sort((a, b) => {
+        const getTime = (value: Contribution["createdAt"]) => {
+          if (!value) return 0;
+
+          return value instanceof Date
+            ? value.getTime()
+            : value.toMillis();
+        };
+
+        return getTime(b.createdAt) - getTime(a.createdAt);
+      });
+
+      onUpdate(contributions);
+    },
+    (error) => {
+      onError?.(error);
+    },
+  );
 }
