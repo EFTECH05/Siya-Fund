@@ -47,7 +47,7 @@ export const SuperAdminController = {
   },
 
   manageLoans() {
-    console.log("Loan management is not connected yet.");
+    router.push("/super-admin/loans");
   },
 
   manageTransactions() {
