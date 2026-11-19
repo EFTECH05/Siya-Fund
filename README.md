@@ -416,3 +416,33 @@ The project provides practical experience in:
 
 Developed collaboratively as part of **Work Integrated Learning 3 (WIL 3)**.
 
+Yes! I remember. You were using ngrok to expose your local Siya Fund backend so that other team members could access it over the internet.
+
+We configured it using two terminals.
+1. Terminal 1 – Start your backend
+cd Siya-Fund
+npm run dev
+
+
+Your backend was running at:
+http://localhost:5000
+cd backend
+npm run dev
+
+2. Terminal 2 – Activate ngrok
+ngrok http 5000
+
+
+Ngrok generated a public URL similar to:
+https://viscosity-resident-strategy.ngrok-free.dev
+
+
+We used that URL in your OtpService.ts for:
+- /api/otp/send
+- /api/otp/verify
+3. Your team members
+They could clone your GitHub repository and run:
+cd Siya-Fund
+cd frontend
+npm install
+npx expo start --clear
