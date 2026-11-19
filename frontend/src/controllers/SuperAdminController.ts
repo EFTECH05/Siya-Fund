@@ -51,6 +51,8 @@ export const SuperAdminController = {
   },
 
   manageTransactions() {
-    console.log("Transaction management is not connected yet.");
+    router.push({
+      pathname: "/super-admin/transactions",
+    });
   },
 };
