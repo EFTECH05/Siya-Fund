@@ -7,7 +7,7 @@ The project focuses on digitising stokvel management, improving the organisation
 **Project status:** In Development  
 **Project type:** Work Integrated Learning 3 (WIL 3)  
 **Repository:** [EFTECH05/Siya-Fund](https://github.com/EFTECH05/Siya-Fund)  
-**Demo video — Tasks 1 & 2:** [Watch on YouTube](https://youtu.be/_7wb0Phdr5s)
+**Demo video — :** [Watch on YouTube] https://youtu.be/zcMS-LlRlCI?si=rFS6p76jrZJHTTsh )
 <img width="558" height="362" alt="image" src="https://github.com/user-attachments/assets/8f7e12e2-61bf-4123-a677-6d5e850cf646" />
 
 ---
@@ -387,9 +387,8 @@ These responsibilities provide practical experience across UI/UX design, applica
 
 ## Demo Video
 
-Watch the demonstration of Siya-Fund covering Tasks 1 and 2.
-
-[**▶ Watch the Siya-Fund Demo on YouTube**](https://youtu.be/_7wb0Phdr5s)
+Watch the demonstration of Siya-Fund covering Tasks 
+https://youtu.be/zcMS-LlRlCI?si=rFS6p76jrZJHTTsh
 
 ---
 
